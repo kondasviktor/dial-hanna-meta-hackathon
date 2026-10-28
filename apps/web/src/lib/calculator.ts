@@ -15,7 +15,7 @@ export interface CalcResult {
 }
 
 export function calculate(input: CalcInput, planHuf = 34900): CalcResult {
-  const jobs = (input.missedPerWeek * 4 * input.payingSharePct) / 100;
+  const jobs = (input.missedPerWeek * 4.3 * input.payingSharePct) / 100;
   const revenue = Math.round(jobs * input.avgJobHuf);
   return {
     jobsPerMonth: Math.round(jobs * 10) / 10,

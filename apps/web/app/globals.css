@@ -1,0 +1,30 @@
+:root {
+  --ground: #f2f3ef;
+  --ink: #0c1c20;
+  --panel: #0e2a30;
+  --panel-2: #163a42;
+  --amber: #ffb62e;
+  --green: #3ddc97;
+  --muted: #3e5157;
+  --line: #d8ddd6;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: var(--ground);
+  color: var(--ink);
+  font-family: "Bricolage Grotesque", system-ui, sans-serif;
+  line-height: 1.6;
+}
+
+.mono {
+  font-family: "JetBrains Mono", ui-monospace, monospace;
+}
+
+a {
+  color: inherit;
+}

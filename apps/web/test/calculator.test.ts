@@ -4,8 +4,8 @@ import { calculate, formatHuf } from "../src/lib/calculator.ts";
 
 test("calculator scales linearly", () => {
   const r = calculate({ avgJobHuf: 15000, missedPerWeek: 5, payingSharePct: 20 });
-  assert.equal(r.jobsPerMonth, 4);
-  assert.equal(r.extraRevenueHuf, 60000);
+  assert.equal(r.jobsPerMonth, 4.3);
+  assert.equal(r.extraRevenueHuf, 64500);
   assert.equal(r.jobsToCoverPlan, 3); // ceil(34900/15000)
 });
 
