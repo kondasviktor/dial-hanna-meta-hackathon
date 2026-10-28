@@ -1,0 +1,38 @@
+{
+  "tenant": "demo-auto-01",
+  "note": "FICTIONAL demo tenant (synthetic data only). Template: auto_service. Second in priority order (salon → auto → trades).",
+  "business": {
+    "name": "Kovács Autószerviz",
+    "address": "1106 Budapest, Fehér út 10.",
+    "phone": "+3618765432",
+    "website": "https://kovacs-autoszerviz.example.hu",
+    "hours": [
+      {"weekday": 1, "open": "08:00", "close": "17:00"},
+      {"weekday": 2, "open": "08:00", "close": "17:00"},
+      {"weekday": 3, "open": "08:00", "close": "17:00"},
+      {"weekday": 4, "open": "08:00", "close": "17:00"},
+      {"weekday": 5, "open": "08:00", "close": "16:00"}
+    ],
+    "holidays_note": "Hétvégén és ünnepnapokon zárva. Sürgős esetben üzenetrögzítő.",
+    "services": [
+      {"id": "olajcsere", "name": "Olajcsere", "duration_min": 45, "price_huf_from": 25000, "price_text": "25 000 forinttól", "notes": "anyagköltséggel együtt"},
+      {"id": "muszaki_vizsga", "name": "Műszaki vizsgára felkészítés", "duration_min": 120, "price_huf_from": 35000, "price_text": "35 000 forinttól", "notes": "vizsgadíj nélkül"},
+      {"id": "gumicsere", "name": "Gumicsere (4 db)", "duration_min": 30, "price_huf_from": 12000, "price_text": "12 000 forinttól", "notes": "centrírozással"},
+      {"id": "diagnosztika", "name": "Hibadiagnosztika", "duration_min": 60, "price_huf_from": 15000, "price_text": "15 000 forinttól", "notes": ""}
+    ],
+    "staff": [{"name": "Kovács Béla", "role": "tulajdonos, autószerelő mester"}],
+    "policies": {
+      "cancellation": "Lemondás legalább 24 órával előtte telefonon.",
+      "payment": "Készpénz, bankkártya és átutalás.",
+      "parking": "Az udvarban ingyenes parkolás az ügyfeleknek.",
+      "accessibility": ""
+    }
+  },
+  "faqs": [
+    {"q_hu": "Mennyi ideig tart a műszaki vizsgára felkészítés?", "a_hu": "Általában 2 órát vesz igénybe, a vizsgadíjat nem tartalmazza.", "q_en": "How long does the inspection prep take?", "a_en": "Usually 2 hours, inspection fee not included."},
+    {"q_hu": "Hozhatom a saját alkatrészemet?", "a_hu": "Igen, hozott alkatrészt is beszerelünk, arra garanciát nem vállalunk.", "q_en": "Can I bring my own parts?", "a_en": "Yes, we fit customer-supplied parts without warranty on them."}
+  ],
+  "playbooks": ["faq", "booking", "quote_lead", "message_callback", "after_hours", "wrong_number_spam"],
+  "rules": {"bookingAllowed": true, "transferAllowed": true, "transferTarget": "+36309876543", "blocklist": ["jogi tanács"]},
+  "keywords": ["Kovács Autószerviz", "Kovács Béla", "Fehér út", "műszaki vizsga", "olajcsere"]
+}

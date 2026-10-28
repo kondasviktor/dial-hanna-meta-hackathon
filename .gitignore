@@ -1,0 +1,32 @@
+# Secrets — never commit
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+
+# Private spec / strategy — gitignored per Master Spec §13.2
+docs/private/
+
+# Deps / build
+node_modules/
+.next/
+dist/
+build/
+__pycache__/
+*.pyc
+.venv/
+venv/
+
+# Tooling
+.vercel
+.gitleaks/
+coverage/
+*.log
+.DS_Store
+
+# Local gate material (recorded audio, results with PII)
+scripts/gates/clips/
+scripts/gates/results_local/
+.neon
+.vercel

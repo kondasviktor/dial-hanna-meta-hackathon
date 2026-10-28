@@ -1,0 +1,39 @@
+{
+  "tenant": "demo-salon-01",
+  "note": "FICTIONAL demo tenant (synthetic data only). Template: salon.",
+  "business": {
+    "name": "Rózsa Szépségszalon",
+    "address": "1072 Budapest, Rákóczi út 12.",
+    "phone": "+3612345678",
+    "website": "https://rozsa-szepseg.example.hu",
+    "hours": [
+      {"weekday": 1, "open": "09:00", "close": "18:00"},
+      {"weekday": 2, "open": "09:00", "close": "18:00"},
+      {"weekday": 3, "open": "09:00", "close": "18:00"},
+      {"weekday": 4, "open": "09:00", "close": "18:00"},
+      {"weekday": 5, "open": "09:00", "close": "18:00"},
+      {"weekday": 6, "open": "09:00", "close": "13:00"}
+    ],
+    "holidays_note": "Vasárnap és ünnepnapokon zárva.",
+    "services": [
+      {"id": "noi_hajvagas", "name": "Női hajvágás", "duration_min": 45, "price_huf_from": 12500, "price_text": "12 500 forinttól", "notes": ""},
+      {"id": "ferfi_hajvagas", "name": "Férfi hajvágás", "duration_min": 30, "price_huf_from": 6500, "price_text": "6 500 forinttól", "notes": ""},
+      {"id": "gel_lakk", "name": "Gél lakk manikűr", "duration_min": 60, "price_huf_from": 9500, "price_text": "9 500 forinttól", "notes": ""},
+      {"id": "gyerek_hajvagas", "name": "Gyerekhajvágás", "duration_min": 30, "price_huf_from": 5500, "price_text": "5 500 forinttól", "notes": "12 éves korig"}
+    ],
+    "staff": [{"name": "Rózsa Anna", "role": "tulajdonos, mesterfodrász"}],
+    "policies": {
+      "cancellation": "Lemondás legalább 24 órával az időpont előtt.",
+      "payment": "Készpénz és bankkártya.",
+      "parking": "A Blaha Lujza téri parkolóház 2 perc sétára van.",
+      "accessibility": ""
+    }
+  },
+  "faqs": [
+    {"q_hu": "Hol lehet parkolni?", "a_hu": "A Blaha Lujza téri parkolóház 2 perc sétára van a szalontól.", "q_en": "Where can I park?", "a_en": "The Blaha Lujza tér parking garage is a 2-minute walk from the salon."},
+    {"q_hu": "Kutyával be lehet menni?", "a_hu": "Sajnos háziállatot nem tudunk fogadni a szalonban.", "q_en": "Can I bring my dog?", "a_en": "Unfortunately we cannot admit pets in the salon."}
+  ],
+  "playbooks": ["faq", "booking", "message_callback", "quote_lead", "after_hours", "wrong_number_spam"],
+  "rules": {"bookingAllowed": true, "transferAllowed": false, "blocklist": ["orvosi tanács", "jogi tanács"]},
+  "keywords": ["Rózsa Szépségszalon", "Rózsa Anna", "Rákóczi út", "Blaha Lujza tér", "gél lakk"]
+}
