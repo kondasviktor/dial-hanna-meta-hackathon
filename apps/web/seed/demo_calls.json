@@ -1,0 +1,81 @@
+{
+  "calls": [
+    {
+      "tenant": "demo-salon-01",
+      "channel": "browser",
+      "from": "+36301234567",
+      "language": "hu",
+      "startedAgoMin": 35,
+      "durationS": 148,
+      "transcript": [
+        {"speaker": "agent", "text": "Jó napot kívánok, a Rózsa Szépségszalon vonalán Hanna beszél, a vállalkozás mesterséges intelligencia alapú asszisztense. Miben segíthetek?"},
+        {"speaker": "caller", "text": "Jó napot, péntek délutánra szeretnék női hajvágásra időpontot."},
+        {"speaker": "agent", "text": "Egy pillanat, megnézem a szabad helyeket."},
+        {"speaker": "caller", "text": "Kovács Anna vagyok, a számom nulla hat harminc per százhuszonhárom per negyvenöt hatvanhét."},
+        {"speaker": "agent", "text": "Kovács Anna, péntek délután fél háromra, női hajvágásra jegyeztem. Jól értettem?"}
+      ],
+      "outcome": {
+        "intent": "book", "outcome": "booked",
+        "next_action": {"type": "confirm_booking", "due_by": null, "summary_hu": "Pénteki foglalás visszaigazolása", "summary_en": "Confirm Friday booking"},
+        "sentiment": "positive", "confidence": 0.92
+      },
+      "booking": {"service_id": "noi_hajvagas", "slot_start": "2026-10-30T14:30", "slot_end": "2026-10-30T15:15", "caller_name": "Kovács Anna", "caller_phone": "+36301234567"}
+    },
+    {
+      "tenant": "demo-salon-01",
+      "channel": "phone",
+      "from": "+36209876543",
+      "language": "hu",
+      "startedAgoMin": 190,
+      "durationS": 96,
+      "transcript": [
+        {"speaker": "agent", "text": "Jó napot kívánok, a Rózsa Szépségszalon vonalán Hanna beszél, a vállalkozás mesterséges intelligencia alapú asszisztense. Miben segíthetek?"},
+        {"speaker": "caller", "text": "Van nálatok parkolási lehetőség? Kocsival mennék."},
+        {"speaker": "agent", "text": "Jó kérdés, ennek utánajárok, és visszahívjuk. Megadná a nevét és a számát?"}
+      ],
+      "outcome": {
+        "intent": "location_question", "outcome": "knowledge_gap",
+        "next_action": {"type": "approve_faq", "due_by": null, "summary_hu": "Parkolás kérdés megválaszolása", "summary_en": "Answer parking question"},
+        "sentiment": "neutral", "confidence": 0.85
+      },
+      "gap": {"question": "Van parkolási lehetőség a szalon közelében?", "context": "Kocsival érkező hívó, péntek délután"}
+    },
+    {
+      "tenant": "demo-salon-01",
+      "channel": "phone",
+      "from": "unknown",
+      "language": "en",
+      "startedAgoMin": 420,
+      "durationS": 64,
+      "transcript": [
+        {"speaker": "agent", "text": "Hello, you've reached Rózsa Szépségszalon. This is Hanna, the business's AI assistant. How can I help?"},
+        {"speaker": "caller", "text": "Hi, what are your opening hours on Saturday?"},
+        {"speaker": "agent", "text": "On Saturdays we are open from 9 to 1."}
+      ],
+      "outcome": {
+        "intent": "hours_question", "outcome": "answered",
+        "next_action": {"type": "none", "due_by": null, "summary_hu": "Nincs teendő", "summary_en": "No action needed"},
+        "sentiment": "positive", "confidence": 0.95
+      }
+    },
+    {
+      "tenant": "demo-auto-01",
+      "channel": "browser",
+      "from": "+36701112233",
+      "language": "hu",
+      "startedAgoMin": 90,
+      "durationS": 175,
+      "transcript": [
+        {"speaker": "agent", "text": "Jó napot kívánok, a Kovács Autószerviz vonalán Hanna beszél, a vállalkozás mesterséges intelligencia alapú asszisztense. Miben segíthetek?"},
+        {"speaker": "caller", "text": "Olajcserére szeretnék jönni a jövő héten, Nagy Péter vagyok."},
+        {"speaker": "agent", "text": "Egy pillanat, megnézem a szabad helyeket."},
+        {"speaker": "caller", "text": "A telefonszámom nulla hat hetven per száz tizenegy per huszonkettő harminchárom."}
+      ],
+      "outcome": {
+        "intent": "book", "outcome": "message_taken",
+        "next_action": {"type": "call_back", "due_by": null, "summary_hu": "Nagy Péter olajcsere-igénye, időpontegyeztetés", "summary_en": "Call back Nagy Péter re oil change"},
+        "sentiment": "neutral", "confidence": 0.8
+      }
+    }
+  ]
+}
