@@ -347,7 +347,7 @@ h1, h2, h3 {
 .verdict.ok { font-weight: 600; }
 
 /* pricing */
-.toggles { display: flex; gap: 8px; margin: 24px 0; align-items: center; flex-wrap: wrap; }
+.toggles { display: flex; gap: 8px; margin: 24px 0; align-items: center; justify-content: center; flex-wrap: wrap; }
 .toggle {
   background: transparent;
   color: var(--ink);
@@ -379,7 +379,7 @@ h1, h2, h3 {
   display: flex;
   flex-direction: column;
 }
-.plan-cta { margin-top: auto; padding-top: 20px; margin-bottom: 0; }
+.plan-cta { margin-top: auto; padding-top: 20px; margin-bottom: 0; text-align: center; }
 .plan.featured { background: var(--panel); color: #fff; border-color: var(--panel); }
 .plan.featured .muted { color: #a9c0c4 !important; }
 .plan-head { display: flex; align-items: center; gap: 12px; }
