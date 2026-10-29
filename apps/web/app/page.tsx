@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import Landing from "./landing";
-import { landing } from "@/i18n/landing.ts";
 
 export const metadata: Metadata = {
   title: "Dial Hanna — Ha nem érsz rá, Hanna felveszi",
@@ -9,5 +8,5 @@ export const metadata: Metadata = {
 };
 
 export default function Home() {
-  return <Landing d={landing.hu} lang="hu" />;
+  return <Landing lang="hu" />;
 }

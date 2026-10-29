@@ -4,6 +4,7 @@ import { useState } from "react";
 import { calculate, formatHuf } from "@/lib/calculator.ts";
 import {
   TRIAL_LINK,
+  landing,
   scenarios,
   type LandingDict,
   type Lang,
@@ -455,7 +456,10 @@ function Footer({ d }: { d: LandingDict }) {
   );
 }
 
-export default function Landing({ d, lang }: { d: LandingDict; lang: Lang }) {
+export default function Landing({ lang }: { lang: Lang }) {
+  // Resolve dict inside the client boundary — LandingDict embeds helpers
+  // (callsUnit, verdictOk, …) that cannot cross the RSC → client prop bridge.
+  const d = landing[lang];
   return (
     <div className="landing">
       <Hero d={d} lang={lang} />
