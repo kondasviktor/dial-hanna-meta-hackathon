@@ -158,3 +158,12 @@ export const usageLedger = pgTable("usage_ledger", {
   unitType: text("unit_type"),
   costUsd: text("cost_usd"),
 });
+
+/** Public waitlist — no account, no trial, until Stripe opens after the hackathon. */
+export const waitlist = pgTable("waitlist", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  email: text("email").notNull().unique(),
+  locale: text("locale").notNull().default("hu"), // hu | en
+  planInterest: text("plan_interest"), // essential | pro | business | null
+  createdAt: timestamp("created_at").defaultNow(),
+});

@@ -1,8 +1,7 @@
 import Link from "next/link";
+import { redirect } from "next/navigation";
 import { getDashboard } from "@/db/queries.ts";
-
-// Demo org until real Clerk organizations are wired to tenants.
-const DEMO_ORG = "demo_demo-salon-01";
+import { requireAdmin, resolveOrgId } from "@/lib/org.ts";
 
 function withinDays(iso: string | null, days: number): boolean {
   if (!iso) return false;
@@ -10,14 +9,19 @@ function withinDays(iso: string | null, days: number): boolean {
 }
 
 export default async function Dashboard() {
-  const d = await getDashboard(DEMO_ORG);
+  const admin = await requireAdmin();
+  if (!admin.ok) redirect("/waitlist");
+  const org = await resolveOrgId();
+  if (!org.clerkOrgId) redirect("/create-org");
+
+  const d = await getDashboard(org.clerkOrgId);
   if (!d) {
     return (
       <div>
         <h1 className="dash-title">Áttekintés</h1>
         <p className="muted">
-          Még nincs bekötött vállalkozás. Hozd létre a szervezetet, válassz
-          csomagot, és az első átirányított hívás itt jelenik meg.
+          Még nincs bekötött vállalkozás. Importáld a weboldalt vagy írj be
+          néhány kérdést és választ — az első átirányított hívás itt jelenik meg.
         </p>
         <p>
           <Link href="/onboarding" className="btn btn-primary btn-sm">
@@ -59,9 +63,9 @@ export default async function Dashboard() {
           <span className="kpi-label">Nyitott teendő</span>
         </div>
         <div className="kpi dark">
-          <span className="kpi-num">0 <span style={{ fontSize: 16 }}>/ 40</span></span>
+          <span className="kpi-num">{d.recent.length}</span>
           <span className="kpi-label">
-            AI-perc · próba{d.live ? ` · ${d.live.id} élő` : ""}
+            Hívások összesen{d.live ? ` · élő verzió` : ""}
           </span>
         </div>
       </div>
@@ -129,23 +133,15 @@ export default async function Dashboard() {
           </div>
 
           <div className="dash-card">
-            <h2>Perckeret</h2>
-            <p className="mono">
-              0 <span className="muted">/ 40 AI-perc</span>
-            </p>
-            <div className="minutes-bar" aria-hidden>
-              <div className="minutes-fill" style={{ width: "0%" }} />
-            </div>
-            <div className="minutes-marks">
-              <span>75%</span>
-              <span>90%</span>
-              <span>100%</span>
-            </div>
+            <h2>Beüzemelés</h2>
             <p className="muted small">
-              75, 90 és 100%-nál jelzünk. A keret végén te döntesz:
-              automatikus feltöltés, kisebb túlhasználat vagy leállás.
-              Extra 100 perc: 9 900 Ft.{" "}
-              <Link href="/dashboard/usage">Használat és csomag</Link>
+              Illeszd be a weboldaladat, vagy írj be kérdéseket kézzel. A
+              nyilvános próba és a Stripe a hackathon után jön.
+            </p>
+            <p>
+              <Link href="/onboarding" className="btn btn-outline btn-sm">
+                Tudás import / szerkesztés
+              </Link>
             </p>
           </div>
         </div>

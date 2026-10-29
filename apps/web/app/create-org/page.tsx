@@ -1,18 +1,21 @@
 import { CreateOrganization } from "@clerk/nextjs";
+import { redirect } from "next/navigation";
 import { Suspense } from "react";
+import { requireAdmin } from "@/lib/org.ts";
 
 export const dynamic = "force-dynamic";
 
-export default function CreateOrgPage() {
+export default async function CreateOrgPage() {
+  const admin = await requireAdmin();
+  if (!admin.ok) redirect("/waitlist");
   return (
     <div className="stub-wrap">
       <h1 className="dash-title">Hozd létre a vállalkozásod</h1>
       <p className="muted">
-        Minden előfizetés — egyéni vállalkozóké és magánszemélyeké is — egy
-        szervezethez tartozik. Egyedül is létrehozhatod, egy fővel.
+        Admin beüzemelés a hackathonhoz. A nyilvános regisztráció várólistás.
       </p>
       <Suspense>
-        <CreateOrganization afterCreateOrganizationUrl="/onboarding/plan" />
+        <CreateOrganization afterCreateOrganizationUrl="/onboarding" />
       </Suspense>
     </div>
   );

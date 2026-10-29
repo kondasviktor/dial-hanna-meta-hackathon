@@ -3,42 +3,59 @@
 AI call coverage for Hungarian small businesses. Built for the Meta Global AI
 Developer Hackathon (26 Oct – 4 Nov 2026).
 
-> **Status:** Day-0 scaffold. Product features land only after the Day 0–1
-> gates pass (see `scripts/gates/RESULTS.md`).
+> **Status:** Waitlist public funnel + admin Meta loop. Stripe, public trial, and
+> browser calling are deferred until after the hackathon. Repos and Vercel stay
+> private until an explicit submission flip.
 
-## Layout (Master Spec §6.2)
+## What runs today
+
+- HU/EN landing with **Join the waitlist** (no signup trial)
+- Clerk **admin-only** dashboard / onboarding (`ADMIN_EMAILS`)
+- Optional website import via **Muse Wonder** → FAQ review; or manual Q&A
+- Voice APIs: `/api/voice/session`, `/api/voice/tools/:name`,
+  `/api/voice/calls/:id/complete`, `/api/telnyx/webhook`
+- Phone page with MMI forwarding codes once `TELNYX_PHONE_NUMBER` is set
+- Knowledge-gap inbox → FAQ draft → versions + short text test suite
+
+## Layout
 
 ```text
-apps/web/         Next.js app (dashboard, onboarding, API, tool endpoints)
-services/voice/   Pipecat voice service (browser + Telnyx transports)
-schemas/          JSON Schemas shared by web (zod) and voice (pydantic)
-scripts/gates/    G1–G5 gate scripts + results (no real third-party audio)
-docs/             public docs: README assets, architecture.md, demo.md
-docs/private/     GITIGNORED: master spec, research, DEVIATIONS.md
+apps/web/         Next.js (landing, waitlist, dashboard, API)
+services/voice/   Voice helpers + pipeline text demo (Fly/Pipecat later)
+schemas/          Shared JSON Schemas
+scripts/gates/    G1–G5 gate scripts + RESULTS.md
+docs/             architecture.md, demo.md
+docs/private/     GITIGNORED master spec + DEVIATIONS
 ```
 
-## Meta models used (Spec §5)
+## Meta models used
 
 | Job | Model |
 |---|---|
-| Live conversation + tools | `muse-spark-1.3` (`reasoning_effort: "minimal"`, streaming) |
-| Live STT | `muse-voice-transcribe-1.0` realtime |
-| Recording / voice-note transcription | `muse-voice-transcribe-1.0` (file, diarization on) |
-| Profile extraction, test scenarios | `muse-wonder-1.0` (`reasoning_effort: "high"`) |
-| Simulated caller (synthetic only) | `muse-spark-1.3-contributor`, fallback `muse-spark-1.3` |
-| Test judge, post-call outcome, FAQ rewrite | `muse-spark-1.3` |
+| Live conversation + tools | `muse-spark-1.3` |
+| Live STT | `muse-voice-transcribe-1.0` (English demo) |
+| Website → profile / FAQs | `muse-wonder-1.0` |
+| Outcome, FAQ rewrite, judge | `muse-spark-1.3` |
+| Simulated caller | `muse-spark-1.3-contributor` |
 
 All calls go directly to `https://api.meta.ai/v1` with the hackathon key.
+TTS is ElevenLabs Flash (Meta has no TTS). No Retell during the hackathon.
 
-## Quickstart (gates)
+## Owner setup (before voice demos)
+
+1. Copy `.env.example` → `.env` and fill Meta, Neon, Clerk, `ADMIN_EMAILS`.
+2. Buy one cheap Telnyx DID (skip HU KYC) → `TELNYX_*` + `TELNYX_PHONE_NUMBER`.
+3. ElevenLabs free key + voice id → `ELEVENLABS_*` (do not enable their STT/Agents).
+4. Google Calendar OAuth in testing mode (optional for booking storage).
+5. Apply `apps/web/drizzle/0002_waitlist.sql` on Neon.
+6. Sign in once on the closed Vercel URL; confirm Clerk webhook created the org.
+7. Keep Vercel deployment protection on until submission day.
+
+## Quickstart
 
 ```bash
-cp .env.example .env   # fill in MODEL_API_KEY / META_API_KEY
-python3 scripts/gates/g5_meta_access.py
-python3 scripts/gates/g2_llm_hungarian.py
-python3 scripts/gates/g1_stt_accuracy.py --help
-python3 scripts/gates/g3_tts.py
+cp .env.example .env
+cd apps/web && npm install && npm test && npm run dev
 ```
 
-Gate results are recorded in `scripts/gates/RESULTS.md`.
-No product code is built until the gates pass (Spec §18).
+Gate scripts: see `scripts/gates/RESULTS.md`. Demo recording: `docs/demo.md`.

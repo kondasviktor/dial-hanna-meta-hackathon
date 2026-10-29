@@ -16,15 +16,25 @@ const NAV = [
   { href: "/dashboard/settings", label: "Beállítások", exact: false },
 ];
 
-export default function DashNav({ openGaps }: { openGaps: number | null }) {
+export default function DashNav({
+  openGaps,
+  orgName,
+  orgMeta,
+  liveLabel,
+}: {
+  openGaps: number | null;
+  orgName: string;
+  orgMeta: string;
+  liveLabel: string | null;
+}) {
   const pathname = usePathname();
   const [hannaOn, setHannaOn] = useState(true);
   return (
     <aside className="dash-side">
       <div className="dash-org">
-        <strong>Szalon Viola</strong>
-        <span>szépségszalon · demó</span>
-        <span className="dash-live">Élő · v7</span>
+        <strong>{orgName}</strong>
+        <span>{orgMeta}</span>
+        {liveLabel && <span className="dash-live">{liveLabel}</span>}
       </div>
       <nav aria-label="dashboard">
         {NAV.map((n) => {

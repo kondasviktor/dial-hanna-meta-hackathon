@@ -1,8 +1,8 @@
 "use client";
 
 import { usePathname } from "next/navigation";
-import { SignInButton, SignUpButton, UserButton, OrganizationSwitcher, SignedIn, SignedOut } from "@clerk/nextjs";
-import { landing } from "@/i18n/landing.ts";
+import { SignInButton, UserButton, OrganizationSwitcher, SignedIn, SignedOut } from "@clerk/nextjs";
+import { landing, waitlistHref } from "@/i18n/landing.ts";
 
 export default function Header() {
   const pathname = usePathname();
@@ -31,9 +31,9 @@ export default function Header() {
           <SignInButton mode="modal">
             <button className="btn btn-ghost btn-sm" type="button">{d.signin}</button>
           </SignInButton>
-          <SignUpButton mode="modal">
-            <button className="btn btn-primary btn-sm" type="button">{d.cta}</button>
-          </SignUpButton>
+          <a className="btn btn-primary btn-sm" href={waitlistHref(en ? "en" : "hu")}>
+            {d.cta}
+          </a>
         </SignedOut>
         <SignedIn>
           <a href="/dashboard" className="btn btn-ghost btn-sm">dashboard</a>

@@ -4,28 +4,59 @@ import { NextResponse } from "next/server";
 const isPublic = createRouteMatcher([
   "/",
   "/en",
+  "/waitlist(.*)",
+  "/privacy",
+  "/terms",
+  "/en/privacy",
+  "/en/terms",
   "/api/health",
   "/api/db-ping",
+  "/api/waitlist",
   "/api/webhooks/clerk",
+  "/api/voice(.*)",
+  "/api/telnyx(.*)",
   "/sign-in(.*)",
+]);
+
+const needsAdmin = createRouteMatcher([
+  "/dashboard(.*)",
+  "/onboarding(.*)",
+  "/create-org(.*)",
   "/sign-up(.*)",
 ]);
 
-const needsOrg = createRouteMatcher(["/dashboard(.*)", "/onboarding(.*)"]);
-
 export default clerkMiddleware(async (auth, req) => {
-  if (!isPublic(req)) await auth.protect();
   const { pathname } = req.nextUrl;
-  // Org required for everyone (owner decision, 29 Oct 2026): signed-in
-  // users without an active organization are sent to create one first.
-  if (needsOrg(req) && pathname !== "/create-org") {
-    const { orgId } = await auth();
-    if (!orgId) {
+
+  // Public signup is closed — send visitors to the waitlist.
+  if (pathname.startsWith("/sign-up")) {
+    const url = req.nextUrl.clone();
+    url.pathname = "/waitlist";
+    return NextResponse.redirect(url);
+  }
+
+  if (!isPublic(req)) await auth.protect();
+
+  if (needsAdmin(req)) {
+    const session = await auth();
+    if (!session.userId) {
       const url = req.nextUrl.clone();
-      url.pathname = "/create-org";
+      url.pathname = "/sign-in";
       return NextResponse.redirect(url);
     }
+    // Org required for dashboard / onboarding (admin still creates an org).
+    if (
+      (pathname.startsWith("/dashboard") || pathname.startsWith("/onboarding")) &&
+      pathname !== "/create-org"
+    ) {
+      if (!session.orgId) {
+        const url = req.nextUrl.clone();
+        url.pathname = "/create-org";
+        return NextResponse.redirect(url);
+      }
+    }
   }
+
   const res = NextResponse.next();
   if (pathname === "/en" || pathname.startsWith("/en/")) {
     res.headers.set("x-page-lang", "en");

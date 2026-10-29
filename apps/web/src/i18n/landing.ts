@@ -1,5 +1,5 @@
-// Bilingual landing copy (HU + EN). Source: Claude "Dial Hanna — Landing +
-// Product UI" proposal + smarthivas.hu reference. Fictional demo businesses.
+// Bilingual landing copy (HU + EN). Fictional demo businesses on the marketing
+// page only; the live dashboard never invents shop data.
 
 export type Lang = "hu" | "en";
 
@@ -127,6 +127,11 @@ export interface LandingDict {
   privacy: string;
   terms: string;
   contact: string;
+  waitlistTitle: string;
+  waitlistBody: string;
+  waitlistSubmit: string;
+  waitlistSuccess: string;
+  waitlistPlaceholder: string;
 }
 
 const hu: LandingDict = {
@@ -137,16 +142,16 @@ const hu: LandingDict = {
     pricing: "Árak",
     faq: "GYIK",
     signin: "Belépés",
-    cta: "Ingyen kipróbálom",
+    cta: "Várólista",
   },
   hero: {
     eyebrow: "MI-alapú híváslefedés kisvállalkozásoknak",
     titleA: "Ha nem érsz rá,",
     titleB: "Hanna felveszi.",
     sub: "Tartsd meg a saját számodat. Amikor munka közben nem tudod felvenni a telefont, Hanna a vállalkozásod nevében magyarul vagy angolul fogadja a hívást, időpontot foglal, és kész teendőt ad át — nem hangfelvételt.",
-    primary: "Ingyen kipróbálom",
+    primary: "Csatlakozom a várólistához",
     secondary: "Nézd meg, hogyan működik",
-    trust: "14 nap, bankkártya nélkül · Hanna minden hívás első mondatában MI-asszisztensként mutatkozik be",
+    trust: "Induláskor 14 nap próba a saját számodon · Hanna minden hívás első mondatában MI-asszisztensként mutatkozik be",
     panelCaption: "Átirányított hívás · 1:48",
     panelBiz: "Szalon Viola",
     afterTitle: "Hívás után",
@@ -320,7 +325,7 @@ const hu: LandingDict = {
         "Tudásrés-napló és verziókezelés",
         "Ellenőrző hívás az élesítés előtt",
       ],
-      cta: "Essential kipróbálása",
+      cta: "Várólista · Essential",
     },
     {
       name: "Pro",
@@ -337,7 +342,7 @@ const hu: LandingDict = {
         "Hangválasztás",
         "Ellenőrző hívás az élesítés előtt",
       ],
-      cta: "Pro kipróbálása",
+      cta: "Várólista · Pro",
     },
     {
       name: "Business",
@@ -352,11 +357,11 @@ const hu: LandingDict = {
         "Segített beüzemelés",
         "Kiemelt támogatás",
       ],
-      cta: "Business kipróbálása",
+      cta: "Várólista · Business",
     },
   ],
-  trialTitle: "Próba:",
-  trialBody: "14 nap, bankkártya nélkül, 40 AI-perccel valódi átirányított hívásokra.",
+  trialTitle: "Induláskor:",
+  trialBody: "A fizetős csomagok megnyitásakor 14 nap próba a saját számodon, bankkártyával. Most a várólistára lehet feliratkozni.",
   overageTitle: "Elfogyó perckeret:",
   overageBody: "75, 90 és 100%-nál jelzünk. Te döntesz: automatikus feltöltés, kisebb túlhasználat vagy leállás. Extra 100 perc: 9 900 Ft.",
   faqTitle: "GYIK",
@@ -391,13 +396,18 @@ const hu: LandingDict = {
       a: "Igen. Magyar adószám nem kell hozzá, más feltétel nincs.",
     },
   ],
-  finalTitle: "Hívd fel Hannát, és hallgasd meg, mit mondana az ügyfeleidnek.",
-  finalSub: "14 nap, bankkártya nélkül.",
+  finalTitle: "Ne veszíts el több ügyfélhívást.",
+  finalSub: "Írd fel magad a várólistára. A 14 napos próba a saját számodon a fizetős csomagok indulásakor nyílik meg.",
   footerDemo: "A Meta Global AI Developer Hackathonra készült.",
   footerRights: "Dial Hanna",
   privacy: "Adatvédelem",
   terms: "ÁSZF",
   contact: "Kapcsolat",
+  waitlistTitle: "Várólista",
+  waitlistBody: "A Dial Hanna most várólistás. Nincs nyilvános próba és nincs böngészős hívás. Amikor a fizetős csomagok elindulnak, megírjuk, és 14 napig a saját számodon próbálhatod.",
+  waitlistSubmit: "Feliratkozom",
+  waitlistSuccess: "Kész. Megírjuk, amikor indulunk.",
+  waitlistPlaceholder: "email@vallalkozas.hu",
 };
 
 const en: LandingDict = {
@@ -408,16 +418,16 @@ const en: LandingDict = {
     pricing: "Pricing",
     faq: "FAQ",
     signin: "Sign in",
-    cta: "Try it free",
+    cta: "Join waitlist",
   },
   hero: {
     eyebrow: "AI call coverage for small businesses",
     titleA: "When you can't pick up,",
     titleB: "Hanna answers.",
     sub: "Keep your own number. When you're mid-job and can't answer the phone, Hanna picks up in your business's name in Hungarian or English, books appointments, and hands you a ready to-do — not a recording.",
-    primary: "Try it free",
+    primary: "Join the waitlist",
     secondary: "See how it works",
-    trust: "14 days, no credit card · Hanna introduces herself as an AI assistant in the very first sentence of every call",
+    trust: "At launch: 14-day trial on your own number · Hanna introduces herself as an AI assistant in the first sentence of every call",
     panelCaption: "Forwarded call · 1:48",
     panelBiz: "Szalon Viola",
     afterTitle: "After the call",
@@ -591,7 +601,7 @@ const en: LandingDict = {
         "Knowledge-gap log and versioning",
         "Verification call before going live",
       ],
-      cta: "Try Essential",
+      cta: "Waitlist · Essential",
     },
     {
       name: "Pro",
@@ -608,7 +618,7 @@ const en: LandingDict = {
         "Voice selection",
         "Verification call before going live",
       ],
-      cta: "Try Pro",
+      cta: "Waitlist · Pro",
     },
     {
       name: "Business",
@@ -623,11 +633,11 @@ const en: LandingDict = {
         "Assisted setup",
         "Priority support",
       ],
-      cta: "Try Business",
+      cta: "Waitlist · Business",
     },
   ],
-  trialTitle: "Trial:",
-  trialBody: "14 days, no credit card, 40 AI minutes in total for real forwarded calls.",
+  trialTitle: "At launch:",
+  trialBody: "When paid plans open, you get a 14-day trial on your own number with a card on file. Right now you can join the waitlist.",
   overageTitle: "Running out of minutes:",
   overageBody: "We alert you at 75, 90, and 100%. You decide: auto top-up, small overage, or stop. Extra 100 minutes: 9,900 HUF.",
   faqTitle: "FAQ",
@@ -662,13 +672,18 @@ const en: LandingDict = {
       a: "Yes. No Hungarian tax number is needed — nothing else is required either.",
     },
   ],
-  finalTitle: "Call Hanna and hear what she'd tell your customers.",
-  finalSub: "14 days, no credit card.",
+  finalTitle: "Stop losing customer calls.",
+  finalSub: "Join the waitlist. The 14-day trial on your own number opens when paid plans launch.",
   footerDemo: "Built for the Meta Global AI Developer Hackathon.",
   footerRights: "Dial Hanna",
   privacy: "Privacy",
   terms: "Terms",
   contact: "Contact",
+  waitlistTitle: "Join the waitlist",
+  waitlistBody: "Dial Hanna is waitlist-only for now. There is no public trial and no call-from-the-website. When paid plans open, we email you — then you can try 14 days on your own number.",
+  waitlistSubmit: "Join the waitlist",
+  waitlistSuccess: "You're on the list. We'll email you when we open.",
+  waitlistPlaceholder: "you@business.com",
 };
 
 export const scenarios: Record<Lang, Scenario[]> = {
@@ -772,7 +787,12 @@ export const scenarios: Record<Lang, Scenario[]> = {
   ],
 };
 
-export const TRIAL_LINK =
-  "mailto:hello@dialhanna.com?subject=Dial%20Hanna%20trial";
+export function waitlistHref(lang: Lang, plan?: string): string {
+  const q = new URLSearchParams();
+  if (lang === "en") q.set("lang", "en");
+  if (plan) q.set("plan", plan.toLowerCase());
+  const s = q.toString();
+  return s ? `/waitlist?${s}` : "/waitlist";
+}
 
 export const landing: Record<Lang, LandingDict> = { hu, en };

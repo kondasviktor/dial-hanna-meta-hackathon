@@ -1,0 +1,34 @@
+# Dial Hanna
+
+> AI call coverage for Hungarian small businesses. Keep your number; when you can't pick up, Hanna answers from approved knowledge, books when allowed, and hands you Intent → Outcome → Next step — not a recording.
+
+Website: https://dialhanna.com
+Contact: hello@dialhanna.com
+Languages: Hungarian (primary), English
+Region: Hungary (Budapest)
+
+## Product
+
+- Keep-your-number forwarding (busy / no-answer / unreachable)
+- AI disclosure in the first sentence of every call
+- Answers only from owner-approved knowledge; logs knowledge gaps instead of guessing
+- Optional website import drafts FAQs; owners without a site can type Q&A by hand
+- Structured call outcomes on a private dashboard
+- Launch pricing (HUF): Essential 19 900 / Pro 34 900 / Business 59 900 per month
+- Public signup is waitlist-only until paid plans open (14-day trial on the owner's number at launch)
+
+## Pages
+
+- [Home (HU)](https://dialhanna.com/): Hungarian landing
+- [Home (EN)](https://dialhanna.com/en): English landing
+- [Waitlist](https://dialhanna.com/waitlist): Join the waitlist
+- [Privacy](https://dialhanna.com/privacy): Privacy notice
+- [Terms](https://dialhanna.com/terms): Terms
+
+## Do not crawl
+
+Private product UI (`/dashboard`, `/onboarding`, `/sign-in`) and `/api/*` are not for indexing.
+
+## Built with
+
+Meta Model API (Muse Spark, Muse Wonder, Muse Voice Transcribe) for the hackathon build; third-party TTS for speech. Not an AI receptionist replacement claim — call coverage when the owner is busy.

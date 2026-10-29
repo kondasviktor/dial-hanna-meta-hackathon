@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { calculate, formatHuf } from "@/lib/calculator.ts";
 import {
-  TRIAL_LINK,
+  waitlistHref,
   landing,
   scenarios,
   type LandingDict,
@@ -107,7 +107,7 @@ function Hero({ d, lang }: { d: LandingDict; lang: Lang }) {
         </h1>
         <p className="lede">{d.hero.sub}</p>
         <p className="cta-row">
-          <a className="btn btn-primary" href={TRIAL_LINK}>
+          <a className="btn btn-primary" href={waitlistHref(lang)}>
             {d.hero.primary}
           </a>
           <a className="btn btn-ghost" href="#how">
@@ -255,9 +255,7 @@ function Verticals({ d }: { d: LandingDict }) {
       <div className="verticals">
         {d.verticals.map((v) => (
           <article key={v.slug} className="vertical">
-            <h3>
-              <a href={`/agazat/${v.slug}`}>{v.name}</a>
-            </h3>
+            <h3>{v.name}</h3>
             <p>{v.pain}</p>
             <p className="vertical-does">
               <strong>{d.hannaDoes}</strong> {v.does}
@@ -333,7 +331,7 @@ function Calc({ d, lang }: { d: LandingDict; lang: Lang }) {
   );
 }
 
-function Pricing({ d }: { d: LandingDict }) {
+function Pricing({ d, lang }: { d: LandingDict; lang: Lang }) {
   const [annual, setAnnual] = useState(false);
   return (
     <Section id="pricing" title={d.pricingTitle} sub={d.pricingSub}>
@@ -374,7 +372,10 @@ function Pricing({ d }: { d: LandingDict }) {
                 ))}
               </ul>
               <p className="plan-cta">
-                <a className={p.badge ? "btn btn-light" : "btn btn-outline"} href={TRIAL_LINK}>
+                <a
+                  className={p.badge ? "btn btn-light" : "btn btn-outline"}
+                  href={waitlistHref(lang, p.name)}
+                >
                   {p.cta}
                 </a>
               </p>
@@ -416,13 +417,13 @@ function Faq({ d }: { d: LandingDict }) {
   );
 }
 
-function Final({ d }: { d: LandingDict }) {
+function Final({ d, lang }: { d: LandingDict; lang: Lang }) {
   return (
     <section className="final">
       <h2>{d.finalTitle}</h2>
       <p>{d.finalSub}</p>
       <p className="cta-row">
-        <a className="btn btn-amber" href={TRIAL_LINK}>
+        <a className="btn btn-amber" href={waitlistHref(lang)}>
           {d.hero.primary}
         </a>
         <a className="btn btn-ghost-light" href="#how">
@@ -441,13 +442,12 @@ function Footer({ d }: { d: LandingDict }) {
           <strong>{d.footerRights}</strong>
           <p className="muted small">
             <a href="mailto:hello@dialhanna.com">hello@dialhanna.com</a> ·{" "}
-            <a href="/api/health">státusz / status</a> ·{" "}
-            <a href="/dashboard">dashboard</a>
+            <a href="/api/health">státusz / status</a>
           </p>
         </div>
         <p className="muted small">{d.footerDemo}</p>
         <p className="muted small">
-          <a href="#">{d.privacy}</a> · <a href="#">{d.terms}</a> ·{" "}
+          <a href="/privacy">{d.privacy}</a> · <a href="/terms">{d.terms}</a> ·{" "}
           <a href="mailto:hello@dialhanna.com">{d.contact}</a>
         </p>
       </div>
@@ -469,9 +469,9 @@ export default function Landing({ lang }: { lang: Lang }) {
       <Learning d={d} />
       <Verticals d={d} />
       <Calc d={d} lang={lang} />
-      <Pricing d={d} />
+      <Pricing d={d} lang={lang} />
       <Faq d={d} />
-      <Final d={d} />
+      <Final d={d} lang={lang} />
       <Footer d={d} />
     </div>
   );
