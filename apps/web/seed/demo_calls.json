@@ -2,7 +2,7 @@
   "calls": [
     {
       "tenant": "demo-salon-01",
-      "channel": "browser",
+      "channel": "phone",
       "from": "+36301234567",
       "language": "hu",
       "startedAgoMin": 35,
@@ -60,7 +60,7 @@
     },
     {
       "tenant": "demo-auto-01",
-      "channel": "browser",
+      "channel": "phone",
       "from": "+36701112233",
       "language": "hu",
       "startedAgoMin": 90,

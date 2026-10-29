@@ -110,7 +110,7 @@ function Hero({ d, lang }: { d: LandingDict; lang: Lang }) {
           <a className="btn btn-primary" href={TRIAL_LINK}>
             {d.hero.primary}
           </a>
-          <a className="btn btn-ghost" href="/demo">
+          <a className="btn btn-ghost" href="#how">
             {d.hero.secondary}
           </a>
         </p>
@@ -425,7 +425,7 @@ function Final({ d }: { d: LandingDict }) {
         <a className="btn btn-amber" href={TRIAL_LINK}>
           {d.hero.primary}
         </a>
-        <a className="btn btn-ghost-light" href="/demo">
+        <a className="btn btn-ghost-light" href="#how">
           {d.hero.secondary}
         </a>
       </p>

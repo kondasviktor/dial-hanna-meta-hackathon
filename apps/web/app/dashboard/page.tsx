@@ -30,7 +30,7 @@ const DEMO: Dashboard = {
       nextActionHu: "Válaszolj egyszer a parkolásról.", ownerStatus: "open",
     },
     {
-      id: "c3", startedAt: "2026-10-27T16:44:00", channel: "browser",
+      id: "c3", startedAt: "2026-10-27T16:44:00", channel: "telnyx",
       from: null, language: "en",
       intent: "Appointment booking", outcome: "Trim, Saturday 10:00",
       nextActionHu: null, ownerStatus: "done",
@@ -66,8 +66,7 @@ export default async function Dashboard() {
       <p className="dash-date">{today}</p>
       <h1 className="dash-title">Áttekintés</h1>
       <p className="muted small">
-        {d.org.name} · {d.org.plan} ·{" "}
-        <Link href="/demo">Teszthívás a böngészőből</Link>
+        {d.org.name} · {d.org.plan}
       </p>
 
       {demo && (

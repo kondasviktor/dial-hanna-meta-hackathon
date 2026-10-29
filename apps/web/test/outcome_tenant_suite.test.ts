@@ -1,7 +1,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { validateOutcome, outcomeConsistent } from "../src/lib/outcomes.ts";
-import { resolveByNumber, resolveByToken, demoAllowed } from "../src/lib/tenants.ts";
+import { resolveByNumber } from "../src/lib/tenants.ts";
 import { runSuite, LOCKED_SCENARIOS } from "../src/lib/testsuite.ts";
 
 const goodOutcome = {
@@ -38,18 +38,6 @@ test("unknown number never resolves to a tenant", () => {
   const hit = resolveByNumber("+36 1 234 5678", bindings);
   assert.equal(hit.kind, "tenant");
   assert.equal(resolveByNumber("+3699999999", bindings).kind, "unknown_number");
-});
-
-test("browser token expiry enforced", () => {
-  const now = 1_000_000;
-  assert.equal(resolveByToken({ orgId: "o", agentVersionId: "draft1", expiresAt: now + 600 }, now).kind, "tenant");
-  assert.equal(resolveByToken({ orgId: "o", agentVersionId: "draft1", expiresAt: now - 1 }, now).kind, "expired_token");
-});
-
-test("demo rate limits", () => {
-  assert.equal(demoAllowed(3, 4), true);
-  assert.equal(demoAllowed(10, 1), false);
-  assert.equal(demoAllowed(0, 6), false);
 });
 
 test("suite runs all 10 locked scenarios with mocks", async () => {
