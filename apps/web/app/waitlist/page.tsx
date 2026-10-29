@@ -11,14 +11,15 @@ export const metadata: Metadata = {
   robots: { index: true, follow: true },
 };
 
-export default function WaitlistPage({
+export default async function WaitlistPage({
   searchParams,
 }: {
-  searchParams?: { plan?: string; lang?: string };
+  searchParams?: Promise<{ plan?: string; lang?: string }>;
 }) {
-  const en = searchParams?.lang === "en";
+  const sp = (await searchParams) ?? {};
+  const en = sp.lang === "en";
   const d = en ? landing.en : landing.hu;
-  const plan = searchParams?.plan;
+  const plan = sp.plan;
   return (
     <div className="stub-wrap" style={{ maxWidth: 480, margin: "48px auto", padding: 24 }}>
       <h1 className="dash-title">{d.waitlistTitle}</h1>
