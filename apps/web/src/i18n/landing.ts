@@ -21,9 +21,11 @@ export interface Scenario {
   lines: ScenarioLine[];
 }
 
-export interface Check {
+export interface Vertical {
+  slug: string;
   name: string;
-  warn?: boolean;
+  pain: string;
+  does: string;
 }
 
 export interface Plan {
@@ -68,21 +70,20 @@ export interface LandingDict {
   tabsNote: string;
   callLabel: string;
   afterDash: string;
-  testTitle: string;
-  testBody: string;
-  testBody2: string;
-  scoreLabel: string;
-  scoreDetail: string;
-  passLabel: string;
-  reviewLabel: string;
-  checks: Check[];
+  controlTitle: string;
+  controlSub: string;
+  controls: { title: string; body: string }[];
+  versionsBand: string;
   learnTitle: string;
   learnSub: string;
   learn: { title: string; body: string }[];
   industriesTitle: string;
   industriesSub: string;
-  verticals: { name: string; pain: string; does: string }[];
+  verticals: Vertical[];
   industriesNote: string;
+  bespokeTitle: string;
+  bespokeBody: string;
+  bespokeCta: string;
   hannaDoes: string;
   calcTitle: string;
   calcSub: string;
@@ -107,9 +108,6 @@ export interface LandingDict {
   monthly: string;
   annual: string;
   annualDeal: string;
-  net: string;
-  gross: string;
-  grossNote: string;
   perMonth: string;
   perYear: string;
   perMonthApprox: string;
@@ -160,9 +158,9 @@ const hu: LandingDict = {
   valuesTitle: "Miért Hanna",
   values: [
     { title: "Megtartod a számodat", body: "Nincs új szám, nincs új app. Csak az átirányítást kapcsolod be." },
-    { title: "Éles indulás előtt tesztelt", body: "20 próbahívás-forgatókönyv és egy látható pontszám, mielőtt élesítesz." },
+    { title: "Élesítés előtt ellenőrző hívás", body: "Felhívjuk a számodat, te elutasítod, és megnézzük, hogy az átirányítás tényleg megérkezik Hannához." },
     { title: "Nem találgat", body: "Csak a jóváhagyott tudásodból válaszol. Ha nem tudja, visszahívást ajánl." },
-    { title: "A kapcsoló nálad van", body: "Egy kattintással Hanna kikapcsol, és a hívások újra csak hozzád futnak be." },
+    { title: "A kapcsoló nálad van", body: "Egy kattintással Hanna szünetel, az átirányítást nem kell bontanod." },
   ],
   howTitle: "Hogyan működik",
   howSub: "Három lépés, és egyetlen hívás sem vész el.",
@@ -191,22 +189,15 @@ const hu: LandingDict = {
   tabsNote: "Minden hívás három sorban: mit akart a hívó, mi lett belőle, és mit kell neked tenni.",
   callLabel: "Hívás",
   afterDash: "Hívás után a dashboardon",
-  testTitle: "Tesztelve élesítés előtt",
-  testBody: "Mielőtt az első valódi ügyfél hív, Hanna már lement 20 próbahívást. Nyitvatartás, árak, időpontfoglalás, dühös hívó, angol hívó, telefonszám-diktálás.",
-  testBody2: "Látod, mi ment át és mi nem, és csak akkor élesítesz, ha a pontszám kész. Minden publikált verzió elmentődik, így hiba esetén egy kattintással visszagörgetheted az előzőt.",
-  scoreLabel: "Felkészültségi pontszám",
-  scoreDetail: "19 forgatókönyv sikeres, 1 ellenőrzendő. Élesítés ajánlott 80 pont felett.",
-  passLabel: "Sikeres",
-  reviewLabel: "Ellenőrzendő",
-  checks: [
-    { name: "Nyitvatartás kérdés" },
-    { name: "Árkérdés" },
-    { name: "Időpontfoglalás és lemondás" },
-    { name: "Ismeretlen kérdés" },
-    { name: "Dühös hívó" },
-    { name: "Angol nyelvű hívó" },
-    { name: "Telefonszám diktálása", warn: true },
+  controlTitle: "Te szabod meg, mit mondhat",
+  controlSub: "És kit hogyan kezeljen.",
+  controls: [
+    { title: "Csak jóváhagyott tudásból válaszol", body: "Amit nem mondtál meg neki, azt nem állítja. Ismeretlen kérdésnél visszahívást ajánl, és beírja a tudásrés-listádba." },
+    { title: "Ismerősöket nem faggat", body: "A mentett számoktól nem kérdez, csak rövid üzenetet vesz fel, és kiemelten jelzi neked." },
+    { title: "Egy kapcsoló", body: "Kikapcsolod, és Hanna szünetel. Az átirányítást nem kell bontanod, visszakapcsoláskor azonnal fogad." },
+    { title: "Rögzítés alapból kikapcsolva", body: "Ha bekapcsolod, a hívó a beszélgetés elején erről tájékoztatást kap." },
   ],
+  versionsBand: "Ha valami félresikerül, egy kattintással visszalépsz az előző verzióra.",
   learnTitle: "Tanuló rendszer",
   learnSub: "Amit nem tud, azt egyszer kell megválaszolnod.",
   learn: [
@@ -219,35 +210,72 @@ const hu: LandingDict = {
       body: "„Igen, a hátsó udvarban 6 ingyenes hely van.” Begépeled vagy bemondod. Hanna szépen megfogalmazza, te jóváhagyod.",
     },
     {
-      title: "Új verzió, újra tesztelve",
-      body: "A következő hívó már választ kap. Az érintett próbahívás újrafut, és ha valami félresikerül, visszagörgetsz az előző verzióra.",
+      title: "Új verzió élőben",
+      body: "A következő hívó már választ kap. Ha valami félresikerül, visszagörgetsz az előző verzióra.",
     },
   ],
   industriesTitle: "Kinek készült",
   industriesSub: "Ahol foglalt a kéz, a telefon se maradjon néma.",
   verticals: [
     {
-      name: "Szépségszalon",
+      slug: "hajszalon",
+      name: "Hajszalon és szépségszalon",
       pain: "Olló a kézben, vendég a székben. A csörgő telefon várhat, a hívó viszont nem.",
       does: "szabad időpontot ajánl, és beírja a naptárba.",
     },
     {
-      name: "Autószerviz",
+      slug: "auto-gumiszerviz",
+      name: "Autó- és gumiszerviz",
       pain: "Az autó az emelőn, a kéz olajos. Mire előkerülsz, a hívó már a következő műhelyt tárcsázza.",
       does: "megválaszolja az ár- és nyitvatartási kérdéseket, felveszi a hibaleírást.",
     },
     {
-      name: "Szakipar",
+      slug: "szakipar",
+      name: "Szakipar és ezermester",
       pain: "Létrán, fúró mellett, az ügyfélnél. A kiszállás közben érkező megrendelés is érték.",
       does: "felveszi a címet és a hiba leírását, a sürgőset megjelöli.",
     },
     {
-      name: "Könyvelőiroda",
-      pain: "Zárás előtti hajrá, határidők. Az ügyfél mégis választ vár.",
-      does: "időpontot egyeztet, és üzenetet hagy a megfelelő kollégának.",
+      slug: "koltoztetes-takaritas",
+      name: "Költöztetés és takarítás",
+      pain: "Rakodás közben nem érsz rá telefonálni. Aki nem ér el, mást hív.",
+      does: "felveszi a dátumot, a címet és a lakás méretét, és strukturált ajánlatkérést ad át.",
+    },
+    {
+      slug: "panzio-apartman",
+      name: "Panzió és apartman",
+      pain: "Takarítás, kulcsátadás, vendég a kapuban. A foglalási kérdés nem várhat.",
+      does: "felveszi a foglalási kérést üzenetként, és azonnal jelzi neked.",
+    },
+    {
+      slug: "edzok-studiok",
+      name: "Edzők és stúdiók",
+      pain: "Edzés közben nincs telefon a kézben. Az új bérletes addig dönt, amíg eléred.",
+      does: "időpontot egyeztet próbórára, és megválaszolja az órarendi kérdéseket.",
+    },
+    {
+      slug: "fotos-rendezveny",
+      name: "Fotós és rendezvény",
+      pain: "Esküvőn fotózol, nem telefonálsz. A jövő évi naptárad ekkor telik meg.",
+      does: "felveszi a dátumot és a helyszínt, a szabad dátumra visszahívást kér.",
+    },
+    {
+      slug: "kutya-kozmetika",
+      name: "Kutyakozmetika",
+      pain: "Vizes kéz, ugató vendég az asztalon. A gazdi közben kétszer is hív.",
+      does: "időpontot foglal, és felveszi a kutya fajtáját meg a kért szolgáltatást.",
+    },
+    {
+      slug: "szabaduszok-maganszemelyek",
+      name: "Szabadúszók és magánszemélyek",
+      pain: "Megbeszélésen vagy fókuszban, a telefon némítva. A lehetőség nem vár.",
+      does: "felveszi, ki hívott és miért, és üzenetként átadja.",
     },
   ],
   industriesNote: "Nem látod a szakmádat? A sablonok csak kiindulópontok, Hanna bármelyik vállalkozáshoz hozzáigazítható.",
+  bespokeTitle: "Egyedi folyamatra van szükséged?",
+  bespokeBody: "Ha a vállalkozásod menete eltér a szokásostól — saját rendszer, külön értesítések, speciális foglalási szabályok — írd meg, és összekötjük Hannát a te eszközeiddel.",
+  bespokeCta: "Egyedi igény jelzése",
   hannaDoes: "Hanna ilyenkor:",
   calcTitle: "Számold ki magad",
   calcSub: "Mennyit ér neked egy fel nem vett hívás? Add meg a saját becslésed.",
@@ -268,13 +296,10 @@ const hu: LandingDict = {
   },
   pricingTitle: "Árak",
   pricingSub: "Átlátható árak, csendes leállás nélkül.",
-  pricingNote: "A béta idején az árak változhatnak. Magyar adószám szükséges, egyéni vállalkozóként is előfizethetsz.",
+  pricingNote: "A béta idején az árak változhatnak. Az árak végösszegek: alanyi adómentes vállalkozásként ÁFÁt nem számítunk fel. Egyéni vállalkozóként és magánszemélyként is előfizethetsz.",
   monthly: "Havi",
   annual: "Éves",
   annualDeal: "2 hónap ajándék",
-  net: "Nettó",
-  gross: "Bruttó (27% ÁFA)",
-  grossNote: "bruttó",
   perMonth: "Ft / hó",
   perYear: "Ft / év",
   perMonthApprox: "Ft / hó",
@@ -293,7 +318,7 @@ const hu: LandingDict = {
         "Szándék → eredmény → következő lépés",
         "Hívásátadás élő munkatárshoz",
         "Tudásrés-napló és verziókezelés",
-        "Tesztcsomag élesítés előtt",
+        "Ellenőrző hívás az élesítés előtt",
       ],
       cta: "Essential kipróbálása",
     },
@@ -331,9 +356,9 @@ const hu: LandingDict = {
     },
   ],
   trialTitle: "Próba:",
-  trialBody: "14 nap, bankkártya nélkül. 40 AI-percig valódi átirányítással is kipróbálhatod, plusz korlátlan böngészős teszthívás a beállítás alatt.",
+  trialBody: "14 nap, bankkártya nélkül, 40 AI-perccel. A valódi átirányított hívások és a böngészős próbahívások is ebből fogynak.",
   overageTitle: "Elfogyó perckeret:",
-  overageBody: "75, 90 és 100%-nál jelzünk. Te döntesz: automatikus feltöltés, kisebb túlhasználat vagy leállás. Extra 100 perc: 9 900 Ft + ÁFA.",
+  overageBody: "75, 90 és 100%-nál jelzünk. Te döntesz: automatikus feltöltés, kisebb túlhasználat vagy leállás. Extra 100 perc: 9 900 Ft.",
   faqTitle: "GYIK",
   faqSub: "Amit ilyenkor mindenki megkérdez.",
   faq: [
@@ -362,8 +387,8 @@ const hu: LandingDict = {
       a: "A feltételes hívásátirányítást támogató Telekom, Yettel és One előfizetésekkel igen. Élesítés előtt ellenőrző hívással megnézzük, hogy a hívás tényleg megérkezik.",
     },
     {
-      q: "Egyéni vállalkozóként is előfizethetek?",
-      a: "Igen. Magyar adószám kell hozzá, más nem.",
+      q: "Egyéni vállalkozóként vagy magánszemélyként is előfizethetek?",
+      a: "Igen. Magyar adószám nem kell hozzá, más feltétel nincs.",
     },
   ],
   finalTitle: "Hívd fel Hannát, és hallgasd meg, mit mondana az ügyfeleidnek.",
@@ -404,9 +429,9 @@ const en: LandingDict = {
   valuesTitle: "Why Hanna",
   values: [
     { title: "You keep your number", body: "No new number, no new app. You only switch on call forwarding." },
-    { title: "Tested before going live", body: "20 scripted test calls and a visible readiness score before you go live." },
+    { title: "A verification call before going live", body: "We call your number, you decline, and we check that forwarding really reaches Hanna." },
     { title: "She never guesses", body: "She only answers from your approved knowledge. If she doesn't know, she offers a callback." },
-    { title: "The switch stays with you", body: "One click turns Hanna off, and calls ring only through to you again." },
+    { title: "The switch stays with you", body: "One click pauses Hanna; you don't need to cancel the forwarding." },
   ],
   howTitle: "How it works",
   howSub: "Three steps, and not a single call is lost.",
@@ -435,22 +460,15 @@ const en: LandingDict = {
   tabsNote: "Every call in three lines: what the caller wanted, what came of it, and what you need to do.",
   callLabel: "Call",
   afterDash: "On your dashboard after the call",
-  testTitle: "Tested before going live",
-  testBody: "Before the first real customer calls, Hanna has already run 20 test calls. Opening hours, prices, booking, an angry caller, an English-speaking caller, phone-number dictation.",
-  testBody2: "You see what passed and what didn't, and you only go live when the score is ready. Every published version is saved, so one click rolls back if something goes wrong.",
-  scoreLabel: "Readiness score",
-  scoreDetail: "19 scenarios passed, 1 needs review. We recommend going live above 80.",
-  passLabel: "Passed",
-  reviewLabel: "Needs review",
-  checks: [
-    { name: "Opening-hours question" },
-    { name: "Pricing question" },
-    { name: "Booking and cancellation" },
-    { name: "Unknown question" },
-    { name: "Angry caller" },
-    { name: "English-speaking caller" },
-    { name: "Phone-number dictation", warn: true },
+  controlTitle: "You decide what she may say",
+  controlSub: "And how she treats whom.",
+  controls: [
+    { title: "Only approved knowledge", body: "What you never told her, she never claims. On unknown questions she offers a callback and logs a knowledge gap." },
+    { title: "Light touch for known contacts", body: "Saved numbers get no interview — just a short message, flagged for you." },
+    { title: "One switch", body: "Switch her off and Hanna pauses. You don't need to cancel the forwarding; she answers again right after you switch her back on." },
+    { title: "Recording off by default", body: "If you switch it on, the caller is informed at the start of the conversation." },
   ],
+  versionsBand: "If something goes wrong, one click rolls back to the previous version.",
   learnTitle: "A system that learns",
   learnSub: "What she doesn't know, you answer exactly once.",
   learn: [
@@ -463,35 +481,72 @@ const en: LandingDict = {
       body: "\u201CYes — 6 free spots in the back yard.\u201D You type or say it. Hanna phrases it nicely, you approve.",
     },
     {
-      title: "New version, re-tested",
-      body: "The next caller gets an answer. The affected test call re-runs, and if anything goes wrong you roll back to the previous version.",
+      title: "New version live",
+      body: "The next caller gets an answer. If anything goes wrong, you roll back to the previous version.",
     },
   ],
   industriesTitle: "Who it's for",
   industriesSub: "Where hands are busy, the phone shouldn't stay silent either.",
   verticals: [
     {
-      name: "Beauty salon",
+      slug: "hajszalon",
+      name: "Salon & beauty",
       pain: "Scissors in hand, a client in the chair. The ringing phone can wait — the caller can't.",
       does: "offers a free slot and writes it into the calendar.",
     },
     {
-      name: "Auto repair",
+      slug: "auto-gumiszerviz",
+      name: "Auto & tyre service",
       pain: "The car is on the lift, hands are oily. By the time you surface, the caller is dialling the next shop.",
       does: "answers price and opening-hour questions and takes the fault report.",
     },
     {
-      name: "Trades & repairs",
+      slug: "szakipar",
+      name: "Trades & handymen",
       pain: "On a ladder, drill in hand, at the customer's. An order arriving mid-job is still money.",
       does: "takes the address and the fault description, and flags the urgent ones.",
     },
     {
-      name: "Accounting office",
-      pain: "Pre-closing rush, deadlines everywhere. The client still expects an answer.",
-      does: "arranges an appointment and leaves a message for the right colleague.",
+      slug: "koltoztetes-takaritas",
+      name: "Moving & cleaning",
+      pain: "Mid-move, you can't pick up the phone. Whoever can't reach you calls someone else.",
+      does: "takes the date, address and flat size as a structured quote request.",
+    },
+    {
+      slug: "panzio-apartman",
+      name: "Guesthouses & apartments",
+      pain: "Cleaning, key handover, a guest at the gate. Booking questions can't wait.",
+      does: "takes the booking request as a message and flags it to you at once.",
+    },
+    {
+      slug: "edzok-studiok",
+      name: "Trainers & studios",
+      pain: "Mid-session, there's no phone in hand. The new member decides while you can still reach them.",
+      does: "arranges trial sessions and answers timetable questions.",
+    },
+    {
+      slug: "fotos-rendezveny",
+      name: "Photographers & events",
+      pain: "You're shooting a wedding, not answering calls. Next year's calendar fills up right now.",
+      does: "takes the date and venue, and asks for a callback on free dates.",
+    },
+    {
+      slug: "kutya-kozmetika",
+      name: "Pet grooming",
+      pain: "Wet hands, a barking client on the table. The owner calls twice in the meantime.",
+      does: "books the appointment and takes the breed plus the requested service.",
+    },
+    {
+      slug: "szabaduszok-maganszemelyek",
+      name: "Freelancers & private persons",
+      pain: "In a meeting or in focus, phone on silent. The opportunity won't wait.",
+      does: "takes who called and why, and hands it over as a message.",
     },
   ],
   industriesNote: "Don't see your trade? The templates are just starting points — Hanna adapts to any business.",
+  bespokeTitle: "Need a bespoke process?",
+  bespokeBody: "If your business runs differently — your own systems, special notifications, custom booking rules — tell us and we'll connect Hanna to your tools.",
+  bespokeCta: "Request a bespoke setup",
   hannaDoes: "That's when Hanna:",
   calcTitle: "Do your own maths",
   calcSub: "What is one missed call worth to you? Enter your own estimates.",
@@ -512,13 +567,10 @@ const en: LandingDict = {
   },
   pricingTitle: "Pricing",
   pricingSub: "Clear prices, no silent shutdown.",
-  pricingNote: "Prices may change during the beta. A Hungarian tax number is required; sole traders can subscribe too.",
+  pricingNote: "Prices may change during the beta. Prices are final: as a VAT-exempt operator we charge no VAT. Sole traders and private persons may subscribe.",
   monthly: "Monthly",
   annual: "Annual",
   annualDeal: "2 months free",
-  net: "Net",
-  gross: "Gross (27% VAT)",
-  grossNote: "gross",
   perMonth: "HUF / mo",
   perYear: "HUF / yr",
   perMonthApprox: "HUF / mo",
@@ -537,7 +589,7 @@ const en: LandingDict = {
         "Intent → outcome → next step",
         "Live handover to a colleague",
         "Knowledge-gap log and versioning",
-        "Test suite before going live",
+        "Verification call before going live",
       ],
       cta: "Try Essential",
     },
@@ -575,9 +627,9 @@ const en: LandingDict = {
     },
   ],
   trialTitle: "Trial:",
-  trialBody: "14 days, no credit card. Try real forwarding up to 40 AI minutes, plus unlimited browser test calls during setup.",
+  trialBody: "14 days, no credit card, 40 AI minutes in total. Real forwarded calls and browser test calls both draw from it.",
   overageTitle: "Running out of minutes:",
-  overageBody: "We alert you at 75, 90, and 100%. You decide: auto top-up, small overage, or stop. Extra 100 minutes: 9,900 HUF + VAT.",
+  overageBody: "We alert you at 75, 90, and 100%. You decide: auto top-up, small overage, or stop. Extra 100 minutes: 9,900 HUF.",
   faqTitle: "FAQ",
   faqSub: "What everyone asks at this point.",
   faq: [
@@ -606,8 +658,8 @@ const en: LandingDict = {
       a: "Yes, with Telekom, Yettel, and One subscriptions that support conditional call forwarding. A verification call checks the call really reaches Hanna before going live.",
     },
     {
-      q: "Can I subscribe as a sole trader?",
-      a: "Yes. You need a Hungarian tax number — nothing else.",
+      q: "Can I subscribe as a sole trader or a private person?",
+      a: "Yes. No Hungarian tax number is needed — nothing else is required either.",
     },
   ],
   finalTitle: "Call Hanna and hear what she'd tell your customers.",

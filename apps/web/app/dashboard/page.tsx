@@ -13,7 +13,7 @@ const DEMO: Dashboard = {
   todaysCalls: 4,
   openActions: [
     { id: "a1", summary: "Hívd vissza ma 17:00 előtt: Kovács Anna (sürgős hibabejelentés)." },
-    { id: "a2", summary: "Erősítsd meg a péntek 14:30-as foglalást SMS-ben." },
+    { id: "a2", summary: "Erősítsd meg a péntek 14:30-as foglalást telefonon." },
     { id: "a3", summary: "Nézd át az új tudásrést: parkolás a szalon közelében." },
   ],
   recent: [
@@ -39,7 +39,7 @@ const DEMO: Dashboard = {
   gaps: [
     { id: "g1", question: "Van parkoló a közelben?", context: "4 hívó kérdezte a héten", status: "open" },
   ],
-  live: { id: "v7", status: "live", readinessScore: 92 },
+  live: { id: "v7", status: "live" },
 };
 
 function withinDays(iso: string | null, days: number): boolean {
@@ -54,7 +54,6 @@ export default async function Dashboard() {
 
   const weekCalls = d.recent.filter((c) => withinDays(c.startedAt, 7));
   const bookings = weekCalls.filter((c) => /foglal|book/i.test(`${c.intent ?? ""} ${c.outcome ?? ""}`));
-  const score = d.live?.readinessScore ?? null;
   const today = new Date().toLocaleDateString("hu-HU", {
     year: "numeric",
     month: "long",
@@ -92,9 +91,9 @@ export default async function Dashboard() {
           <span className="kpi-label">Nyitott teendő</span>
         </div>
         <div className="kpi dark">
-          <span className="kpi-num">{score ?? "—"}</span>
+          <span className="kpi-num">62 <span style={{ fontSize: 16 }}>/ 250</span></span>
           <span className="kpi-label">
-            Felkészültség{d.live ? ` · ${d.live.id} élő` : ""}
+            AI-perc · 75 / 90 / 100%-nál jelzünk{d.live ? ` · ${d.live.id} élő` : ""}
           </span>
         </div>
       </div>
@@ -161,26 +160,26 @@ export default async function Dashboard() {
             ))}
           </div>
 
-          {demo && (
-            <div className="dash-card">
-              <h2>Perckeret</h2>
-              <p className="mono">
-                188 <span className="muted">/ 250 AI-perc</span>
-              </p>
-              <div className="minutes-bar" aria-hidden>
-                <div className="minutes-fill" style={{ width: "75%" }} />
-              </div>
-              <div className="minutes-marks">
-                <span>75%</span>
-                <span>90%</span>
-                <span>100%</span>
-              </div>
-              <p className="muted small">
-                A 75%-os küszöbnél e-mailben jeleztünk. A keret végén:
-                automatikus feltöltés, 100 perc / 9 900 Ft + ÁFA.
-              </p>
+          <div className="dash-card">
+            <h2>Perckeret</h2>
+            <p className="mono">
+              62 <span className="muted">/ 250 AI-perc</span>
+            </p>
+            <div className="minutes-bar" aria-hidden>
+              <div className="minutes-fill" style={{ width: "25%" }} />
             </div>
-          )}
+            <div className="minutes-marks">
+              <span>75%</span>
+              <span>90%</span>
+              <span>100%</span>
+            </div>
+            <p className="muted small">
+              75, 90 és 100%-nál jelzünk. A keret végén te döntesz:
+              automatikus feltöltés, kisebb túlhasználat vagy leállás.
+              Extra 100 perc: 9 900 Ft.{" "}
+              <Link href="/dashboard/usage">Használat és csomag</Link>
+            </p>
+          </div>
         </div>
       </div>
     </div>

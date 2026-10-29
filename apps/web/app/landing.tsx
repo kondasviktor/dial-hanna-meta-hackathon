@@ -213,31 +213,21 @@ function CallTabs({ d, lang }: { d: LandingDict; lang: Lang }) {
   );
 }
 
-function Readiness({ d }: { d: LandingDict }) {
+function Control({ d }: { d: LandingDict }) {
   return (
-    <Section id="tested" title={d.testTitle}>
-      <p>{d.testBody}</p>
-      <p>{d.testBody2}</p>
-      <div className="score-grid">
-        <div className="score-card">
-          <span className="score-num">92</span>
-          <span className="score-label">{d.scoreLabel}</span>
-          <p className="muted small">{d.scoreDetail}</p>
-        </div>
-        <ul className="checks">
-          {d.checks.map((c) => (
-            <li key={c.name} className={c.warn ? "check warn" : "check pass"}>
-              <span className="check-mark" aria-hidden>
-                {c.warn ? "!" : "✓"}
-              </span>
-              {c.name}
-              <span className="check-state">
-                {c.warn ? d.reviewLabel : d.passLabel}
-              </span>
-            </li>
-          ))}
-        </ul>
-      </div>
+    <Section id="control" title={d.controlTitle} sub={d.controlSub}>
+      <ol className="learn-grid">
+        {d.controls.map((c, i) => (
+          <li key={c.title} className="learn-card">
+            <span className="step-num mono">0{i + 1}</span>
+            <h3>{c.title}</h3>
+            <p>{c.body}</p>
+          </li>
+        ))}
+      </ol>
+      <p className="verify">
+        <strong>{d.versionsBand}</strong>
+      </p>
     </Section>
   );
 }
@@ -263,8 +253,10 @@ function Verticals({ d }: { d: LandingDict }) {
     <Section id="industries" title={d.industriesTitle} sub={d.industriesSub}>
       <div className="verticals">
         {d.verticals.map((v) => (
-          <article key={v.name} className="vertical">
-            <h3>{v.name}</h3>
+          <article key={v.slug} className="vertical">
+            <h3>
+              <a href={`/agazat/${v.slug}`}>{v.name}</a>
+            </h3>
             <p>{v.pain}</p>
             <p className="vertical-does">
               <strong>{d.hannaDoes}</strong> {v.does}
@@ -273,6 +265,20 @@ function Verticals({ d }: { d: LandingDict }) {
         ))}
       </div>
       <p className="muted">{d.industriesNote}</p>
+      <div className="bespoke-band">
+        <div>
+          <h3>{d.bespokeTitle}</h3>
+          <p>{d.bespokeBody}</p>
+        </div>
+        <p>
+          <a
+            className="btn btn-primary"
+            href="mailto:hello@dialhanna.com?subject=Egyedi%20ig%C3%A9ny%20%2F%20Bespoke%20request"
+          >
+            {d.bespokeCta}
+          </a>
+        </p>
+      </div>
     </Section>
   );
 }
@@ -290,7 +296,7 @@ function Calc({ d, lang }: { d: LandingDict; lang: Lang }) {
         <div className="calc-inputs">
           <label>
             {d.calc.calls}: <strong>{d.calc.callsUnit(calls)}</strong>
-            <input type="range" min={1} max={30} value={calls}
+            <input type="range" min={1} max={40} value={calls}
               onChange={(e) => setCalls(Number(e.target.value))} />
           </label>
           <label>
@@ -300,7 +306,7 @@ function Calc({ d, lang }: { d: LandingDict; lang: Lang }) {
           </label>
           <label>
             {d.calc.avg}: <strong>{lang === "hu" ? formatHuf(avg) : `${fmtNum(avg)} HUF`}</strong>
-            <input type="range" min={2000} max={100000} step={1000} value={avg}
+            <input type="range" min={3000} max={150000} step={1000} value={avg}
               onChange={(e) => setAvg(Number(e.target.value))} />
           </label>
         </div>
@@ -328,29 +334,20 @@ function Calc({ d, lang }: { d: LandingDict; lang: Lang }) {
 
 function Pricing({ d }: { d: LandingDict }) {
   const [annual, setAnnual] = useState(false);
-  const [gross, setGross] = useState(false);
   return (
     <Section id="pricing" title={d.pricingTitle} sub={d.pricingSub}>
       <p className="muted">{d.pricingNote}</p>
-      <div className="toggles">
-        <button onClick={() => setAnnual(false)} className={annual ? "toggle" : "toggle active"}>
+      <div className="toggles" role="group" aria-label={`${d.monthly} / ${d.annual}`}>
+        <button onClick={() => setAnnual(false)} aria-pressed={!annual} className={annual ? "toggle" : "toggle active"}>
           {d.monthly}
         </button>
-        <button onClick={() => setAnnual(true)} className={annual ? "toggle active" : "toggle"}>
+        <button onClick={() => setAnnual(true)} aria-pressed={annual} className={annual ? "toggle active" : "toggle"}>
           {d.annual} · {d.annualDeal}
-        </button>
-        <span className="toggle-gap" />
-        <button onClick={() => setGross(false)} className={gross ? "toggle" : "toggle active"}>
-          {d.net}
-        </button>
-        <button onClick={() => setGross(true)} className={gross ? "toggle active" : "toggle"}>
-          {d.gross}
         </button>
       </div>
       <div className="plans">
         {d.plans.map((p) => {
-          const base = annual ? p.annual : p.monthly;
-          const v = gross ? base * 1.27 : base;
+          const v = annual ? p.annual : p.monthly;
           const price = fmtNum(v);
           const unit = annual ? d.perYear : d.perMonth;
           return (
@@ -361,8 +358,7 @@ function Pricing({ d }: { d: LandingDict }) {
               </div>
               <p className="plan-tag">{p.tag}</p>
               <p className="plan-price">
-                {price} {unit}{" "}
-                <span className="muted small">{gross ? d.grossNote : "+ ÁFA"}</span>
+                {price} {unit}
               </p>
               {annual && (
                 <p className="muted small">
@@ -466,7 +462,7 @@ export default function Landing({ d, lang }: { d: LandingDict; lang: Lang }) {
       <Values d={d} />
       <HowItWorks d={d} />
       <CallTabs d={d} lang={lang} />
-      <Readiness d={d} />
+      <Control d={d} />
       <Learning d={d} />
       <Verticals d={d} />
       <Calc d={d} lang={lang} />

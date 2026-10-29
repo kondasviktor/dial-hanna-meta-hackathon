@@ -16,11 +16,12 @@ test("publish swaps live atomically", () => {
   assert.equal(r.versions.find((v) => v.id === "v1")!.status, "archived");
 });
 
-test("draft needs owner override", () => {
+test("draft publishes immediately, no test gate (v3.1)", () => {
   const vs = [{ id: "v1", orgId: "o", status: "draft" as const }];
-  assert.equal(canPublish(vs[0]).ok, false);
-  const r = publish(vs, "o", "v1", true);
-  assert.match(r.warning!, /untested/);
+  assert.equal(canPublish(vs[0]).ok, true);
+  const r = publish(vs, "o", "v1");
+  assert.equal(r.publishedId, "v1");
+  assert.equal(r.warning, undefined);
 });
 
 test("rollback restores previous live", () => {

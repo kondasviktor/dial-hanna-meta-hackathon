@@ -12,11 +12,10 @@ export interface AgentVersion {
   rollbackFrom?: string;
 }
 
-// Publish allowed from `tested` only (owner override with warning).
-export function canPublish(v: AgentVersion, ownerOverride = false): { ok: boolean; reason?: string } {
+// v3.1: publish is immediate, there is no test gate.
+export function canPublish(v: AgentVersion): { ok: boolean; reason?: string } {
   if (v.status === "live") return { ok: false, reason: "already-live" };
-  if (v.status === "tested") return { ok: true };
-  if (v.status === "draft" && ownerOverride) return { ok: true, reason: "override-untested" };
+  if (v.status === "tested" || v.status === "draft") return { ok: true };
   return { ok: false, reason: `status-${v.status}-not-publishable` };
 }
 
@@ -24,11 +23,10 @@ export function publish(
   versions: AgentVersion[],
   orgId: string,
   versionId: string,
-  ownerOverride = false,
 ): { versions: AgentVersion[]; publishedId: string; warning?: string } {
   const target = versions.find((v) => v.id === versionId && v.orgId === orgId);
   if (!target) throw new Error("version-not-found");
-  const check = canPublish(target, ownerOverride);
+  const check = canPublish(target);
   if (!check.ok) throw new Error(check.reason);
   const prevLive = versions.find((v) => v.orgId === orgId && v.status === "live");
   const next = versions.map((v) => {
@@ -42,7 +40,7 @@ export function publish(
   return {
     versions: next,
     publishedId: versionId,
-    warning: check.reason === "override-untested" ? "publishing untested version" : undefined,
+    warning: undefined,
   };
 }
 

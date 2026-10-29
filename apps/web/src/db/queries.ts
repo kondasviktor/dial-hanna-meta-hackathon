@@ -50,7 +50,7 @@ export async function getDashboard(clerkOrgId: string) {
     openActions: openActions.map((c) => ({ id: c.id, summary: c.nextActionHu! })),
     recent: shaped.slice(0, 10),
     gaps: openGaps.map((g) => ({ id: g.id, question: g.question, context: g.context, status: g.status })),
-    live: live ? { id: live.id, status: live.status, readinessScore: live.readinessScore } : null,
+    live: live ? { id: live.id, status: live.status } : null,
   };
 }
 
