@@ -4,53 +4,29 @@ import { getDashboard } from "@/db/queries.ts";
 // Demo org until real Clerk organizations are wired to tenants.
 const DEMO_ORG = "demo_demo-salon-01";
 
-type Dashboard = NonNullable<Awaited<ReturnType<typeof getDashboard>>>;
-
-// Fictional demo content (mirrors the Claude product-UI proposal) shown when
-// no database is wired up. Clearly labelled as demo in the UI.
-const DEMO: Dashboard = {
-  org: { id: "demo", name: "Szalon Viola", plan: "Pro" },
-  todaysCalls: 4,
-  openActions: [
-    { id: "a1", summary: "Hívd vissza ma 17:00 előtt: Kovács Anna (sürgős hibabejelentés)." },
-    { id: "a2", summary: "Erősítsd meg a péntek 14:30-as foglalást telefonon." },
-    { id: "a3", summary: "Nézd át az új tudásrést: parkolás a szalon közelében." },
-  ],
-  recent: [
-    {
-      id: "c1", startedAt: "2026-10-28T10:12:00", channel: "telnyx",
-      from: "+36 30 555 0101", language: "hu",
-      intent: "Időpontfoglalás", outcome: "Hajvágás, csütörtök 15:30",
-      nextActionHu: null, ownerStatus: "done",
-    },
-    {
-      id: "c2", startedAt: "2026-10-28T09:03:00", channel: "telnyx",
-      from: "+36 20 555 0102", language: "hu",
-      intent: "Árkérdés és parkolás", outcome: "Megválaszolva, 1 kérdésre nem volt válasz",
-      nextActionHu: "Válaszolj egyszer a parkolásról.", ownerStatus: "open",
-    },
-    {
-      id: "c3", startedAt: "2026-10-27T16:44:00", channel: "telnyx",
-      from: null, language: "en",
-      intent: "Appointment booking", outcome: "Trim, Saturday 10:00",
-      nextActionHu: null, ownerStatus: "done",
-    },
-  ],
-  gaps: [
-    { id: "g1", question: "Van parkoló a közelben?", context: "4 hívó kérdezte a héten", status: "open" },
-  ],
-  live: { id: "v7", status: "live" },
-};
-
 function withinDays(iso: string | null, days: number): boolean {
   if (!iso) return false;
   return Date.now() - new Date(iso).getTime() < days * 86_400_000;
 }
 
 export default async function Dashboard() {
-  const real = await getDashboard(DEMO_ORG);
-  const demo = !real;
-  const d = real ?? DEMO;
+  const d = await getDashboard(DEMO_ORG);
+  if (!d) {
+    return (
+      <div>
+        <h1 className="dash-title">Áttekintés</h1>
+        <p className="muted">
+          Még nincs bekötött vállalkozás. Hozd létre a szervezetet, válassz
+          csomagot, és az első átirányított hívás itt jelenik meg.
+        </p>
+        <p>
+          <Link href="/onboarding" className="btn btn-primary btn-sm">
+            Beüzemelés indítása
+          </Link>
+        </p>
+      </div>
+    );
+  }
 
   const weekCalls = d.recent.filter((c) => withinDays(c.startedAt, 7));
   const bookings = weekCalls.filter((c) => /foglal|book/i.test(`${c.intent ?? ""} ${c.outcome ?? ""}`));
@@ -69,13 +45,6 @@ export default async function Dashboard() {
         {d.org.name} · {d.org.plan}
       </p>
 
-      {demo && (
-        <p className="demo-banner">
-          Bemutató nézet mintaadatokkal. Éles adathoz állítsd be a{" "}
-          <code>DATABASE_URL</code>-t és futtasd a seedet.
-        </p>
-      )}
-
       <div className="kpis">
         <div className="kpi">
           <span className="kpi-num">{weekCalls.length}</span>
@@ -90,9 +59,9 @@ export default async function Dashboard() {
           <span className="kpi-label">Nyitott teendő</span>
         </div>
         <div className="kpi dark">
-          <span className="kpi-num">62 <span style={{ fontSize: 16 }}>/ 250</span></span>
+          <span className="kpi-num">0 <span style={{ fontSize: 16 }}>/ 40</span></span>
           <span className="kpi-label">
-            AI-perc · 75 / 90 / 100%-nál jelzünk{d.live ? ` · ${d.live.id} élő` : ""}
+            AI-perc · próba{d.live ? ` · ${d.live.id} élő` : ""}
           </span>
         </div>
       </div>
@@ -117,7 +86,7 @@ export default async function Dashboard() {
               <p className="muted">Még nincs hívás.</p>
             )}
             {d.recent.map((c) => (
-              <Link key={c.id} href={demo ? "/dashboard" : `/dashboard/calls/${c.id}`} className="call-row">
+              <Link key={c.id} href={`/dashboard/calls/${c.id}`} className="call-row">
                 <span className="call-time">
                   {(c.startedAt ?? "").slice(0, 16).replace("T", " ")}
                 </span>
@@ -162,10 +131,10 @@ export default async function Dashboard() {
           <div className="dash-card">
             <h2>Perckeret</h2>
             <p className="mono">
-              62 <span className="muted">/ 250 AI-perc</span>
+              0 <span className="muted">/ 40 AI-perc</span>
             </p>
             <div className="minutes-bar" aria-hidden>
-              <div className="minutes-fill" style={{ width: "25%" }} />
+              <div className="minutes-fill" style={{ width: "0%" }} />
             </div>
             <div className="minutes-marks">
               <span>75%</span>
