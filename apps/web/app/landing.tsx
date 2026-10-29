@@ -204,7 +204,7 @@ function CallTabs({ d, lang }: { d: LandingDict; lang: Lang }) {
           </p>
           <Transcript lines={sc.lines} />
         </div>
-        <div>
+        <div className="call-side">
           <p className="panel-after">{d.afterDash}</p>
           <OutcomeCard d={d} sc={sc} />
           <p className="muted small">{d.hero.demoNote}</p>
@@ -373,8 +373,7 @@ function Pricing({ d }: { d: LandingDict }) {
                   <li key={f}>{f}</li>
                 ))}
               </ul>
-              {p.noCalendar && <p className="muted small">—</p>}
-              <p>
+              <p className="plan-cta">
                 <a className={p.badge ? "btn btn-light" : "btn btn-outline"} href={TRIAL_LINK}>
                   {p.cta}
                 </a>

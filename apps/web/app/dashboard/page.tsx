@@ -72,8 +72,8 @@ export default async function Dashboard() {
 
       {demo && (
         <p className="demo-banner">
-          Demó adatok, kitalált vállalkozással és kitalált hívókkal. Éles
-          adathoz állítsd be a <code>DATABASE_URL</code>-t és futtasd a seedet.
+          Bemutató nézet mintaadatokkal. Éles adathoz állítsd be a{" "}
+          <code>DATABASE_URL</code>-t és futtasd a seedet.
         </p>
       )}
 
