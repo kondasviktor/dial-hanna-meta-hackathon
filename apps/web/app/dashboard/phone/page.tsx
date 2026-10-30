@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation";
 import { DEFAULT_CONDITIONS, forwardingCodes } from "@/lib/mmi.ts";
 import { requireAdmin } from "@/lib/org.ts";
+import Softphone from "./softphone";
 
 export const dynamic = "force-dynamic";
 
@@ -20,9 +21,9 @@ export default async function PhonePage() {
     <div>
       <h1 className="dash-title">Telefon</h1>
       <p className="muted">
-        Hackathon: Twilio US DID. A demóhoz Wi‑Fi softphone-nal hívd a
-        számot (ne mobil nemzetközi díjjal).
+        Hackathon: Twilio US DID. A demóhoz használd a softphone-t Wi‑Fi-n.
       </p>
+      <Softphone did={did} />
       <div className="dash-card">
         <h2>Dial Hanna szám</h2>
         {did ? (
@@ -37,8 +38,7 @@ export default async function PhonePage() {
         <div className="dash-card">
           <h2>Átirányítási kódok (példa)</h2>
           <p className="muted small">
-            Szolgáltatónként ellenőrizd. A demóhoz elég közvetlenül a Twilio
-            számot hívni.
+            Szolgáltatónként ellenőrizd. A demóhoz a softphone elég.
           </p>
           <ul>
             {codes.map((c) => (
