@@ -137,7 +137,7 @@ def elevenlabs_tts(text, voice_id=None):
 
 
 def run_text_demo(to_number, from_number, user_turns):
-    """Offline rehearsal without Telnyx: session → turns → complete.
+    """Offline rehearsal without Twilio media: session → turns → complete.
 
     user_turns: list of English caller strings.
     """
@@ -198,7 +198,7 @@ def run_text_demo(to_number, from_number, user_turns):
 if __name__ == "__main__":
     # Minimal smoke: needs APP_URL + TOOLS_HMAC_SECRET + Meta key.
     print(run_text_demo(
-        os.environ.get("TELNYX_PHONE_NUMBER", "+10000000000"),
+        os.environ.get("TWILIO_PHONE_NUMBER", "+10000000000"),
         "+36111111111",
         [
             "Hi, I'd like to book a haircut on Thursday afternoon.",

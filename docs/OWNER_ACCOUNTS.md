@@ -4,7 +4,7 @@ Do these once. Keys stay in `.env` / Vercel env — never commit them.
 
 - [ ] **ADMIN_EMAILS** — your Clerk login email (comma-separated if needed)
 - [ ] **Clerk webhook** — endpoint `/api/webhooks/clerk`, signing secret → `CLERK_SIGNING_SECRET`; sign in once on closed Vercel
-- [ ] **Telnyx** — account + one cheap non-HU DID (~$1/mo) → `TELNYX_API_KEY`, `TELNYX_CONNECTION_ID`, `TELNYX_PUBLIC_KEY`, `TELNYX_PHONE_NUMBER`
+- [ ] **Twilio** — US Voice DID → `TWILIO_ACCOUNT_SID`, `TWILIO_AUTH_TOKEN`, `TWILIO_PHONE_NUMBER`; webhook `POST https://dial-hanna.vercel.app/api/twilio/voice`
 - [ ] **ElevenLabs** — free API key + one female voice → `ELEVENLABS_API_KEY`, `ELEVENLABS_VOICE_ID` (do not enable STT/Agents)
 - [ ] **Google Calendar** — OAuth app in testing mode, test Gmail as test user → `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`
 - [ ] **Neon** — run `apps/web/drizzle/0002_waitlist.sql`

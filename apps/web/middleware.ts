@@ -14,7 +14,7 @@ const isPublic = createRouteMatcher([
   "/api/waitlist",
   "/api/webhooks/clerk",
   "/api/voice(.*)",
-  "/api/telnyx(.*)",
+  "/api/twilio(.*)",
   "/sign-in(.*)",
 ]);
 

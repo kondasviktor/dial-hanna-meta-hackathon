@@ -6,7 +6,7 @@ functions can't hold them.
 > Local machine may run Python 3.9, so Pipecat is NOT installed here.
 > Helpers are stdlib-only and tested with `python3 -m unittest`.
 > `pipeline.py` includes a text-demo path (Meta Spark + ElevenLabs + signed
-> web tools) for private rehearsals. Wire Telnyx media on Fly with 3.12.
+> web tools) for private rehearsals. Wire Twilio Media Streams on Fly with 3.12.
 
 ## Layout
 
@@ -21,7 +21,7 @@ services/voice/
   src/pipeline.py    text demo + TTS scaffold (Pipecat transport TODO on Fly)
 ```
 
-## Private rehearsal (no Telnyx)
+## Private rehearsal (no Twilio stream)
 
 ```bash
 export APP_URL=https://your-preview.vercel.app

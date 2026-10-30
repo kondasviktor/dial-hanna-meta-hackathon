@@ -13,7 +13,7 @@ Intent → Outcome → Next action, and learns from knowledge gaps.
 | Web | Next.js App Router on Vercel (`fra1`) |
 | DB | Neon Postgres (`eu-central-1`) + Drizzle |
 | Auth | Clerk Organizations (admin-only during hackathon) |
-| Voice | Python helpers + Telnyx DID → Meta Transcribe → Muse Spark 1.3 → ElevenLabs Flash |
+| Voice | Python helpers + Twilio DID → Meta Transcribe → Muse Spark 1.3 → ElevenLabs Flash |
 | Public funnel | Waitlist only (no Stripe, no browser call, no public trial) |
 
 ## Meta models
@@ -31,7 +31,7 @@ All calls go directly to `https://api.meta.ai/v1` with the hackathon key.
 ## Call path
 
 ```text
-Caller phone → Telnyx DID → voice service
+Caller phone → Twilio DID → voice service
   → Transcribe (keywords from business) → Spark tools → ElevenLabs
   → POST /api/voice/calls/:id/complete → outcome + gaps on dashboard
 ```

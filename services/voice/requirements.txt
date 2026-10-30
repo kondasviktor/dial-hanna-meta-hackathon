@@ -1,5 +1,5 @@
 # Pinned for Python 3.12 on Fly.io. DO NOT install on the local 3.9 env.
-# VERIFY Pipecat Telnyx serializer + SmallWebRTC transport against current docs.
+# VERIFY Pipecat Twilio serializer + SmallWebRTC transport against current docs.
 pipecat-ai[webrtc,websocket]==0.0.0  # replace with current version at install time
 openai==1.*        # OpenAI-compatible client pointed at https://api.meta.ai/v1
 websockets==12.*

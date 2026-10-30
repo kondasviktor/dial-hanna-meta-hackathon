@@ -8,7 +8,7 @@ export default async function PhonePage() {
   const admin = await requireAdmin();
   if (!admin.ok) redirect("/waitlist");
 
-  const did = process.env.TELNYX_PHONE_NUMBER ?? "";
+  const did = process.env.TWILIO_PHONE_NUMBER ?? "";
   const codes = did
     ? DEFAULT_CONDITIONS.map((c) => ({
         condition: c,
@@ -20,8 +20,8 @@ export default async function PhonePage() {
     <div>
       <h1 className="dash-title">Telefon</h1>
       <p className="muted">
-        Hackathon: egy olcsó Telnyx szám (nem magyar KYC). A nyilvános
-        böngészős hívás nincs. Te hívod a DID-et a demóhoz.
+        Hackathon: Twilio US DID. A demóhoz Wi‑Fi softphone-nal hívd a
+        számot (ne mobil nemzetközi díjjal).
       </p>
       <div className="dash-card">
         <h2>Dial Hanna szám</h2>
@@ -29,7 +29,7 @@ export default async function PhonePage() {
           <p className="mono" style={{ fontSize: 20 }}>{did}</p>
         ) : (
           <p className="muted">
-            Állítsd be a <code>TELNYX_PHONE_NUMBER</code> változót a .env-ben.
+            Állítsd be a <code>TWILIO_PHONE_NUMBER</code> változót a .env-ben.
           </p>
         )}
       </div>
@@ -37,7 +37,7 @@ export default async function PhonePage() {
         <div className="dash-card">
           <h2>Átirányítási kódok (példa)</h2>
           <p className="muted small">
-            Szolgáltatónként ellenőrizd. A demóhoz elég közvetlenül a Telnyx
+            Szolgáltatónként ellenőrizd. A demóhoz elég közvetlenül a Twilio
             számot hívni.
           </p>
           <ul>
