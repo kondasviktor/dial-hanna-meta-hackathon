@@ -70,13 +70,10 @@ export interface LandingDict {
   tabsNote: string;
   callLabel: string;
   afterDash: string;
-  controlTitle: string;
-  controlSub: string;
-  controls: { title: string; body: string }[];
+  ownerTitle: string;
+  ownerSub: string;
+  ownerTiles: { title: string; body: string }[];
   versionsBand: string;
-  learnTitle: string;
-  learnSub: string;
-  learn: { title: string; body: string }[];
   industriesTitle: string;
   industriesSub: string;
   verticals: Vertical[];
@@ -122,8 +119,9 @@ export interface LandingDict {
   faq: { q: string; a: string }[];
   finalTitle: string;
   finalSub: string;
-  footerDemo: string;
+  footerCraft: string;
   footerRights: string;
+  footerStatus: string;
   privacy: string;
   terms: string;
   contact: string;
@@ -151,9 +149,9 @@ const hu: LandingDict = {
     sub: "Tartsd meg a saját számodat. Amikor munka közben nem tudod felvenni a telefont, Hanna a vállalkozásod nevében magyarul vagy angolul fogadja a hívást, időpontot foglal, és kész teendőt ad át — nem hangfelvételt.",
     primary: "Csatlakozom a várólistához",
     secondary: "Nézd meg, hogyan működik",
-    trust: "Induláskor 14 nap próba a saját számodon · Hanna minden hívás első mondatában MI-asszisztensként mutatkozik be",
-    panelCaption: "Átirányított hívás · 1:48",
-    panelBiz: "Szalon Viola",
+    trust: "Induláskor 7 nap próba a saját számodon · Hanna minden hívás első mondatában MI-asszisztensként mutatkozik be",
+    panelCaption: "Hívás · 1:48",
+    panelBiz: "Szalon Viola · szépségszalon",
     afterTitle: "Hívás után",
     intent: "Szándék",
     outcome: "Eredmény",
@@ -194,31 +192,35 @@ const hu: LandingDict = {
   tabsNote: "Minden hívás három sorban: mit akart a hívó, mi lett belőle, és mit kell neked tenni.",
   callLabel: "Hívás",
   afterDash: "Hívás után a dashboardon",
-  controlTitle: "Te szabod meg, mit mondhat",
-  controlSub: "És kit hogyan kezeljen.",
-  controls: [
-    { title: "Csak jóváhagyott tudásból válaszol", body: "Amit nem mondtál meg neki, azt nem állítja. Ismeretlen kérdésnél visszahívást ajánl, és beírja a tudásrés-listádba." },
-    { title: "Ismerősöket nem faggat", body: "A mentett számoktól nem kérdez, csak rövid üzenetet vesz fel, és kiemelten jelzi neked." },
-    { title: "Egy kapcsoló", body: "Kikapcsolod, és Hanna szünetel. Az átirányítást nem kell bontanod, visszakapcsoláskor azonnal fogad." },
-    { title: "Rögzítés alapból kikapcsolva", body: "Ha bekapcsolod, a hívó a beszélgetés elején erről tájékoztatást kap." },
+  ownerTitle: "Te irányítod Hannát",
+  ownerSub: "Mit mondhat, kit hogyan kezel, és hogyan tanul egyetlen válaszból.",
+  ownerTiles: [
+    {
+      title: "Csak jóváhagyott tudás",
+      body: "Amit nem mondtál meg, azt nem állítja. Ismeretlen kérdésnél visszahívást ajánl.",
+    },
+    {
+      title: "Ismerősöket nem faggat",
+      body: "Mentett számoktól csak rövid üzenetet vesz fel, és kiemelten jelzi neked.",
+    },
+    {
+      title: "Egy kapcsoló",
+      body: "Kikapcsolod — Hanna szünetel. Az átirányítást nem kell bontanod.",
+    },
+    {
+      title: "Amit nem tud, feljegyzi",
+      body: "Összetett kérdésnél nem találgat: a kérdés a pótolandó listádra kerül.",
+    },
+    {
+      title: "Egyszer válaszolsz",
+      body: "Egy mondat elég. Hanna megfogalmazza, te jóváhagyod.",
+    },
+    {
+      title: "Következő hívó már tudja",
+      body: "Élőbe kerül. Ha félresikerül, egy kattintással visszalépsz.",
+    },
   ],
   versionsBand: "Ha valami félresikerül, egy kattintással visszalépsz az előző verzióra.",
-  learnTitle: "Tanuló rendszer",
-  learnSub: "Amit nem tud, azt egyszer kell megválaszolnod.",
-  learn: [
-    {
-      title: "Hanna nem tudja",
-      body: "„Van parkoló a közelben?” Hanna nem találgat: visszahívást ajánl a hívónak, a kérdés pedig bekerül a tudásrés-listádba. Ezen a héten már 4 hívó kérdezte.",
-    },
-    {
-      title: "Te válaszolsz egy mondatban",
-      body: "„Igen, a hátsó udvarban 6 ingyenes hely van.” Begépeled vagy bemondod. Hanna szépen megfogalmazza, te jóváhagyod.",
-    },
-    {
-      title: "Új verzió élőben",
-      body: "A következő hívó már választ kap. Ha valami félresikerül, visszagörgetsz az előző verzióra.",
-    },
-  ],
   industriesTitle: "Kinek készült",
   industriesSub: "Ahol foglalt a kéz, a telefon se maradjon néma.",
   verticals: [
@@ -361,7 +363,7 @@ const hu: LandingDict = {
     },
   ],
   trialTitle: "Induláskor:",
-  trialBody: "A fizetős csomagok megnyitásakor 14 nap próba a saját számodon, bankkártyával. Most a várólistára lehet feliratkozni.",
+  trialBody: "A fizetős csomagok megnyitásakor 7 nap próba a saját számodon, bankkártyával. Most a várólistára lehet feliratkozni.",
   overageTitle: "Elfogyó perckeret:",
   overageBody: "75, 90 és 100%-nál jelzünk. Te döntesz: automatikus feltöltés, kisebb túlhasználat vagy leállás. Extra 100 perc: 9 900 Ft.",
   faqTitle: "GYIK",
@@ -373,7 +375,7 @@ const hu: LandingDict = {
     },
     {
       q: "Mi van, ha olyat kérdeznek, amit nem tud?",
-      a: "Nem találgat. Visszahívást ajánl, a kérdés pedig bekerül a tudásrés-listádba. Te egyszer megválaszolod, és Hanna a következő hívásnál már tudja.",
+      a: "Nem találgat. Visszahívást ajánl, a kérdés pedig a pótolandó listádra kerül. Egyszer megválaszolod, és Hanna a következő hívásnál már tudja.",
     },
     {
       q: "Mennyibe kerül az átirányítás?",
@@ -397,14 +399,15 @@ const hu: LandingDict = {
     },
   ],
   finalTitle: "Ne veszíts el több ügyfélhívást.",
-  finalSub: "Írd fel magad a várólistára. A 14 napos próba a saját számodon a fizetős csomagok indulásakor nyílik meg.",
-  footerDemo: "© 2026 Dial Hanna. All rights reserved. Crafted by Viktor @ Vibe Coder's Life",
-  footerRights: "Dial Hanna",
+  finalSub: "Írd fel magad a várólistára. A 7 napos próba a saját számodon a fizetős csomagok indulásakor nyílik meg.",
+  footerCraft: "Crafted by Viktor @ Vibe Coder's Life",
+  footerRights: "© 2026 Dial Hanna",
+  footerStatus: "státusz",
   privacy: "Adatvédelem",
   terms: "ÁSZF",
   contact: "Kapcsolat",
   waitlistTitle: "Várólista",
-  waitlistBody: "A Dial Hanna most várólistás. Nincs nyilvános próba és nincs böngészős hívás. Amikor a fizetős csomagok elindulnak, megírjuk, és 14 napig a saját számodon próbálhatod.",
+  waitlistBody: "A Dial Hanna most várólistás. Nincs nyilvános próba és nincs böngészős hívás. Amikor a fizetős csomagok elindulnak, megírjuk, és 7 napig a saját számodon próbálhatod.",
   waitlistSubmit: "Feliratkozom",
   waitlistSuccess: "Kész. Megírjuk, amikor indulunk.",
   waitlistPlaceholder: "email@vallalkozas.hu",
@@ -427,9 +430,9 @@ const en: LandingDict = {
     sub: "Keep your own number. When you're mid-job and can't answer the phone, Hanna picks up in your business's name in Hungarian or English, books appointments, and hands you a ready to-do — not a recording.",
     primary: "Join the waitlist",
     secondary: "See how it works",
-    trust: "At launch: 14-day trial on your own number · Hanna introduces herself as an AI assistant in the first sentence of every call",
-    panelCaption: "Forwarded call · 1:48",
-    panelBiz: "Szalon Viola",
+    trust: "At launch: 7-day trial on your own number · Hanna introduces herself as an AI assistant in the first sentence of every call",
+    panelCaption: "Call · 1:48",
+    panelBiz: "Szalon Viola · beauty salon",
     afterTitle: "After the call",
     intent: "Intent",
     outcome: "Outcome",
@@ -470,31 +473,35 @@ const en: LandingDict = {
   tabsNote: "Every call in three lines: what the caller wanted, what came of it, and what you need to do.",
   callLabel: "Call",
   afterDash: "On your dashboard after the call",
-  controlTitle: "You decide what she may say",
-  controlSub: "And how she treats whom.",
-  controls: [
-    { title: "Only approved knowledge", body: "What you never told her, she never claims. On unknown questions she offers a callback and logs a knowledge gap." },
-    { title: "Light touch for known contacts", body: "Saved numbers get no interview — just a short message, flagged for you." },
-    { title: "One switch", body: "Switch her off and Hanna pauses. You don't need to cancel the forwarding; she answers again right after you switch her back on." },
-    { title: "Recording off by default", body: "If you switch it on, the caller is informed at the start of the conversation." },
+  ownerTitle: "You're in control of Hanna",
+  ownerSub: "What she may say, how she treats callers, and how she learns from one answer.",
+  ownerTiles: [
+    {
+      title: "Approved knowledge only",
+      body: "What you never told her, she never claims. On unknowns she offers a callback.",
+    },
+    {
+      title: "Light touch for known contacts",
+      body: "Saved numbers get a short message only — flagged for you, no interview.",
+    },
+    {
+      title: "One switch",
+      body: "Turn her off and Hanna pauses. You don't need to cancel forwarding.",
+    },
+    {
+      title: "Unknowns get logged",
+      body: "On a complex question she doesn't guess — it lands on your to-answer list.",
+    },
+    {
+      title: "You answer once",
+      body: "One sentence is enough. Hanna phrases it; you approve.",
+    },
+    {
+      title: "Next caller already knows",
+      body: "It goes live. If something goes wrong, one click rolls back.",
+    },
   ],
   versionsBand: "If something goes wrong, one click rolls back to the previous version.",
-  learnTitle: "A system that learns",
-  learnSub: "What she doesn't know, you answer exactly once.",
-  learn: [
-    {
-      title: "Hanna doesn't know",
-      body: "\u201CIs there parking nearby?\u201D Hanna doesn't guess: she offers the caller a callback, and the question lands on your knowledge-gap list. 4 callers asked it this week already.",
-    },
-    {
-      title: "You answer in one sentence",
-      body: "\u201CYes — 6 free spots in the back yard.\u201D You type or say it. Hanna phrases it nicely, you approve.",
-    },
-    {
-      title: "New version live",
-      body: "The next caller gets an answer. If anything goes wrong, you roll back to the previous version.",
-    },
-  ],
   industriesTitle: "Who it's for",
   industriesSub: "Where hands are busy, the phone shouldn't stay silent either.",
   verticals: [
@@ -637,7 +644,7 @@ const en: LandingDict = {
     },
   ],
   trialTitle: "At launch:",
-  trialBody: "When paid plans open, you get a 14-day trial on your own number with a card on file. Right now you can join the waitlist.",
+  trialBody: "When paid plans open, you get a 7-day trial on your own number with a card on file. Right now you can join the waitlist.",
   overageTitle: "Running out of minutes:",
   overageBody: "We alert you at 75, 90, and 100%. You decide: auto top-up, small overage, or stop. Extra 100 minutes: 9,900 HUF.",
   faqTitle: "FAQ",
@@ -649,7 +656,7 @@ const en: LandingDict = {
     },
     {
       q: "What if they ask something she doesn't know?",
-      a: "She doesn't guess. She offers a callback, and the question lands on your knowledge-gap list. You answer once, and she knows it from the next call.",
+      a: "She doesn't guess. She offers a callback, and the question lands on your to-answer list. You answer once, and she knows it from the next call.",
     },
     {
       q: "What does forwarding cost?",
@@ -673,14 +680,15 @@ const en: LandingDict = {
     },
   ],
   finalTitle: "Stop losing customer calls.",
-  finalSub: "Join the waitlist. The 14-day trial on your own number opens when paid plans launch.",
-  footerDemo: "© 2026 Dial Hanna. All rights reserved. Crafted by Viktor @ Vibe Coder's Life",
-  footerRights: "Dial Hanna",
+  finalSub: "Join the waitlist. The 7-day trial on your own number opens when paid plans launch.",
+  footerCraft: "Crafted by Viktor @ Vibe Coder's Life",
+  footerRights: "© 2026 Dial Hanna",
+  footerStatus: "status",
   privacy: "Privacy",
   terms: "Terms",
   contact: "Contact",
   waitlistTitle: "Join the waitlist",
-  waitlistBody: "Dial Hanna is waitlist-only for now. There is no public trial and no call-from-the-website. When paid plans open, we email you — then you can try 14 days on your own number.",
+  waitlistBody: "Dial Hanna is waitlist-only for now. There is no public trial and no call-from-the-website. When paid plans open, we email you — then you can try 7 days on your own number.",
   waitlistSubmit: "Join the waitlist",
   waitlistSuccess: "You're on the list. We'll email you when we open.",
   waitlistPlaceholder: "you@business.com",
@@ -700,7 +708,7 @@ export const scenarios: Record<Lang, Scenario[]> = {
       lines: [
         { who: "Hanna", text: "Szalon Viola, Hanna beszél, a szalon MI-asszisztense. Miben segíthetek?", hanna: true },
         { who: "Hívó", text: "Időpontot szeretnék hajvágásra, lehetőleg csütörtök délután.", hanna: false },
-        { who: "Hanna", text: "Csütörtökön 15:30-kor van szabad hely. Foglaljam be?", hanna: true },
+        { who: "Hanna", text: "Csütörtökön 15:30-kor van szabad hely. Foglaljam?", hanna: true },
         { who: "Hívó", text: "Igen, Nagy Eszter vagyok.", hanna: false },
       ],
     },
@@ -710,13 +718,13 @@ export const scenarios: Record<Lang, Scenario[]> = {
       chip: "Hiányzó válasz",
       chipBg: "#FFB62E",
       chipFg: "#0C1C20",
-      intent: "Árkérdés és parkolás",
+      intent: "Árkérdés és biztosítás",
       outcome: "Megválaszolva, 1 kérdésre nem volt válasz",
-      next: "Válaszolj egyszer a parkolásról, és Hanna legközelebb már tudja.",
+      next: "Válaszolj egyszer a biztosítós számlázásról — Hanna legközelebb már tudja.",
       lines: [
         { who: "Hívó", text: "Mennyibe kerül egy fékbetétcsere egy Golfra?", hanna: false },
         { who: "Hanna", text: "Az első fékbetétcsere munkadíja 18 000 forinttól indul, az alkatrész ára a típustól függ.", hanna: true },
-        { who: "Hívó", text: "És van náluk parkoló?", hanna: false },
+        { who: "Hívó", text: "A Generali casco fizetné — tudnak közvetlenül a biztosítónak számlázni, és ők intézik az ügyintézést?", hanna: false },
         { who: "Hanna", text: "Erről most nincs biztos információm. Továbbítom a kérdést, és kérem, hagyja meg a számát, hogy visszahívhassák.", hanna: true },
       ],
     },
@@ -749,23 +757,23 @@ export const scenarios: Record<Lang, Scenario[]> = {
       lines: [
         { who: "Hanna", text: "Szalon Viola, this is Hanna, the salon's AI assistant. How can I help?", hanna: true },
         { who: "Caller", text: "I'd like a haircut appointment, preferably Thursday afternoon.", hanna: false },
-        { who: "Hanna", text: "Thursday at 3:30 PM is free. Shall I book it?", hanna: true },
+        { who: "Hanna", text: "Thursday at 3:30 PM is free. Shall I book?", hanna: true },
         { who: "Caller", text: "Yes — I'm Jane Smith.", hanna: false },
       ],
     },
     {
       label: "New question",
       biz: "Gyors Műhely · auto repair",
-      chip: "Knowledge gap",
+      chip: "Unanswered",
       chipBg: "#FFB62E",
       chipFg: "#0C1C20",
-      intent: "Pricing and parking",
+      intent: "Pricing and insurance",
       outcome: "Answered, 1 question had no answer",
-      next: "Answer once about parking, and Hanna will know next time.",
+      next: "Answer once about insurer billing — Hanna will know next time.",
       lines: [
         { who: "Caller", text: "How much is a brake pad change for a Golf?", hanna: false },
         { who: "Hanna", text: "Front brake pad labour starts at 18,000 forints; parts depend on the model.", hanna: true },
-        { who: "Caller", text: "And do you have parking?", hanna: false },
+        { who: "Caller", text: "Generali casco would cover it — can you invoice the insurer directly and handle the paperwork?", hanna: false },
         { who: "Hanna", text: "I don't have reliable information on that. I'll pass the question on — please leave your number so they can call you back.", hanna: true },
       ],
     },

@@ -13,7 +13,7 @@ export const organizations = pgTable("organizations", {
   name: text("name").notNull(),
   plan: text("plan").notNull().default("trial"),
   trialPlan: text("trial_plan"), // essential | pro | business — picked at signup
-  trialStartedAt: timestamp("trial_started_at"), // 14-day window starts here
+  trialStartedAt: timestamp("trial_started_at"), // 7-day window starts here
   timezone: text("timezone").notNull().default("Europe/Budapest"),
   createdAt: timestamp("created_at").defaultNow(),
 });

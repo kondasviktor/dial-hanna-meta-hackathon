@@ -1,6 +1,18 @@
 "use client";
 
-import { useState } from "react";
+import { useState, type ComponentType } from "react";
+import {
+  Scissors,
+  Car,
+  Wrench,
+  Truck,
+  Building2,
+  Dumbbell,
+  Camera,
+  PawPrint,
+  Briefcase,
+  type LucideProps,
+} from "lucide-react";
 import { calculate, formatHuf } from "@/lib/calculator.ts";
 import {
   waitlistHref,
@@ -9,6 +21,18 @@ import {
   type LandingDict,
   type Lang,
 } from "@/i18n/landing.ts";
+
+const VERTICAL_ICONS: Record<string, ComponentType<LucideProps>> = {
+  "hajszalon": Scissors,
+  "auto-gumiszerviz": Car,
+  "szakipar": Wrench,
+  "koltoztetes-takaritas": Truck,
+  "panzio-apartman": Building2,
+  "edzok-studiok": Dumbbell,
+  "fotos-rendezveny": Camera,
+  "kutya-kozmetika": PawPrint,
+  "szabaduszok-maganszemelyek": Briefcase,
+};
 
 const INK = "#0C1C20";
 const PANEL = "#0E2A30";
@@ -214,15 +238,15 @@ function CallTabs({ d, lang }: { d: LandingDict; lang: Lang }) {
   );
 }
 
-function Control({ d }: { d: LandingDict }) {
+function OwnerGrid({ d }: { d: LandingDict }) {
   return (
-    <Section id="control" title={d.controlTitle} sub={d.controlSub}>
-      <ol className="learn-grid">
-        {d.controls.map((c, i) => (
-          <li key={c.title} className="learn-card">
+    <Section id="control" title={d.ownerTitle} sub={d.ownerSub}>
+      <ol className="owner-grid">
+        {d.ownerTiles.map((tile, i) => (
+          <li key={tile.title} className="owner-card">
             <span className="step-num mono">0{i + 1}</span>
-            <h3>{c.title}</h3>
-            <p>{c.body}</p>
+            <h3>{tile.title}</h3>
+            <p>{tile.body}</p>
           </li>
         ))}
       </ol>
@@ -233,35 +257,25 @@ function Control({ d }: { d: LandingDict }) {
   );
 }
 
-function Learning({ d }: { d: LandingDict }) {
-  return (
-    <Section id="learn" title={d.learnTitle} sub={d.learnSub}>
-      <ol className="learn-grid">
-        {d.learn.map((l, i) => (
-          <li key={l.title} className="learn-card">
-            <span className="step-num mono">0{i + 1}</span>
-            <h3>{l.title}</h3>
-            <p>{l.body}</p>
-          </li>
-        ))}
-      </ol>
-    </Section>
-  );
-}
-
 function Verticals({ d }: { d: LandingDict }) {
   return (
     <Section id="industries" title={d.industriesTitle} sub={d.industriesSub}>
       <div className="verticals">
-        {d.verticals.map((v) => (
-          <article key={v.slug} className="vertical">
-            <h3>{v.name}</h3>
-            <p>{v.pain}</p>
-            <p className="vertical-does">
-              <strong>{d.hannaDoes}</strong> {v.does}
-            </p>
-          </article>
-        ))}
+        {d.verticals.map((v) => {
+          const Icon = VERTICAL_ICONS[v.slug] ?? Briefcase;
+          return (
+            <article key={v.slug} className="vertical">
+              <div className="vertical-icon" aria-hidden>
+                <Icon size={22} strokeWidth={1.75} />
+              </div>
+              <h3>{v.name}</h3>
+              <p>{v.pain}</p>
+              <p className="vertical-does">
+                <strong>{d.hannaDoes}</strong> {v.does}
+              </p>
+            </article>
+          );
+        })}
       </div>
       <p className="muted">{d.industriesNote}</p>
       <div className="bespoke-band">
@@ -437,19 +451,22 @@ function Final({ d, lang }: { d: LandingDict; lang: Lang }) {
 function Footer({ d }: { d: LandingDict }) {
   return (
     <footer className="footer">
-      <div className="footer-inner">
-        <div>
-          <p className="muted small" style={{ margin: 0 }}>{d.footerDemo}</p>
-          <p className="muted small">
-            <a href="mailto:hello@dialhanna.com">hello@dialhanna.com</a> ·{" "}
-            <a href="/api/health">státusz / status</a>
-          </p>
+      <div className="footer-top">
+        <div className="footer-brand">
+          <strong>Dial Hanna</strong>
+          <span className="muted small">{d.footerRights}</span>
         </div>
-        <p className="muted small">
-          <a href="/privacy">{d.privacy}</a> · <a href="/terms">{d.terms}</a> ·{" "}
+        <nav className="footer-nav" aria-label="footer">
+          <a href="/privacy">{d.privacy}</a>
+          <a href="/terms">{d.terms}</a>
           <a href="mailto:hello@dialhanna.com">{d.contact}</a>
-        </p>
+          <a href="/api/health">{d.footerStatus}</a>
+        </nav>
+        <a className="footer-mail muted small" href="mailto:hello@dialhanna.com">
+          hello@dialhanna.com
+        </a>
       </div>
+      <p className="footer-craft muted small">{d.footerCraft}</p>
     </footer>
   );
 }
@@ -464,8 +481,7 @@ export default function Landing({ lang }: { lang: Lang }) {
       <Values d={d} />
       <HowItWorks d={d} />
       <CallTabs d={d} lang={lang} />
-      <Control d={d} />
-      <Learning d={d} />
+      <OwnerGrid d={d} />
       <Verticals d={d} />
       <Calc d={d} lang={lang} />
       <Pricing d={d} lang={lang} />

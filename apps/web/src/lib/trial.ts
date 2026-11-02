@@ -1,7 +1,7 @@
-// Trial rules (owner decisions, 29 Oct 2026): org required for everyone,
-// plan picked at signup, 14-day / 40-minute trial starts immediately.
+// Trial rules: org required, plan picked at signup, 7-day / 40-minute trial
+// (card-required at go-live; no dedicated DID on free trial — see GO_LIVE_PRICING.md).
 
-export const TRIAL_DAYS = 14;
+export const TRIAL_DAYS = 7;
 export const TRIAL_MINUTES = 40;
 
 export const TRIAL_PLANS = ["essential", "pro", "business"] as const;

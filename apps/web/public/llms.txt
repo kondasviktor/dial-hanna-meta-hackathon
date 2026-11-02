@@ -15,7 +15,7 @@ Region: Hungary (Budapest)
 - Optional website import drafts FAQs; owners without a site can type Q&A by hand
 - Structured call outcomes on a private dashboard
 - Launch pricing (HUF): Essential 19 900 / Pro 34 900 / Business 59 900 per month
-- Public signup is waitlist-only until paid plans open (14-day trial on the owner's number at launch)
+- Public signup is waitlist-only until paid plans open (7-day trial on the owner's number at launch)
 
 ## Pages
 

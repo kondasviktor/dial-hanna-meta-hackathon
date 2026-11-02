@@ -5,13 +5,13 @@ import {
   trialEndsAt, trialActive,
 } from "../src/lib/trial.ts";
 
-test("trial window is 14 days from the plan pick", () => {
-  assert.equal(TRIAL_DAYS, 14);
+test("trial window is 7 days from the plan pick", () => {
+  assert.equal(TRIAL_DAYS, 7);
   assert.equal(TRIAL_MINUTES, 40);
   const start = new Date("2026-10-29T12:00:00Z");
-  assert.equal(trialEndsAt(start).toISOString(), "2026-11-12T12:00:00.000Z");
-  assert.equal(trialActive(start, new Date("2026-11-11T23:59:59Z")), true);
-  assert.equal(trialActive(start, new Date("2026-11-12T12:00:01Z")), false);
+  assert.equal(trialEndsAt(start).toISOString(), "2026-11-05T12:00:00.000Z");
+  assert.equal(trialActive(start, new Date("2026-11-04T23:59:59Z")), true);
+  assert.equal(trialActive(start, new Date("2026-11-05T12:00:01Z")), false);
   assert.equal(trialActive(null, new Date()), false);
 });
 
