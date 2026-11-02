@@ -725,8 +725,8 @@ export const scenarios: Record<Lang, Scenario[]> = {
       outcome: "Megválaszolva, 1 kérdésre nem volt válasz",
       next: "Válaszolj egyszer a biztosítós számlázásról — Hanna legközelebb már tudja.",
       lines: [
-        { who: "Hívó", text: "Mennyibe kerül egy fékbetétcsere egy Golfra?", hanna: false },
-        { who: "Hanna", text: "Az első fékbetétcsere munkadíja 18 000 forinttól indul, az alkatrész ára a típustól függ.", hanna: true },
+        { who: "Hívó", text: "Mennyibe kerül egy első lökhárítócsere egy Golfra?", hanna: false },
+        { who: "Hanna", text: "Az első lökhárítócsere munkadíja 65 000 forinttól indul, az alkatrész és a fényezés a típustól függ.", hanna: true },
         { who: "Hívó", text: "A Generali casco fizetné — tudnak közvetlenül a biztosítónak számlázni, és ők intézik az ügyintézést?", hanna: false },
         { who: "Hanna", text: "Erről most nincs biztos információm. Továbbítom a kérdést, és kérem, hagyja meg a számát, hogy visszahívhassák.", hanna: true },
       ],
@@ -774,8 +774,8 @@ export const scenarios: Record<Lang, Scenario[]> = {
       outcome: "Answered, 1 question had no answer",
       next: "Answer once about insurer billing — Hanna will know next time.",
       lines: [
-        { who: "Caller", text: "How much is a brake pad change for a Golf?", hanna: false },
-        { who: "Hanna", text: "Front brake pad labour starts at 18,000 forints; parts depend on the model.", hanna: true },
+        { who: "Caller", text: "How much is a front bumper replacement for a Golf?", hanna: false },
+        { who: "Hanna", text: "Front bumper replacement labour starts at 65,000 forints; parts and paint depend on the model.", hanna: true },
         { who: "Caller", text: "Generali casco would cover it — can you invoice the insurer directly and handle the paperwork?", hanna: false },
         { who: "Hanna", text: "I don't have reliable information on that. I'll pass the question on — please leave your number so they can call you back.", hanna: true },
       ],
