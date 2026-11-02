@@ -89,7 +89,19 @@ export default async function RootLayout({ children }: { children: React.ReactNo
           />
         </head>
         <body>
-          <Suspense>
+          <Suspense fallback={
+            <header className="site-header">
+              <div className="site-header-inner">
+                <a className="brand" href="/">
+                  <span className="brand-dot" aria-hidden />
+                  Dial Hanna
+                </a>
+                <div className="header-actions">
+                  <a className="btn btn-primary btn-sm" href="/waitlist">Várólista</a>
+                </div>
+              </div>
+            </header>
+          }>
             <Header />
           </Suspense>
           <main>{children}</main>

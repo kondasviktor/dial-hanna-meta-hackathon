@@ -119,7 +119,8 @@ export interface LandingDict {
   faq: { q: string; a: string }[];
   finalTitle: string;
   finalSub: string;
-  footerCraft: string;
+  footerCraftPrefix: string;
+  footerCraftLink: string;
   footerRights: string;
   footerStatus: string;
   privacy: string;
@@ -299,7 +300,7 @@ const hu: LandingDict = {
     needUnit: "db / hó",
     verdictOk: (orders, need) => `A saját becslésed szerint havonta ${orders} új megrendelés érkezne, a Pro havidíjához ${need} kell.`,
     verdictShort: (orders, need) => `A saját becslésed szerint a Pro havidíjához havonta ${need} megrendelés kellene, te ${orders}-et becsülsz.`,
-    formula: "Számítás: heti hívás × 4,3 hét × fizető arány × átlagérték.",
+    formula: "Számítás: heti hívás × 4,3 hét × (fizető arány ÷ 100) × átlagérték.",
   },
   pricingTitle: "Árak",
   pricingSub: "Átlátható árak, csendes leállás nélkül.",
@@ -400,9 +401,10 @@ const hu: LandingDict = {
   ],
   finalTitle: "Ne veszíts el több ügyfélhívást.",
   finalSub: "Írd fel magad a várólistára. A 7 napos próba a saját számodon a fizetős csomagok indulásakor nyílik meg.",
-  footerCraft: "Crafted by Viktor @ Vibe Coder's Life",
-  footerRights: "© 2026 Dial Hanna",
-  footerStatus: "státusz",
+  footerCraftPrefix: "Crafted by Viktor @ ",
+  footerCraftLink: "Vibe Coder's Life",
+  footerRights: "© 2026 Dial Hanna. All rights reserved.",
+  footerStatus: "Státusz",
   privacy: "Adatvédelem",
   terms: "ÁSZF",
   contact: "Kapcsolat",
@@ -580,7 +582,7 @@ const en: LandingDict = {
     needUnit: "jobs / mo",
     verdictOk: (orders, need) => `By your own estimate, ${orders} new jobs a month would arrive; the Pro fee needs ${need}.`,
     verdictShort: (orders, need) => `By your own estimate, the Pro fee would need ${need} jobs a month; you estimate ${orders}.`,
-    formula: "Calculation: weekly calls × 4.3 weeks × paying share × average value.",
+    formula: "Calculation: weekly calls × 4.3 weeks × (paying share ÷ 100) × average value.",
   },
   pricingTitle: "Pricing",
   pricingSub: "Clear prices, no silent shutdown.",
@@ -681,9 +683,10 @@ const en: LandingDict = {
   ],
   finalTitle: "Stop losing customer calls.",
   finalSub: "Join the waitlist. The 7-day trial on your own number opens when paid plans launch.",
-  footerCraft: "Crafted by Viktor @ Vibe Coder's Life",
-  footerRights: "© 2026 Dial Hanna",
-  footerStatus: "status",
+  footerCraftPrefix: "Crafted by Viktor @ ",
+  footerCraftLink: "Vibe Coder's Life",
+  footerRights: "© 2026 Dial Hanna. All rights reserved.",
+  footerStatus: "Status",
   privacy: "Privacy",
   terms: "Terms",
   contact: "Contact",

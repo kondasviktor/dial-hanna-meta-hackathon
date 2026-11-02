@@ -9,6 +9,14 @@ test("calculator scales linearly", () => {
   assert.equal(r.jobsToCoverPlan, 3); // ceil(34900/15000)
 });
 
+test("landing defaults: 20/week × 10% × 15k ≈ 129k vs Pro", () => {
+  const r = calculate({ avgJobHuf: 15000, missedPerWeek: 20, payingSharePct: 10 });
+  assert.equal(r.jobsPerMonth, 8.6);
+  assert.equal(r.extraRevenueHuf, 129000);
+  assert.equal(r.planHuf, 34900);
+  assert.equal(r.jobsToCoverPlan, 3);
+});
+
 test("zero misses means zero revenue", () => {
   const r = calculate({ avgJobHuf: 15000, missedPerWeek: 0, payingSharePct: 20 });
   assert.equal(r.extraRevenueHuf, 0);

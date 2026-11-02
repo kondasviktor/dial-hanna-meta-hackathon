@@ -297,8 +297,8 @@ function Verticals({ d }: { d: LandingDict }) {
 }
 
 function Calc({ d, lang }: { d: LandingDict; lang: Lang }) {
-  const [calls, setCalls] = useState(5);
-  const [share, setShare] = useState(20);
+  const [calls, setCalls] = useState(20);
+  const [share, setShare] = useState(10);
   const [avg, setAvg] = useState(15000);
   const r = calculate({ avgJobHuf: avg, missedPerWeek: calls, payingSharePct: share });
   const ordersTxt = String(r.jobsPerMonth).replace(".", ",");
@@ -452,21 +452,26 @@ function Footer({ d }: { d: LandingDict }) {
   return (
     <footer className="footer">
       <div className="footer-top">
-        <div className="footer-brand">
-          <strong>Dial Hanna</strong>
-          <span className="muted small">{d.footerRights}</span>
-        </div>
+        <p className="footer-credit muted small">
+          <strong className="footer-name">Dial Hanna</strong>
+          {" · "}
+          {d.footerRights} {d.footerCraftPrefix}
+          <a
+            href="https://www.vibecoderslife.com/"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="footer-vcl"
+          >
+            {d.footerCraftLink}
+          </a>
+        </p>
         <nav className="footer-nav" aria-label="footer">
           <a href="/privacy">{d.privacy}</a>
           <a href="/terms">{d.terms}</a>
           <a href="mailto:hello@dialhanna.com">{d.contact}</a>
           <a href="/api/health">{d.footerStatus}</a>
         </nav>
-        <a className="footer-mail muted small" href="mailto:hello@dialhanna.com">
-          hello@dialhanna.com
-        </a>
       </div>
-      <p className="footer-craft muted small">{d.footerCraft}</p>
     </footer>
   );
 }

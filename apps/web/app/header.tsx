@@ -1,7 +1,15 @@
 "use client";
 
 import { usePathname } from "next/navigation";
-import { SignInButton, UserButton, OrganizationSwitcher, SignedIn, SignedOut } from "@clerk/nextjs";
+import {
+  SignInButton,
+  UserButton,
+  OrganizationSwitcher,
+  SignedIn,
+  SignedOut,
+  ClerkLoaded,
+  ClerkLoading,
+} from "@clerk/nextjs";
 import { landing, waitlistHref } from "@/i18n/landing.ts";
 import { localeHref } from "@/lib/locale_href.ts";
 
@@ -10,6 +18,7 @@ export default function Header() {
   const en = pathname === "/en" || pathname.startsWith("/en/");
   const d = (en ? landing.en : landing.hu).nav;
   const home = en ? "/en" : "/";
+  const waitlist = waitlistHref(en ? "en" : "hu");
   const onDashboard =
     pathname.startsWith("/dashboard") ||
     pathname.startsWith("/onboarding") ||
@@ -33,21 +42,48 @@ export default function Header() {
         )}
         <div className="lang-switch" aria-label="language">
           <a href={localeHref(pathname, "hu")} className={en ? "" : "on"}>HU</a>
-          <a href={localeHref(pathname, "en")} className={en ? "on" : ""} title={onDashboard ? "Dashboard is Hungarian for the hackathon" : undefined}>EN</a>
-        </div>
-        <SignedOut>
-          <SignInButton mode="modal">
-            <button className="btn btn-ghost btn-sm" type="button">{d.signin}</button>
-          </SignInButton>
-          <a className="btn btn-primary btn-sm" href={waitlistHref(en ? "en" : "hu")}>
-            {d.cta}
+          <a
+            href={localeHref(pathname, "en")}
+            className={en ? "on" : ""}
+            title={onDashboard ? "Dashboard is Hungarian for the hackathon" : undefined}
+          >
+            EN
           </a>
-        </SignedOut>
-        <SignedIn>
-          <a href="/dashboard" className="btn btn-ghost btn-sm">dashboard</a>
-          <OrganizationSwitcher />
-          <UserButton />
-        </SignedIn>
+        </div>
+
+        {/* Fixed slot so Clerk hydration never collapses the header CTAs. */}
+        <div className="header-actions">
+          <ClerkLoading>
+            <button className="btn btn-ghost btn-sm" type="button" disabled tabIndex={-1} aria-hidden>
+              {d.signin}
+            </button>
+            <a className="btn btn-primary btn-sm" href={waitlist}>
+              {d.cta}
+            </a>
+          </ClerkLoading>
+          <ClerkLoaded>
+            <SignedOut>
+              <SignInButton mode="modal">
+                <button className="btn btn-ghost btn-sm" type="button">{d.signin}</button>
+              </SignInButton>
+              <a className="btn btn-primary btn-sm" href={waitlist}>
+                {d.cta}
+              </a>
+            </SignedOut>
+            <SignedIn>
+              <a href="/dashboard" className="btn btn-ghost btn-sm">dashboard</a>
+              <OrganizationSwitcher
+                appearance={{
+                  elements: {
+                    rootBox: "header-org",
+                    organizationSwitcherTrigger: "header-org-trigger",
+                  },
+                }}
+              />
+              <UserButton />
+            </SignedIn>
+          </ClerkLoaded>
+        </div>
       </div>
     </header>
   );
