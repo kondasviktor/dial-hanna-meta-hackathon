@@ -25,7 +25,7 @@ export default async function PhonePage() {
       </p>
       <Softphone did={did} />
       <div className="dash-card">
-        <h2>Dial Hanna szám</h2>
+        <h2>Hanna szám</h2>
         {did ? (
           <p className="mono" style={{ fontSize: 20 }}>{did}</p>
         ) : (

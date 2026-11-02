@@ -4,6 +4,7 @@ import { getDb } from "@/db/client.ts";
 import { businessProfiles, faqs, organizations } from "@/db/schema.ts";
 import { chat, MODELS } from "@/lib/meta.ts";
 import { replyTwiml } from "@/lib/twilio_twiml.ts";
+import { detectTtsLang, type TtsLang } from "@/lib/elevenlabs.ts";
 
 export const dynamic = "force-dynamic";
 export const maxDuration = 60;
@@ -29,33 +30,49 @@ async function loadKnowledge(): Promise<string> {
   return lines.join("\n");
 }
 
+function callLang(req: Request, speech: string): TtsLang {
+  const q = new URL(req.url).searchParams.get("lang")?.toLowerCase();
+  if (q === "hu" || q === "en") return q;
+  return detectTtsLang(speech);
+}
+
 /** Twilio Gather callback — SpeechResult → Muse Spark → ElevenLabs reply. */
 export async function POST(req: Request) {
   const form = await req.formData();
   const speech = String(form.get("SpeechResult") ?? "").trim();
   const confidence = String(form.get("Confidence") ?? "");
+  const lang = callLang(req, speech);
 
-  console.log("twilio-gather", { speech, confidence });
+  console.log("twilio-gather", { speech, confidence, lang });
 
   if (!speech) {
-    return new NextResponse(
-      replyTwiml("I did not hear anything. Could you say that again?", true),
-      { headers: { "Content-Type": "text/xml; charset=utf-8" } },
-    );
+    const retry =
+      lang === "hu"
+        ? "Nem hallottam semmit. Elmondaná újra?"
+        : "I did not hear anything. Could you say that again?";
+    return new NextResponse(replyTwiml(retry, true, lang), {
+      headers: { "Content-Type": "text/xml; charset=utf-8" },
+    });
   }
 
   const lower = speech.toLowerCase();
-  if (/\b(goodbye|bye|hang up|that's all|thats all)\b/.test(lower)) {
-    return new NextResponse(
-      replyTwiml("Thanks for calling. Goodbye!", false),
-      { headers: { "Content-Type": "text/xml; charset=utf-8" } },
-    );
+  if (
+    /\b(goodbye|bye|hang up|that's all|thats all)\b/.test(lower) ||
+    /\b(viszlát|viszontlátásra|köszönöm.?ennyi|legyen.?szép)\b/i.test(speech)
+  ) {
+    const bye = lang === "hu" ? "Köszönöm a hívást. Viszontlátásra!" : "Thanks for calling. Goodbye!";
+    return new NextResponse(replyTwiml(bye, false, lang), {
+      headers: { "Content-Type": "text/xml; charset=utf-8" },
+    });
   }
 
   let spoken =
-    "I am still getting set up. Please leave a message for the owner and they will call you back.";
+    lang === "hu"
+      ? "Még beüzemelés alatt vagyok. Kérem, hagyjon üzenetet a tulajdonosnak, visszahívják."
+      : "I am still getting set up. Please leave a message for the owner and they will call you back.";
   try {
     const knowledge = await loadKnowledge();
+    const replyLang = lang === "hu" ? "Hungarian" : "English";
     spoken = await chat({
       model: MODELS.live,
       reasoningEffort: "minimal",
@@ -63,7 +80,8 @@ export async function POST(req: Request) {
       messages: [
         {
           role: "system",
-          content: `You are Dial Hanna, a warm AI phone receptionist. Keep replies under 2 short sentences for phone TTS.
+          content: `You are Hanna, a warm AI phone receptionist. Never call yourself "Dial Hanna" — only Hanna.
+Keep replies under 2 short sentences for phone TTS. Reply in ${replyLang}.
 Disclose you are an AI if asked. Use only this knowledge; if unknown, offer to take a message.
 Knowledge:
 ${knowledge}`,
@@ -76,7 +94,7 @@ ${knowledge}`,
     console.error("gather-spark", e);
   }
 
-  return new NextResponse(replyTwiml(spoken, true), {
+  return new NextResponse(replyTwiml(spoken, true, lang), {
     headers: { "Content-Type": "text/xml; charset=utf-8" },
   });
 }

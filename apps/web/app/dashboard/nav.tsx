@@ -110,7 +110,7 @@ export default function DashNav({
         </button>
         <p>
           {hannaOn
-            ? "Ha a boltod átirányítja a nem fogadott hívásokat a Dial Hanna számra, Hanna veszi fel őket."
+            ? "Ha a boltod átirányítja a nem fogadott hívásokat a Hanna számra, ő veszi fel őket."
             : "Az átirányítás a telefonodon megmaradhat — Hanna most nem válaszol (szünet / „nem elérhető”)."}
         </p>
       </div>

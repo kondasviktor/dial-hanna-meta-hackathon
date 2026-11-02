@@ -1,4 +1,4 @@
-import { appBaseUrl } from "@/lib/elevenlabs.ts";
+import { appBaseUrl, detectTtsLang, type TtsLang } from "@/lib/elevenlabs.ts";
 
 function escapeXml(s: string): string {
   return s
@@ -9,24 +9,27 @@ function escapeXml(s: string): string {
     .replace(/'/g, "&apos;");
 }
 
-function playUrl(text: string): string {
+function playUrl(text: string, lang?: TtsLang): string {
   const base = appBaseUrl();
-  return `${base}/api/twilio/tts?text=${encodeURIComponent(text)}`;
+  const l = lang ?? detectTtsLang(text);
+  return `${base}/api/twilio/tts?lang=${l}&text=${encodeURIComponent(text)}`;
 }
 
 /** Short reject when the shop owner paused Hanna (forwarding may still be active). */
-export function hannaPausedTwiml(): string {
+export function hannaPausedTwiml(lang: TtsLang = "en"): string {
   const msg =
-    "Thanks for calling. The AI receptionist is paused right now. Please try again later, or leave a message with the business directly. Goodbye.";
+    lang === "hu"
+      ? "Köszönjük a hívást. Hanna jelenleg szünetel. Kérjük, hívjon vissza később."
+      : "Thanks for calling. Hanna is paused right now. Please try again later. Goodbye.";
   return `<?xml version="1.0" encoding="UTF-8"?>
 <Response>
-  <Play>${escapeXml(playUrl(msg))}</Play>
+  <Play>${escapeXml(playUrl(msg, lang))}</Play>
   <Hangup/>
 </Response>`;
 }
 
 /** Shared TwiML for inbound DID and browser softphone. */
-export function dialHannaTwiml(): string {
+export function dialHannaTwiml(lang: TtsLang = "en"): string {
   const voiceUrl = process.env.VOICE_SERVICE_URL?.replace(/\/$/, "");
   const streamBase = voiceUrl
     ?.replace(/^https:/i, "wss:")
@@ -42,23 +45,35 @@ export function dialHannaTwiml(): string {
   }
 
   const greeting =
-    "Hi, this is Dial Hanna, the AI receptionist. How can I help you today?";
-  const gather = `${appBaseUrl()}/api/twilio/gather`;
-  const play = escapeXml(playUrl(greeting));
+    lang === "hu"
+      ? "Jó napot, Hanna vagyok, a mesterséges intelligencia asszisztens. Miben segíthetek?"
+      : "Hi, this is Hanna, the AI receptionist. How can I help you today?";
+  const miss =
+    lang === "hu"
+      ? "Elnézést, nem értettem. Viszontlátásra."
+      : "Sorry, I did not catch that. Goodbye for now.";
+  const gatherLang = lang === "hu" ? "hu-HU" : "en-US";
+  const gather = `${appBaseUrl()}/api/twilio/gather?lang=${lang}`;
+  const play = escapeXml(playUrl(greeting, lang));
 
-  // Softphone / DID demo without Fly: ElevenLabs greeting + speech gather → Spark.
   return `<?xml version="1.0" encoding="UTF-8"?>
 <Response>
   <Play>${play}</Play>
-  <Gather input="speech" language="en-US" action="${escapeXml(gather)}" method="POST" speechTimeout="auto" timeout="6">
+  <Gather input="speech" language="${gatherLang}" action="${escapeXml(gather)}" method="POST" speechTimeout="auto" timeout="6">
   </Gather>
-  <Play>${escapeXml(playUrl("Sorry, I did not catch that. Goodbye for now."))}</Play>
+  <Play>${escapeXml(playUrl(miss, lang))}</Play>
 </Response>`;
 }
 
-export function replyTwiml(spoken: string, continueGather = true): string {
-  const gather = `${appBaseUrl()}/api/twilio/gather`;
-  const play = escapeXml(playUrl(spoken));
+export function replyTwiml(spoken: string, continueGather = true, lang?: TtsLang): string {
+  const l = lang ?? detectTtsLang(spoken);
+  const gather = `${appBaseUrl()}/api/twilio/gather?lang=${l}`;
+  const gatherLang = l === "hu" ? "hu-HU" : "en-US";
+  const play = escapeXml(playUrl(spoken, l));
+  const bye =
+    l === "hu"
+      ? "Köszönjük a hívást. Viszontlátásra."
+      : "Thanks for calling. Goodbye.";
   if (!continueGather) {
     return `<?xml version="1.0" encoding="UTF-8"?>
 <Response>
@@ -68,8 +83,8 @@ export function replyTwiml(spoken: string, continueGather = true): string {
   return `<?xml version="1.0" encoding="UTF-8"?>
 <Response>
   <Play>${play}</Play>
-  <Gather input="speech" language="en-US" action="${escapeXml(gather)}" method="POST" speechTimeout="auto" timeout="6">
+  <Gather input="speech" language="${gatherLang}" action="${escapeXml(gather)}" method="POST" speechTimeout="auto" timeout="6">
   </Gather>
-  <Play>${escapeXml(playUrl("Thanks for calling Dial Hanna. Goodbye."))}</Play>
+  <Play>${escapeXml(playUrl(bye, l))}</Play>
 </Response>`;
 }

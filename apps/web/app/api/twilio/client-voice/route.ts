@@ -10,7 +10,8 @@ export const dynamic = "force-dynamic";
  */
 export async function POST() {
   const on = await getGlobalHannaEnabled();
-  const xml = on ? dialHannaTwiml() : hannaPausedTwiml();
+  // Softphone Meta demo is English; HU DID uses Telnyx.
+  const xml = on ? dialHannaTwiml("en") : hannaPausedTwiml("en");
   return new NextResponse(xml, {
     status: 200,
     headers: { "Content-Type": "text/xml; charset=utf-8" },

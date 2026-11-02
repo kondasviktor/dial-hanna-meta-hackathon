@@ -76,7 +76,11 @@ export async function GET(req: Request) {
     transferAllowed: false,
     blocklist: [],
     keywords,
-    voiceId: cfg.voiceId ?? process.env.ELEVENLABS_VOICE_ID ?? "",
+    voiceId:
+      cfg.voiceId ||
+      process.env.ELEVENLABS_VOICE_ID_HU ||
+      process.env.ELEVENLABS_VOICE_ID ||
+      "",
     agentVersionId: live?.id ?? "",
     draft: live?.status !== "live",
   }, {

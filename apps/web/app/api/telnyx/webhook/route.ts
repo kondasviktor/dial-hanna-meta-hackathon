@@ -40,7 +40,7 @@ export async function POST(req: Request) {
           },
           body: JSON.stringify({
             payload:
-              "Köszönjük a hívást. A Dial Hanna jelenleg szünetel. Kérjük, hívjon vissza később.",
+              "Köszönjük a hívást. Hanna jelenleg szünetel. Kérjük, hívjon vissza később.",
             voice: "female",
             language: "hu-HU",
           }),
@@ -75,9 +75,9 @@ export async function POST(req: Request) {
           },
           body: JSON.stringify({
             payload:
-              "Hello, this is Dial Hanna. The voice service is not connected yet. Please try again later.",
+              "Jó napot, Hanna vagyok. A hangszolgáltatás még nem él. Kérjük, hívjon vissza később.",
             voice: "female",
-            language: "en-US",
+            language: "hu-HU",
           }),
         });
       }
