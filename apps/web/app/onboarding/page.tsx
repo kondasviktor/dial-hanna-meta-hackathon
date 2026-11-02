@@ -75,11 +75,30 @@ export default async function Onboarding() {
       <p><a href="/dashboard">← Irányítópult</a></p>
       <h1>Tudás{bizName ? ` · ${bizName}` : ""}</h1>
       <p style={{ color: "#3E5157", fontSize: 14 }}>
-        Illeszd be a weboldal URL-jét — a Muse Wonder vázlatot készít. Nincs weboldal?
-        Írd be a kérdéseket kézzel. Csak a jóváhagyott válasz megy élőbe.
+        Illeszd be a <strong>weboldal</strong> vagy <strong>Facebook Page</strong> URL-jét —
+        a Muse Wonder 5 kérdés–válasz vázlatot készít. Nincs egyik sem? Írd be kézzel.
+        Csak a jóváhagyott válasz megy élőbe a softphone demóba.
       </p>
 
       <ImportForm />
+
+      {items.some((f) => f.status === "approved") && (
+        <div
+          style={{
+            background: "#FFB62E",
+            color: "#0C1C20",
+            borderRadius: 12,
+            padding: 16,
+            marginBottom: 16,
+          }}
+        >
+          <strong>Következő lépés:</strong> hívd Hannát Wi‑Fi softphone-nal a jóváhagyott
+          tudással.{" "}
+          <a href="/dashboard/phone" style={{ color: "#0C1C20", fontWeight: 700 }}>
+            Softphone →
+          </a>
+        </div>
+      )}
 
       <h2 style={{ marginTop: 32, fontSize: 18 }}>Kézi kérdés és válasz</h2>
       <form action={addManualFaq} style={{ display: "grid", gap: 8, marginBottom: 24 }}>

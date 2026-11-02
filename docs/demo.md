@@ -6,10 +6,11 @@ until submission flip is approved.
 ## Beats
 
 1. **Problem (0:00)** — Busy salon owner misses a call.
-2. **Wonder import (0:20)** — Admin pastes a controlled website URL. Wonder
-   drafts services and FAQs. Approve a few. (No voice note.)
-3. **Phone call (0:55)** — Call the Twilio DID in English (Wi‑Fi softphone). Hanna discloses she
-   is an AI, books or takes a message. Subtitles in the video.
+2. **Wonder import (0:20)** — Admin pastes a website **or Facebook Page** URL.
+   Wonder drafts exactly **5** Q&As. Approve them. (No voice note. No Shops.)
+3. **Phone call (0:55)** — Wi‑Fi softphone (Twilio, English for Meta judges).
+   Do not flash the DID on screen. Hanna discloses she is an AI, books or takes
+   a message. Optional cut: HU Telnyx line for local demo.
 4. **Gap loop (1:40)** — Ask about parking. Hanna logs a gap. Answer in one
    line on `/dashboard/gaps`, publish. Second short call uses the new FAQ.
 5. **Dashboard (2:20)** — Show Intent → Outcome → Next action.

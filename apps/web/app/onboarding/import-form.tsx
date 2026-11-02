@@ -26,7 +26,8 @@ export default function ImportForm() {
         return;
       }
       setState("ok");
-      setMsg(`${j.name ?? "Profil"} · ${j.faqCount ?? 0} kérdés vázlat`);
+      const src = j.source === "facebook" ? "Facebook Page" : "weboldal";
+      setMsg(`${j.name ?? "Profil"} · ${src} · ${j.faqCount ?? 5} kérdés vázlat`);
       router.refresh();
     } catch (err) {
       setState("err");
@@ -41,7 +42,7 @@ export default function ImportForm() {
         required
         value={url}
         onChange={(e) => setUrl(e.target.value)}
-        placeholder="https://pelda-szalon.hu"
+        placeholder="https://pelda-szalon.hu vagy https://facebook.com/pelda.szalon"
         style={{ flex: 1, minWidth: 220, border: "1px solid #D8DDD6", borderRadius: 8, padding: "10px 12px", font: "inherit" }}
       />
       <button
@@ -49,7 +50,7 @@ export default function ImportForm() {
         disabled={state === "loading"}
         style={{ background: "#0C1C20", color: "#fff", border: 0, borderRadius: 8, padding: "10px 16px", cursor: "pointer" }}
       >
-        {state === "loading" ? "Wonder olvas…" : "Weboldal elemzése"}
+        {state === "loading" ? "Wonder olvas…" : "Elemzés (web / FB)"}
       </button>
       {msg && <p style={{ width: "100%", color: state === "err" ? "#8A2A12" : "#0B5D3F", margin: 0 }}>{msg}</p>}
     </form>

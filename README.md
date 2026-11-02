@@ -44,8 +44,9 @@ TTS is ElevenLabs Flash (Meta has no TTS). No Retell during the hackathon.
 ## Owner setup (before voice demos)
 
 1. Copy `.env.example` → `.env` and fill Meta, Neon, Clerk, `ADMIN_EMAILS`.
-2. Twilio US Voice DID → `TWILIO_ACCOUNT_SID`, `TWILIO_AUTH_TOKEN`, `TWILIO_PHONE_NUMBER`; webhook `POST /api/twilio/voice`.
-3. ElevenLabs free key + voice id → `ELEVENLABS_*` (do not enable their STT/Agents).
+2. Twilio softphone (Meta EN) + Telnyx HU DID → see `.env.example` / `docs/OWNER_ACCOUNTS.md`.
+3. ElevenLabs Flash key + voice id → `ELEVENLABS_*` (do not enable their STT/Agents).
+3b. Optional Facebook Page import → `FACEBOOK_PAGE_ACCESS_TOKEN` (Graph, your test Page).
 4. Google Calendar OAuth in testing mode (optional for booking storage).
 5. Apply `apps/web/drizzle/0002_waitlist.sql` on Neon.
 6. Sign in once on the closed Vercel URL; confirm Clerk webhook created the org.

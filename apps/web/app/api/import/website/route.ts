@@ -3,7 +3,7 @@ import { eq } from "drizzle-orm";
 import { getDb } from "@/db/client.ts";
 import { organizations, businessProfiles, faqs, knowledgeSources, agentVersions } from "@/db/schema.ts";
 import { requireAdmin, resolveOrgId } from "@/lib/org.ts";
-import { extractFromHtml, fetchWebsiteText } from "@/lib/import_website.ts";
+import { extractFromHtml, fetchImportSource } from "@/lib/import_website.ts";
 
 export const dynamic = "force-dynamic";
 export const maxDuration = 60;
@@ -27,23 +27,30 @@ export async function POST(req: Request) {
   const db = getDb();
   if (!db) return NextResponse.json({ ok: false, error: "db-unavailable" }, { status: 503 });
 
-  let html: string;
+  let kind: string;
+  let sourceText: string;
   try {
-    html = await fetchWebsiteText(url);
+    const src = await fetchImportSource(url);
+    kind = src.kind;
+    sourceText = src.text;
   } catch (e) {
     return NextResponse.json({ ok: false, error: String(e) }, { status: 400 });
   }
 
   let extracted;
   try {
-    extracted = await extractFromHtml(url, html);
+    extracted = await extractFromHtml(url, sourceText);
   } catch (e) {
     return NextResponse.json({ ok: false, error: `wonder:${String(e)}` }, { status: 502 });
   }
 
   const orgId = orgRes.orgUuid;
   await db.insert(knowledgeSources).values({
-    orgId, type: "url", uri: url, rawText: html.slice(0, 8000), status: "processed",
+    orgId,
+    type: kind === "facebook" ? "facebook" : "url",
+    uri: url,
+    rawText: sourceText.slice(0, 8000),
+    status: "processed",
   });
 
   const existing = (await db.select().from(businessProfiles).where(eq(businessProfiles.orgId, orgId)).limit(1))[0];
@@ -59,7 +66,15 @@ export async function POST(req: Request) {
       .where(eq(organizations.id, orgId));
   }
 
-  for (const f of extracted.faqs.slice(0, 40)) {
+  // Replace prior import drafts so re-runs stay at 5.
+  const prior = await db.select().from(faqs).where(eq(faqs.orgId, orgId));
+  for (const f of prior) {
+    if (f.origin === "import" && f.status === "draft") {
+      await db.delete(faqs).where(eq(faqs.id, f.id));
+    }
+  }
+
+  for (const f of extracted.faqs.slice(0, 5)) {
     if (!f.q_hu?.trim() || !f.a_hu?.trim()) continue;
     await db.insert(faqs).values({
       orgId,
@@ -87,6 +102,7 @@ export async function POST(req: Request) {
       keywords,
       missing: extracted.missing_required,
       items_meta: extracted.items_meta,
+      source: kind,
     },
   });
 
@@ -94,6 +110,7 @@ export async function POST(req: Request) {
     ok: true,
     name: extracted.business.name ?? null,
     faqCount: extracted.faqs.length,
+    source: kind,
     missing: extracted.missing_required,
   });
 }
