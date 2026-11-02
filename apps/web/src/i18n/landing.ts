@@ -300,7 +300,7 @@ const hu: LandingDict = {
     needUnit: "db / hó",
     verdictOk: (orders, need) => `A saját becslésed szerint havonta ${orders} új megrendelés érkezne, a Pro havidíjához ${need} kell.`,
     verdictShort: (orders, need) => `A saját becslésed szerint a Pro havidíjához havonta ${need} megrendelés kellene, te ${orders}-et becsülsz.`,
-    formula: "Számítás: heti hívás × 4,3 hét × (fizető arány ÷ 100) × átlagérték.",
+    formula: "A havi becslés a heti számaidból készül (heti hívás × 4 × fizető arány × átlagérték).",
   },
   pricingTitle: "Árak",
   pricingSub: "Átlátható árak, csendes leállás nélkül.",
@@ -582,7 +582,7 @@ const en: LandingDict = {
     needUnit: "jobs / mo",
     verdictOk: (orders, need) => `By your own estimate, ${orders} new jobs a month would arrive; the Pro fee needs ${need}.`,
     verdictShort: (orders, need) => `By your own estimate, the Pro fee would need ${need} jobs a month; you estimate ${orders}.`,
-    formula: "Calculation: weekly calls × 4.3 weeks × (paying share ÷ 100) × average value.",
+    formula: "The monthly estimate comes from your weekly figures (weekly calls × 4 × paying share × average value).",
   },
   pricingTitle: "Pricing",
   pricingSub: "Clear prices, no silent shutdown.",
@@ -716,7 +716,7 @@ export const scenarios: Record<Lang, Scenario[]> = {
       ],
     },
     {
-      label: "Új kérdés",
+      label: "Kérdés",
       biz: "Gyors Műhely · autószerviz",
       chip: "Hiányzó válasz",
       chipBg: "#FFB62E",
@@ -732,7 +732,7 @@ export const scenarios: Record<Lang, Scenario[]> = {
       ],
     },
     {
-      label: "Sürgős hívás",
+      label: "Sürgős",
       biz: "Hideg-Meleg Szerviz · szakipar",
       chip: "Sürgős",
       chipBg: "#F9DDD5",
@@ -765,7 +765,7 @@ export const scenarios: Record<Lang, Scenario[]> = {
       ],
     },
     {
-      label: "New question",
+      label: "Question",
       biz: "Gyors Műhely · auto repair",
       chip: "Unanswered",
       chipBg: "#FFB62E",
@@ -781,7 +781,7 @@ export const scenarios: Record<Lang, Scenario[]> = {
       ],
     },
     {
-      label: "Urgent call",
+      label: "Urgent",
       biz: "Hideg-Meleg Szerviz · trades",
       chip: "Urgent",
       chipBg: "#F9DDD5",

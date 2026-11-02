@@ -14,8 +14,12 @@ export interface CalcResult {
   jobsToCoverPlan: number;
 }
 
+/** Approximate weeks in a calendar month — kept as a round 4 so the UI ties
+ *  to the weekly slider (e.g. 20/week → 80/month before conversion share). */
+const WEEKS_PER_MONTH = 4;
+
 export function calculate(input: CalcInput, planHuf = 34900): CalcResult {
-  const jobs = (input.missedPerWeek * 4.3 * input.payingSharePct) / 100;
+  const jobs = (input.missedPerWeek * WEEKS_PER_MONTH * input.payingSharePct) / 100;
   const revenue = Math.round(jobs * input.avgJobHuf);
   return {
     jobsPerMonth: Math.round(jobs * 10) / 10,

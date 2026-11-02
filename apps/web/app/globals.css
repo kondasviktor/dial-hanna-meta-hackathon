@@ -186,16 +186,51 @@ h1, h2, h3 {
   color: #fff;
   border-radius: 14px;
   padding: 28px;
+  min-width: 0;
 }
 .panel-caption { font-size: 13px; color: #a9c0c4; margin: 0 0 12px; }
 .panel-after { font-size: 14px; color: var(--muted); margin: 20px 0 8px; }
 .hero-panel .panel-after { color: #d6e4e6; }
 .panel-note { font-size: 12px; color: #a9c0c4; margin: 12px 0 0; }
 
-.transcript p.tline { margin: 0 0 10px; font-size: 15px; }
-.transcript p.tline.compact { font-size: 14px; }
-.who-hanna { color: var(--amber); }
-.who-caller { color: #fff; }
+.transcript {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.bubble {
+  max-width: 92%;
+  padding: 10px 12px;
+  border-radius: 12px;
+  line-height: 1.4;
+}
+.bubble-caller {
+  align-self: flex-start;
+  background: rgba(255, 255, 255, 0.1);
+  border-bottom-left-radius: 4px;
+}
+.bubble-hanna {
+  align-self: flex-end;
+  background: rgba(255, 182, 46, 0.16);
+  border: 1px solid rgba(255, 182, 46, 0.35);
+  border-bottom-right-radius: 4px;
+}
+.bubble-who {
+  display: block;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  margin-bottom: 4px;
+  opacity: 0.75;
+}
+.bubble-hanna .bubble-who { color: var(--amber); opacity: 1; }
+.bubble-text {
+  margin: 0;
+  font-size: 15px;
+  color: #fff;
+}
+.transcript-compact .bubble { padding: 8px 10px; }
+.transcript-compact .bubble-text { font-size: 14px; }
 
 .outcome {
   background: var(--card);
@@ -252,22 +287,42 @@ h1, h2, h3 {
 }
 
 /* tabs + call grid */
-.tabs { display: flex; gap: 8px; margin-bottom: 20px; flex-wrap: wrap; }
+.tabs {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+  margin-bottom: 20px;
+}
 .tab {
   background: transparent;
   color: var(--ink);
   border: 1px solid var(--ink);
   border-radius: 8px;
-  padding: 8px 18px;
+  padding: 10px 12px;
   min-height: 44px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  font-size: 15px;
+  font-size: 14px;
   font-weight: 600;
+  white-space: nowrap;
+  text-align: center;
+  width: 100%;
 }
 .tab.active { background: var(--ink); color: #fff; }
+.call-stage {
+  display: grid;
+}
+.call-stage > .call-grid {
+  grid-area: 1 / 1;
+  visibility: hidden;
+  pointer-events: none;
+}
+.call-stage > .call-grid.is-active {
+  visibility: visible;
+  pointer-events: auto;
+}
 .call-grid {
   display: grid;
   grid-template-columns: 1.2fr 0.8fr;
@@ -276,6 +331,7 @@ h1, h2, h3 {
 }
 .call-side { display: flex; flex-direction: column; min-width: 0; }
 .call-side .outcome { flex: 1; }
+.calc-note { margin: 12px 0 0; }
 
 /* score + checks */
 .score-grid {
@@ -735,9 +791,14 @@ h1, h2, h3 {
 }
 
 @media (max-width: 960px) {
-  .hero { grid-template-columns: 1fr; gap: 32px; padding: 40px 20px 48px; }
+  .hero { grid-template-columns: 1fr; gap: 28px; padding: 36px 20px 40px; }
   .hero h1 { font-size: clamp(32px, 8vw, 40px); }
   .hero-copy .lede { font-size: 17px; }
+  .hero-panel {
+    width: 100%;
+    max-width: 28rem;
+    margin-inline: auto;
+  }
   .values { grid-template-columns: 1fr 1fr; gap: 24px 0; }
   .value + .value { border-left: none; padding-left: 0; }
   .call-grid, .score-grid, .calc-grid, .dash-cols { grid-template-columns: 1fr; }
@@ -765,16 +826,20 @@ h1, h2, h3 {
   .section { padding-left: 20px; padding-right: 20px; }
   .cta-row { flex-wrap: wrap; }
   .btn { padding: 12px 18px; }
-  .tabs { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  .tab { font-size: 13px; padding: 10px 6px; }
+  .bubble { max-width: 100%; }
 }
 
 @media (max-width: 560px) {
   .values { grid-template-columns: 1fr; }
   .owner-grid { grid-template-columns: 1fr; }
   .kpis { grid-template-columns: 1fr; }
-  .hero-panel, .call-panel { padding: 16px; }
+  .hero-panel, .call-panel { padding: 18px 16px; }
+  .hero-panel { max-width: none; }
   .plan-price { font-size: 28px; }
   .site-header .btn-sm { padding: 8px 12px; font-size: 13px; }
+  .tab { font-size: 12px; letter-spacing: -0.01em; }
+  .calc-rev { font-size: 32px; }
 }
 
 @media (prefers-reduced-motion: reduce) {

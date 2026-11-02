@@ -75,14 +75,15 @@ function Transcript({
   compact?: boolean;
 }) {
   return (
-    <div className="transcript">
+    <div className={compact ? "transcript transcript-compact" : "transcript"}>
       {lines.map((l, i) => (
-        <p key={i} className={compact ? "tline compact" : "tline"}>
-          <strong className={l.hanna ? "who-hanna" : "who-caller"}>
-            {l.who}:
-          </strong>{" "}
-          {l.text}
-        </p>
+        <div
+          key={i}
+          className={l.hanna ? "bubble bubble-hanna" : "bubble bubble-caller"}
+        >
+          <span className="bubble-who">{l.who}</span>
+          <p className="bubble-text">{l.text}</p>
+        </div>
       ))}
     </div>
   );
@@ -204,7 +205,6 @@ function HowItWorks({ d }: { d: LandingDict }) {
 function CallTabs({ d, lang }: { d: LandingDict; lang: Lang }) {
   const [tab, setTab] = useState(0);
   const list = scenarios[lang];
-  const sc = list[tab];
   return (
     <Section id="get" title={d.getTitle} sub={d.getSub}>
       <p className="section-note">{d.tabsNote}</p>
@@ -212,6 +212,7 @@ function CallTabs({ d, lang }: { d: LandingDict; lang: Lang }) {
         {list.map((s, i) => (
           <button
             key={s.label}
+            type="button"
             role="tab"
             aria-selected={tab === i}
             onClick={() => setTab(i)}
@@ -221,18 +222,28 @@ function CallTabs({ d, lang }: { d: LandingDict; lang: Lang }) {
           </button>
         ))}
       </div>
-      <div className="call-grid">
-        <div className="call-panel">
-          <p className="panel-caption mono">
-            {d.callLabel} · {sc.biz}
-          </p>
-          <Transcript lines={sc.lines} />
-        </div>
-        <div className="call-side">
-          <p className="panel-after">{d.afterDash}</p>
-          <OutcomeCard d={d} sc={sc} />
-          <p className="muted small">{d.hero.demoNote}</p>
-        </div>
+      {/* Stack every scenario in one grid cell so height stays stable when switching tabs. */}
+      <div className="call-stage">
+        {list.map((sc, i) => (
+          <div
+            key={sc.label}
+            className={i === tab ? "call-grid is-active" : "call-grid"}
+            role="tabpanel"
+            aria-hidden={i !== tab}
+          >
+            <div className="call-panel">
+              <p className="panel-caption mono">
+                {d.callLabel} · {sc.biz}
+              </p>
+              <Transcript lines={sc.lines} />
+            </div>
+            <div className="call-side">
+              <p className="panel-after">{d.afterDash}</p>
+              <OutcomeCard d={d} sc={sc} />
+              <p className="muted small">{d.hero.demoNote}</p>
+            </div>
+          </div>
+        ))}
       </div>
     </Section>
   );
@@ -338,9 +349,10 @@ function Calc({ d, lang }: { d: LandingDict; lang: Lang }) {
           </p>
         </div>
       </div>
-      <p className="muted small">
-        {d.calc.formula} {d.calcDisclaimer}
+      <p className="muted small calc-note">
+        {d.calcDisclaimer}
       </p>
+      <p className="muted small calc-note">{d.calc.formula}</p>
     </Section>
   );
 }
