@@ -493,7 +493,7 @@ h1, h2, h3 {
 .hanna-switch {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 12px;
   width: 100%;
   min-height: 44px;
   background: none;
@@ -504,18 +504,36 @@ h1, h2, h3 {
   font: inherit;
   text-align: left;
 }
-.hanna-switch::before {
-  content: "";
+.hanna-track {
   flex: none;
-  width: 56px;
-  height: 34px;
+  position: relative;
+  width: 51px;
+  height: 31px;
   border-radius: 999px;
-  background: #3ddc97;
-  border: 2px solid #ffffff44;
+  background: #39393d;
+  border: 1.5px solid #ffffff33;
+  transition: background 0.2s ease;
 }
-.hanna-switch:not(.on)::before { background: #5a6e73; }
-.hanna-knob { display: none; }
-.hanna-switch-label { font-weight: 700; font-size: 14px; }
+.hanna-switch.on .hanna-track {
+  background: #34c759;
+  border-color: #34c759;
+}
+.hanna-knob {
+  display: block;
+  position: absolute;
+  top: 1.5px;
+  left: 1.5px;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.35);
+  transition: transform 0.22s cubic-bezier(0.2, 0.9, 0.3, 1.1);
+}
+.hanna-switch.on .hanna-knob {
+  transform: translateX(20px);
+}
+.hanna-switch-label { font-weight: 700; font-size: 14px; line-height: 1.3; }
 .hanna-pill {
   display: inline-flex;
   align-items: center;

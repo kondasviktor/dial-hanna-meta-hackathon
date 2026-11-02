@@ -1,5 +1,10 @@
 import Stub from "../stub";
 
-export default function Page() {
-  return <Stub title="Használat és csomag" body="AI-percek, 100 perces feltöltés (9 900 Ft), számlák és csomagváltás. Ez a képernyő még készül." />;
+export default function UsagePage() {
+  return (
+    <Stub
+      title="Használat és csomag"
+      body="Hackathon után: AI-percek, feltöltés, számlák és csomagváltás (Stripe). A várólistás indulás miatt most nincs fizetés / csomagválasztás az admin fiókban sem."
+    />
+  );
 }

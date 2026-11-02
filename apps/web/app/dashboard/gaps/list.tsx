@@ -10,9 +10,12 @@ export default function GapsList({
   return (
     <div style={{ maxWidth: 760, margin: "0 auto", padding: "32px 24px 96px", fontFamily: "system-ui, sans-serif", lineHeight: 1.6 }}>
       <p><a href="/dashboard">← Irányítópult</a></p>
-      <h1>Tudásrések</h1>
-      <p style={{ color: "#555" }}>Amit Hanna nem tudott: egy mondattal megválaszolod, ő legközelebb már tudja.</p>
-      {gaps.length === 0 && <p>Nincs nyitott tudásrés.</p>}
+      <h1>Hiányzó válaszok</h1>
+      <p style={{ color: "#555" }}>
+        Amit Hanna nem tudott megválaszolni — egy mondattal pótolod, legközelebb már tudja.
+        <span style={{ display: "block", marginTop: 4, fontSize: 13 }}>EN: Unanswered questions</span>
+      </p>
+      {gaps.length === 0 && <p>Nincs nyitott kérdés.</p>}
       {gaps.map((g) => (
         <div key={g.id} style={{ borderTop: "1px solid #ddd", padding: "16px 0" }}>
           <strong>{g.question}</strong>

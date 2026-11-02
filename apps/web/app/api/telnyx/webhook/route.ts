@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { getGlobalHannaEnabled } from "@/lib/hanna_status.ts";
 
 export const dynamic = "force-dynamic";
 
@@ -21,6 +22,7 @@ export async function POST(req: Request) {
 
   if (event === "call.initiated" && callControlId && apiKey) {
     try {
+      const hannaOn = await getGlobalHannaEnabled();
       await fetch(`https://api.telnyx.com/v2/calls/${callControlId}/actions/answer`, {
         method: "POST",
         headers: {
@@ -29,7 +31,29 @@ export async function POST(req: Request) {
         },
         body: JSON.stringify({}),
       });
-      if (voiceUrl) {
+      if (!hannaOn) {
+        await fetch(`https://api.telnyx.com/v2/calls/${callControlId}/actions/speak`, {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${apiKey}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            payload:
+              "Köszönjük a hívást. A Dial Hanna jelenleg szünetel. Kérjük, hívjon vissza később.",
+            voice: "female",
+            language: "hu-HU",
+          }),
+        });
+        await fetch(`https://api.telnyx.com/v2/calls/${callControlId}/actions/hangup`, {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${apiKey}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({}),
+        });
+      } else if (voiceUrl) {
         await fetch(`https://api.telnyx.com/v2/calls/${callControlId}/actions/streaming_start`, {
           method: "POST",
           headers: {

@@ -322,7 +322,7 @@ const hu: LandingDict = {
         "Dashboard és e-mail minden hívásról",
         "Szándék → eredmény → következő lépés",
         "Hívásátadás élő munkatárshoz",
-        "Tudásrés-napló és verziókezelés",
+        "Hiányzó válaszok naplója és verziókezelés",
         "Ellenőrző hívás az élesítés előtt",
       ],
       cta: "Várólista · Essential",
@@ -707,7 +707,7 @@ export const scenarios: Record<Lang, Scenario[]> = {
     {
       label: "Új kérdés",
       biz: "Gyors Műhely · autószerviz",
-      chip: "Tudásrés",
+      chip: "Hiányzó válasz",
       chipBg: "#FFB62E",
       chipFg: "#0C1C20",
       intent: "Árkérdés és parkolás",

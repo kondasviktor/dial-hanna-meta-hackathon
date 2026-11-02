@@ -2,18 +2,16 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
+/** Hackathon nav — hide unfinished Stripe/staff/calendar screens. */
 const NAV = [
   { href: "/dashboard", label: "Áttekintés", exact: true },
   { href: "/dashboard/calls", label: "Hívások", exact: false },
-  { href: "/dashboard/gaps", label: "Tudásrések", exact: false, badge: true },
+  { href: "/dashboard/gaps", label: "Hiányzó válaszok", exact: false, badge: true },
   { href: "/dashboard/kb", label: "Tudásbázis", exact: false },
-  { href: "/dashboard/versions", label: "Verziók", exact: false },
-  { href: "/dashboard/staff", label: "Munkatársak", exact: false },
+  { href: "/onboarding", label: "Beüzemelés", exact: false },
   { href: "/dashboard/phone", label: "Telefon", exact: false },
-  { href: "/dashboard/usage", label: "Használat és csomag", exact: false },
-  { href: "/dashboard/settings", label: "Beállítások", exact: false },
 ];
 
 export default function DashNav({
@@ -29,6 +27,51 @@ export default function DashNav({
 }) {
   const pathname = usePathname();
   const [hannaOn, setHannaOn] = useState(true);
+  const [saving, setSaving] = useState(false);
+
+  useEffect(() => {
+    let cancelled = false;
+    void (async () => {
+      try {
+        const res = await fetch("/api/hanna/status");
+        if (!res.ok) throw new Error("status");
+        const data = (await res.json()) as { enabled?: boolean };
+        if (!cancelled && typeof data.enabled === "boolean") {
+          setHannaOn(data.enabled);
+          window.localStorage.setItem("dh_hanna_on", data.enabled ? "1" : "0");
+          return;
+        }
+      } catch {
+        /* fall through to localStorage */
+      }
+      if (cancelled) return;
+      const stored = window.localStorage.getItem("dh_hanna_on");
+      if (stored === "0") setHannaOn(false);
+      if (stored === "1") setHannaOn(true);
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  async function toggle() {
+    const next = !hannaOn;
+    setHannaOn(next);
+    window.localStorage.setItem("dh_hanna_on", next ? "1" : "0");
+    setSaving(true);
+    try {
+      await fetch("/api/hanna/status", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ enabled: next }),
+      });
+    } catch {
+      /* UI still reflects intent; webhooks use last saved DB value */
+    } finally {
+      setSaving(false);
+    }
+  }
+
   return (
     <aside className="dash-side">
       <div className="dash-org">
@@ -54,18 +97,21 @@ export default function DashNav({
           type="button"
           role="switch"
           aria-checked={hannaOn}
-          onClick={() => setHannaOn(!hannaOn)}
+          aria-busy={saving}
+          onClick={() => void toggle()}
           className={hannaOn ? "hanna-switch on" : "hanna-switch"}
         >
-          <span className="hanna-knob" aria-hidden />
+          <span className="hanna-track" aria-hidden>
+            <span className="hanna-knob" />
+          </span>
           <span className="hanna-switch-label">
             {hannaOn ? "Hanna fogadja a hívásokat" : "Hanna szünetel"}
           </span>
         </button>
         <p>
           {hannaOn
-            ? "Az átirányított hívásokat Hanna veszi fel."
-            : "Az átirányítás marad, a hívásokat most nem veszi fel Hanna."}
+            ? "Ha a boltod átirányítja a nem fogadott hívásokat a Dial Hanna számra, Hanna veszi fel őket."
+            : "Az átirányítás a telefonodon megmaradhat — Hanna most nem válaszol (szünet / „nem elérhető”)."}
         </p>
       </div>
     </aside>

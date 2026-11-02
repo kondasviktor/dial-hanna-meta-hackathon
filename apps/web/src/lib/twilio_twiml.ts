@@ -14,6 +14,17 @@ function playUrl(text: string): string {
   return `${base}/api/twilio/tts?text=${encodeURIComponent(text)}`;
 }
 
+/** Short reject when the shop owner paused Hanna (forwarding may still be active). */
+export function hannaPausedTwiml(): string {
+  const msg =
+    "Thanks for calling. The AI receptionist is paused right now. Please try again later, or leave a message with the business directly. Goodbye.";
+  return `<?xml version="1.0" encoding="UTF-8"?>
+<Response>
+  <Play>${escapeXml(playUrl(msg))}</Play>
+  <Hangup/>
+</Response>`;
+}
+
 /** Shared TwiML for inbound DID and browser softphone. */
 export function dialHannaTwiml(): string {
   const voiceUrl = process.env.VOICE_SERVICE_URL?.replace(/\/$/, "");
