@@ -28,7 +28,7 @@ Card-required converts better than no-card; 3‑day trials are too short for a s
 
 ## Meta hackathon (now)
 
-- Public: waitlist on `dialhanna.hu` / Vercel.
+- Public: waitlist on `dialhanna.com` / Vercel.
 - Admin demo: website **or** Facebook Page → Muse Wonder → **5** draft Q&As → approve → Wi‑Fi softphone (Twilio EN for Meta judges). Telnyx HU is ready for HU inbound after flip.
 - No Stripe, no per-customer numbers.
 
