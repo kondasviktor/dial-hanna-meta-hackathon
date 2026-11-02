@@ -50,7 +50,7 @@ export default function ImportForm() {
         disabled={state === "loading"}
         style={{ background: "#0C1C20", color: "#fff", border: 0, borderRadius: 8, padding: "10px 16px", cursor: "pointer" }}
       >
-        {state === "loading" ? "Wonder olvas…" : "Elemzés (web / FB)"}
+        {state === "loading" ? "Olvasás…" : "Elemzés"}
       </button>
       {msg && <p style={{ width: "100%", color: state === "err" ? "#8A2A12" : "#0B5D3F", margin: 0 }}>{msg}</p>}
     </form>

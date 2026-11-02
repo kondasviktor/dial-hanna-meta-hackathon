@@ -4,14 +4,11 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 
-/** Hackathon nav — hide unfinished Stripe/staff/calendar screens. */
+/** Hackathon nav — merged phone/calls and knowledge/gaps. */
 const NAV = [
   { href: "/dashboard", label: "Áttekintés", exact: true },
-  { href: "/dashboard/calls", label: "Hívások", exact: false },
-  { href: "/dashboard/gaps", label: "Hiányzó válaszok", exact: false, badge: true },
-  { href: "/dashboard/kb", label: "Tudásbázis", exact: false },
-  { href: "/onboarding", label: "Beüzemelés", exact: false },
-  { href: "/dashboard/phone", label: "Telefon", exact: false },
+  { href: "/dashboard/calls", label: "Telefon", exact: false },
+  { href: "/dashboard/kb", label: "Tudás", exact: false, badge: true },
 ];
 
 export default function DashNav({
@@ -105,13 +102,13 @@ export default function DashNav({
             <span className="hanna-knob" />
           </span>
           <span className="hanna-switch-label">
-            {hannaOn ? "Hanna fogadja a hívásokat" : "Hanna szünetel"}
+            {hannaOn ? "Hanna bekapcsolva" : "Hanna kikapcsolva"}
           </span>
         </button>
         <p>
           {hannaOn
-            ? "Ha a boltod átirányítja a nem fogadott hívásokat a Hanna számra, ő veszi fel őket."
-            : "Az átirányítás a telefonodon megmaradhat — Hanna most nem válaszol (szünet / „nem elérhető”)."}
+            ? "Átirányított hívásokat ő veszi fel."
+            : "Szünet — a hívásokat nem veszi fel."}
         </p>
       </div>
     </aside>

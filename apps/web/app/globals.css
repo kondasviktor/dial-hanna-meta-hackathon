@@ -569,7 +569,18 @@ h1, h2, h3 {
 .kpi-num { font-size: 36px; font-weight: 700; line-height: 1; display: block; }
 .kpi-label { font-size: 13px; color: var(--muted); display: block; margin-top: 6px; }
 .kpi.dark .kpi-label { color: #a9c0c4; }
-.dash-cols { display: grid; grid-template-columns: 1.2fr 0.8fr; gap: 20px; align-items: start; }
+.dash-cols {
+  display: grid;
+  grid-template-columns: 1.2fr 0.8fr;
+  gap: 20px;
+  align-items: stretch;
+}
+.dash-cols > div {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  min-height: 100%;
+}
 .dash-card {
   background: var(--card);
   border: 1px solid var(--line);
@@ -577,6 +588,8 @@ h1, h2, h3 {
   padding: 24px;
   margin-bottom: 20px;
 }
+.dash-cols .dash-card { margin-bottom: 0; }
+.dash-card-fill { flex: 1; display: flex; flex-direction: column; }
 .dash-card h2 { font-size: 19px; margin: 0 0 12px; }
 .todo { padding: 12px 0; border-top: 1px solid var(--line); font-size: 15px; }
 .todo:first-of-type { border-top: none; }

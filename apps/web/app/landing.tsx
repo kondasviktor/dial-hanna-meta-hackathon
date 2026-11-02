@@ -439,13 +439,12 @@ function Footer({ d }: { d: LandingDict }) {
     <footer className="footer">
       <div className="footer-inner">
         <div>
-          <strong>{d.footerRights}</strong>
+          <p className="muted small" style={{ margin: 0 }}>{d.footerDemo}</p>
           <p className="muted small">
             <a href="mailto:hello@dialhanna.com">hello@dialhanna.com</a> ·{" "}
             <a href="/api/health">státusz / status</a>
           </p>
         </div>
-        <p className="muted small">{d.footerDemo}</p>
         <p className="muted small">
           <a href="/privacy">{d.privacy}</a> · <a href="/terms">{d.terms}</a> ·{" "}
           <a href="mailto:hello@dialhanna.com">{d.contact}</a>

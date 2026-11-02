@@ -46,7 +46,7 @@ export default function Softphone({ did }: { did: string }) {
         });
         device.on("error", (err) => {
           setStatus("error");
-          setMessage(err.message || "Twilio softphone hiba");
+          setMessage(err.message || "Hívás hiba");
         });
         deviceRef.current = device;
         setStatus("ready");
@@ -54,7 +54,7 @@ export default function Softphone({ did }: { did: string }) {
       } catch (e) {
         if (cancelled) return;
         setStatus("error");
-        setMessage(e instanceof Error ? e.message : "Nem sikerült a softphone");
+        setMessage(e instanceof Error ? e.message : "Nem sikerült a próbahívás");
       }
     }
 
@@ -114,7 +114,7 @@ export default function Softphone({ did }: { did: string }) {
 
   return (
     <div className="dash-card">
-      <h2>Böngésző softphone</h2>
+      <h2>Próbahívás a böngészőből</h2>
       <p className="muted small">
         Wi‑Fi-n hívod Hannát — nincs nemzetközi mobil díj. Engedélyezd a
         mikrofont, amikor a böngésző kéri.

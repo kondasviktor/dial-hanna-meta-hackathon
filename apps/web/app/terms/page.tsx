@@ -11,19 +11,12 @@ export default function TermsPage() {
     <main className="stub-wrap" style={{ maxWidth: 720, margin: "48px auto", padding: 24, lineHeight: 1.6 }}>
       <h1>ÁSZF / Terms</h1>
       <p>
-        A Dial Hanna jelenleg várólistás béta a Meta Global AI Developer Hackathon
-        idején. Nyilvános előfizetés és próbaidőszak a fizetős csomagok
-        megnyitásáig nem érhető el. Az átirányított hívásszakasz díját a saját
-        mobilszolgáltatód számlázza.
+        A Dial Hanna jelenleg várólistás béta. A szolgáltatás „ahogy van” alapon
+        elérhető; a fizetős csomagok és a saját számos próba később nyílik meg.
       </p>
       <p>
-        Dial Hanna is a waitlist beta during the Meta Global AI Developer Hackathon.
-        Public subscriptions and the 14-day trial open when paid plans launch.
-        Your carrier bills the forwarded call leg.
-      </p>
-      <p>
-        Hanna minden hívás első mondatában MI-asszisztensként mutatkozik be.
-        Hanna introduces herself as an AI assistant in the first sentence of every call.
+        Dial Hanna is a waitlist beta. The service is provided as-is; paid plans
+        and the trial on your own number open later.
       </p>
       <p>
         Kapcsolat / contact:{" "}

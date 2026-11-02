@@ -21,8 +21,8 @@ export default function PrivacyPage() {
         call recordings are off by default.
       </p>
       <p>
-        Adatfeldolgozók / subprocessors: Meta Model API, ElevenLabs (TTS), Twilio,
-        Vercel, Neon, Clerk. Kapcsolat / contact:{" "}
+        Adatfeldolgozók / subprocessors: telefon- és hangszolgáltatók, AI-modell
+        szolgáltató, tárhely, adatbázis, bejelentkezés. Kapcsolat / contact:{" "}
         <a href="mailto:hello@dialhanna.com">hello@dialhanna.com</a>.
       </p>
       <p><a href="/">← Dial Hanna</a></p>

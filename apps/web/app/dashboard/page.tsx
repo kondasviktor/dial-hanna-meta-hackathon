@@ -24,8 +24,8 @@ export default async function Dashboard() {
           néhány kérdést és választ — az első átirányított hívás itt jelenik meg.
         </p>
         <p>
-          <Link href="/onboarding" className="btn btn-primary btn-sm">
-            Beüzemelés indítása
+          <Link href="/dashboard/kb" className="btn btn-primary btn-sm">
+            Tudás beállítása
           </Link>
         </p>
       </div>
@@ -84,7 +84,7 @@ export default async function Dashboard() {
             ))}
           </div>
 
-          <div className="dash-card">
+          <div className="dash-card dash-card-fill">
             <h2>Mai és legutóbbi hívások</h2>
             {d.recent.length === 0 && (
               <p className="muted">Még nincs hívás.</p>
@@ -110,10 +110,10 @@ export default async function Dashboard() {
         </div>
 
         <div>
-          <div className="dash-card gap-callout">
-            <h2>Új tudásrés</h2>
+          <div className="dash-card gap-callout dash-card-fill">
+            <h2>Pótolandó válasz</h2>
             {d.gaps.length === 0 && (
-              <p className="muted">Nincs nyitott tudásrés.</p>
+              <p className="muted">Nincs nyitott kérdés.</p>
             )}
             {d.gaps.slice(0, 1).map((g) => (
               <div key={g.id}>
@@ -121,10 +121,10 @@ export default async function Dashboard() {
                   <strong>„{g.question}”</strong>
                 </p>
                 <p className="muted small">
-                  {g.context ?? g.status}. Válaszolj egyszer, és Hanna tudja.
+                  Írd meg egyszer — Hanna legközelebb már tudja.
                 </p>
                 <p>
-                  <Link href="/dashboard/gaps" className="btn btn-primary btn-sm">
+                  <Link href="/dashboard/kb" className="btn btn-primary btn-sm">
                     Válasz megadása
                   </Link>
                 </p>
@@ -132,15 +132,14 @@ export default async function Dashboard() {
             ))}
           </div>
 
-          <div className="dash-card">
-            <h2>Beüzemelés</h2>
+          <div className="dash-card dash-card-fill">
+            <h2>Tudás</h2>
             <p className="muted small">
-              Illeszd be a weboldaladat, vagy írj be kérdéseket kézzel. A
-              nyilvános próba és a Stripe a hackathon után jön.
+              Weboldal vagy Facebook Page beillesztése, hiányzó válaszok, jóváhagyott tudás.
             </p>
             <p>
-              <Link href="/onboarding" className="btn btn-outline btn-sm">
-                Tudás import / szerkesztés
+              <Link href="/dashboard/kb" className="btn btn-outline btn-sm">
+                Tudás megnyitása
               </Link>
             </p>
           </div>

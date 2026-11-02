@@ -15,7 +15,7 @@ export default async function CreateOrgPage() {
         Admin beüzemelés a hackathonhoz. A nyilvános regisztráció várólistás.
       </p>
       <Suspense>
-        <CreateOrganization afterCreateOrganizationUrl="/onboarding" />
+        <CreateOrganization afterCreateOrganizationUrl="/dashboard/kb" />
       </Suspense>
     </div>
   );
