@@ -74,6 +74,31 @@ export const metadata: Metadata = {
   },
 };
 
+function HeaderFallback() {
+  return (
+    <header className="site-header">
+      <div className="site-header-inner">
+        <a className="brand" href="/">
+          <span className="brand-dot" aria-hidden />
+          Dial Hanna
+        </a>
+        <div className="lang-switch" aria-label="language">
+          <a href="/" className="on">HU</a>
+          <a href="/en">EN</a>
+        </div>
+        <div className="header-actions">
+          <button className="btn btn-ghost btn-sm" type="button" disabled>
+            Belépés
+          </button>
+          <a className="btn btn-primary btn-sm" href="/waitlist">
+            Várólista
+          </a>
+        </div>
+      </div>
+    </header>
+  );
+}
+
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
   const h = await headers();
   const lang = h.get("x-page-lang") === "en" ? "en" : "hu";
@@ -87,21 +112,10 @@ export default async function RootLayout({ children }: { children: React.ReactNo
             href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400..700&family=Instrument+Sans:wght@400..700&family=JetBrains+Mono:wght@400;500&display=swap"
             rel="stylesheet"
           />
+          <link rel="alternate" type="text/plain" href="/llms.txt" title="llms.txt" />
         </head>
         <body>
-          <Suspense fallback={
-            <header className="site-header">
-              <div className="site-header-inner">
-                <a className="brand" href="/">
-                  <span className="brand-dot" aria-hidden />
-                  Dial Hanna
-                </a>
-                <div className="header-actions">
-                  <a className="btn btn-primary btn-sm" href="/waitlist">Várólista</a>
-                </div>
-              </div>
-            </header>
-          }>
+          <Suspense fallback={<HeaderFallback />}>
             <Header />
           </Suspense>
           <main>{children}</main>

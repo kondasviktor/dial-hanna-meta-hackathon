@@ -7,7 +7,7 @@ export default function robots(): MetadataRoute.Robots {
     rules: [
       {
         userAgent: "*",
-        allow: ["/", "/en", "/waitlist", "/privacy", "/terms"],
+        allow: ["/", "/en", "/waitlist", "/privacy", "/terms", "/llms.txt"],
         disallow: [
           "/dashboard",
           "/onboarding",

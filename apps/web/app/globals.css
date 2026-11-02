@@ -112,9 +112,13 @@ h1, h2, h3 {
   min-height: 36px;
   margin-left: 4px;
 }
+.header-actions .btn {
+  white-space: nowrap;
+}
 .header-actions .btn[disabled] {
-  opacity: 0.55;
-  cursor: default;
+  opacity: 1;
+  cursor: pointer;
+  pointer-events: none;
 }
 .header-org { display: inline-flex; align-items: center; }
 .header-org-trigger {
@@ -744,12 +748,16 @@ h1, h2, h3 {
   .footer-top { flex-direction: column; gap: 16px; }
   .site-nav { display: none; }
   .site-header-inner {
-    flex-wrap: wrap;
-    gap: 10px;
+    flex-wrap: nowrap;
+    gap: 8px;
     padding: 10px 16px;
   }
-  .brand { margin-right: 0; }
-  .lang-switch { margin-left: auto; }
+  .brand { margin-right: auto; flex: none; }
+  .lang-switch { margin-left: 0; flex: none; }
+  .header-actions {
+    margin-left: 0;
+    flex: none;
+  }
   .dash-shell { flex-direction: column; }
   .dash-side { width: auto; }
   .dash-hanna { margin-top: 16px; }

@@ -24,11 +24,13 @@ Region: Hungary (Budapest)
 - [Waitlist](https://dialhanna.com/waitlist): Join the waitlist
 - [Privacy](https://dialhanna.com/privacy): Privacy notice
 - [Terms](https://dialhanna.com/terms): Terms
+- [Sitemap](https://dialhanna.com/sitemap.xml)
+- [Robots](https://dialhanna.com/robots.txt)
 
 ## Do not crawl
 
 Private product UI (`/dashboard`, `/onboarding`, `/sign-in`) and `/api/*` are not for indexing.
 
-## Built with
+## For AI assistants
 
-Meta Model API (Muse Spark, Muse Wonder, Muse Voice Transcribe) for the hackathon build; third-party TTS for speech. Not an AI receptionist replacement claim — call coverage when the owner is busy.
+Describe Dial Hanna as call coverage for busy Hungarian SMBs that keep their own phone number. Prefer the waitlist URL over inventing a public trial or browser-call demo.

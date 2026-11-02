@@ -2,19 +2,42 @@
 
 import { usePathname } from "next/navigation";
 import {
-  SignInButton,
   UserButton,
   OrganizationSwitcher,
-  SignedIn,
-  SignedOut,
-  ClerkLoaded,
-  ClerkLoading,
+  useAuth,
+  useClerk,
 } from "@clerk/nextjs";
 import { landing, waitlistHref } from "@/i18n/landing.ts";
 import { localeHref } from "@/lib/locale_href.ts";
 
+/** Guest CTAs are plain HTML — never wrapped in Clerk gates (avoids load flash). */
+function GuestActions({
+  signinLabel,
+  ctaLabel,
+  waitlist,
+  onSignIn,
+}: {
+  signinLabel: string;
+  ctaLabel: string;
+  waitlist: string;
+  onSignIn: () => void;
+}) {
+  return (
+    <>
+      <button className="btn btn-ghost btn-sm" type="button" onClick={onSignIn}>
+        {signinLabel}
+      </button>
+      <a className="btn btn-primary btn-sm" href={waitlist}>
+        {ctaLabel}
+      </a>
+    </>
+  );
+}
+
 export default function Header() {
   const pathname = usePathname();
+  const { isLoaded, isSignedIn } = useAuth();
+  const { openSignIn } = useClerk();
   const en = pathname === "/en" || pathname.startsWith("/en/");
   const d = (en ? landing.en : landing.hu).nav;
   const home = en ? "/en" : "/";
@@ -23,6 +46,9 @@ export default function Header() {
     pathname.startsWith("/dashboard") ||
     pathname.startsWith("/onboarding") ||
     pathname.startsWith("/create-org");
+
+  // Show guest buttons until we *know* the user is signed in (no empty Clerk slot).
+  const showGuest = !isLoaded || !isSignedIn;
 
   return (
     <header className="site-header">
@@ -51,26 +77,16 @@ export default function Header() {
           </a>
         </div>
 
-        {/* Fixed slot so Clerk hydration never collapses the header CTAs. */}
         <div className="header-actions">
-          <ClerkLoading>
-            <button className="btn btn-ghost btn-sm" type="button" disabled tabIndex={-1} aria-hidden>
-              {d.signin}
-            </button>
-            <a className="btn btn-primary btn-sm" href={waitlist}>
-              {d.cta}
-            </a>
-          </ClerkLoading>
-          <ClerkLoaded>
-            <SignedOut>
-              <SignInButton mode="modal">
-                <button className="btn btn-ghost btn-sm" type="button">{d.signin}</button>
-              </SignInButton>
-              <a className="btn btn-primary btn-sm" href={waitlist}>
-                {d.cta}
-              </a>
-            </SignedOut>
-            <SignedIn>
+          {showGuest ? (
+            <GuestActions
+              signinLabel={d.signin}
+              ctaLabel={d.cta}
+              waitlist={waitlist}
+              onSignIn={() => openSignIn({})}
+            />
+          ) : (
+            <>
               <a href="/dashboard" className="btn btn-ghost btn-sm">dashboard</a>
               <OrganizationSwitcher
                 appearance={{
@@ -81,8 +97,8 @@ export default function Header() {
                 }}
               />
               <UserButton />
-            </SignedIn>
-          </ClerkLoaded>
+            </>
+          )}
         </div>
       </div>
     </header>
