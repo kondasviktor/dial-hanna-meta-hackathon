@@ -221,21 +221,21 @@ export async function fetchImportSource(
     return { kind, text: await fetchFacebookPageText(url) };
   }
 
-  // Prefer Apify WCC when token is set; fall back to local same-origin crawl.
+  // Cheerio first, then apify/web-scraper (not WCC — that needs a higher plan).
   if (process.env.APIFY_TOKEN?.trim()) {
     try {
-      const { crawlWithApifyWcc } = await import("./crawl_apify.ts");
-      const apify = await crawlWithApifyWcc(url);
+      const { crawlWithApify } = await import("./crawl_apify.ts");
+      const apify = await crawlWithApify(url);
       if (apify?.pages.length) {
         return {
           kind,
           text: apify.text,
           pages: apify.pages,
-          crawlEngine: "apify-cheerio",
+          crawlEngine: apify.engine === "web-scraper" ? "apify-web-scraper" : "apify-cheerio",
         };
       }
     } catch (e) {
-      console.error("apify-wcc-fallback", e);
+      console.error("apify-crawl-fallback", e);
     }
   }
 

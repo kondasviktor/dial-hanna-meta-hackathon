@@ -41,10 +41,16 @@ export default function ImportForm({ lang = "hu" }: { lang?: DashLang }) {
             : ` · ${j.pagesCrawled} oldal`
           : "";
       const engine =
-        j.crawlEngine === "apify-cheerio" || j.crawlEngine === "apify-wcc"
+        j.crawlEngine === "apify-cheerio" ||
+        j.crawlEngine === "apify-web-scraper" ||
+        j.crawlEngine === "apify-wcc"
           ? en
-            ? " · Apify crawl"
-            : " · Apify beolvasás"
+            ? j.crawlEngine === "apify-web-scraper"
+              ? " · Apify browser"
+              : " · Apify crawl"
+            : j.crawlEngine === "apify-web-scraper"
+              ? " · Apify böngésző"
+              : " · Apify beolvasás"
           : j.crawlEngine === "local"
             ? en
               ? " · local crawl"
