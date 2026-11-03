@@ -8,6 +8,7 @@ import { chat, MODELS } from "@/lib/meta.ts";
 import { requireAdmin, resolveOrgId } from "@/lib/org.ts";
 import { dashLangFromSearch } from "@/lib/dash_lang.ts";
 import ImportForm from "../../onboarding/import-form";
+import DeleteAllFaqsButton from "./delete-all-faqs";
 import FaqCard from "./faq-card";
 
 /** Translate Q&A into the other locale so HU/EN stay in sync after an owner edit. */
@@ -118,6 +119,20 @@ async function deleteFaq(id: string) {
   const db = getDb();
   if (!db) throw new Error("DATABASE_URL-unset");
   await db.delete(faqs).where(eq(faqs.id, id));
+  revalidatePath("/dashboard/kb");
+  revalidatePath("/onboarding");
+  revalidatePath("/dashboard");
+}
+
+async function deleteAllFaqs() {
+  "use server";
+  const admin = await requireAdmin();
+  if (!admin.ok) throw new Error("forbidden");
+  const orgRes = await resolveOrgId();
+  if (!orgRes.orgUuid) throw new Error("org-required");
+  const db = getDb();
+  if (!db) throw new Error("DATABASE_URL-unset");
+  await db.delete(faqs).where(eq(faqs.orgId, orgRes.orgUuid));
   revalidatePath("/dashboard/kb");
   revalidatePath("/onboarding");
   revalidatePath("/dashboard");
@@ -262,6 +277,8 @@ export default async function KnowledgeBasePage({
         add: "Add",
         faqs: "FAQs",
         empty: "Empty so far.",
+        deleteAll: "Delete all",
+        deleteAllConfirm: "Delete every Q&A for this shop? You can re-import after.",
       }
     : {
         title: "Tudás",
@@ -288,6 +305,8 @@ export default async function KnowledgeBasePage({
         add: "Hozzáadás",
         faqs: "Kérdések és válaszok",
         empty: "Még üres.",
+        deleteAll: "Összes törlése",
+        deleteAllConfirm: "Töröljük az összes kérdés–választ ennél az üzletnél? Utána újra importálhatsz.",
       };
 
   return (
@@ -392,9 +411,28 @@ export default async function KnowledgeBasePage({
         </form>
       </div>
 
-      <h2 className="dash-title" style={{ fontSize: 22, marginTop: 8 }}>
-        {t.faqs}
-      </h2>
+      <div
+        style={{
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+          gap: 12,
+          flexWrap: "wrap",
+          marginTop: 8,
+          marginBottom: 8,
+        }}
+      >
+        <h2 className="dash-title" style={{ fontSize: 22, margin: 0 }}>
+          {t.faqs}
+        </h2>
+        {rows.length > 0 && (
+          <DeleteAllFaqsButton
+            label={t.deleteAll}
+            confirmMessage={t.deleteAllConfirm}
+            action={deleteAllFaqs}
+          />
+        )}
+      </div>
       {rows.length === 0 && <p className="muted">{t.empty}</p>}
       {rows.map((f) => (
         <FaqCard
