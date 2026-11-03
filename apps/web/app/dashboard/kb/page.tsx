@@ -1,5 +1,5 @@
 import { redirect } from "next/navigation";
-import { eq } from "drizzle-orm";
+import { asc, eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { getDb } from "@/db/client.ts";
 import { businessProfiles, faqs, knowledgeGaps, organizations } from "@/db/schema.ts";
@@ -227,7 +227,10 @@ export default async function KnowledgeBasePage({
       profile = (prof?.profile ?? null) as BizProfile | null;
       bizName = profile?.name?.trim() || org.name || "";
 
-      rows = (await db.select().from(faqs).where(eq(faqs.orgId, org.id))).map((f) => ({
+      // Stable order by id so save/approve does not shuffle tiles.
+      rows = (
+        await db.select().from(faqs).where(eq(faqs.orgId, org.id)).orderBy(asc(faqs.id))
+      ).map((f) => ({
         id: f.id,
         qHu: f.qHu,
         aHu: f.aHu,

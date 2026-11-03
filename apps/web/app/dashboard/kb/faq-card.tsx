@@ -1,7 +1,7 @@
 "use client";
 
-import { useState, useTransition } from "react";
-import { Check, CircleDashed, Pencil, Trash2, X } from "lucide-react";
+import { useEffect, useRef, useState, useTransition } from "react";
+import { Check, CircleDashed, Loader2, Pencil, Trash2, X } from "lucide-react";
 import type { DashLang } from "@/lib/dash_lang.ts";
 
 export type FaqRow = {
@@ -13,6 +13,8 @@ export type FaqRow = {
   status: string;
   origin: string;
 };
+
+type Busy = "save" | "approve" | "reject" | "delete" | null;
 
 export default function FaqCard({
   faq,
@@ -35,13 +37,25 @@ export default function FaqCard({
   const displayA = en ? faq.aEn || faq.aHu : faq.aHu;
   const [q, setQ] = useState(displayQ);
   const [a, setA] = useState(displayA);
+  const [busy, setBusy] = useState<Busy>(null);
+  const [flash, setFlash] = useState<string | null>(null);
   const [pending, start] = useTransition();
+  const cardRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    setQ(displayQ);
+    setA(displayA);
+  }, [displayQ, displayA]);
+
+  useEffect(() => {
+    if (!flash) return;
+    const t = window.setTimeout(() => setFlash(null), 2200);
+    return () => window.clearTimeout(t);
+  }, [flash]);
 
   const originLabel =
     faq.origin === "import"
-      ? en
-        ? "Import"
-        : "Import"
+      ? "Import"
       : faq.origin === "gap"
         ? en
           ? "Gap"
@@ -59,29 +73,54 @@ export default function FaqCard({
       <CircleDashed size={18} strokeWidth={2.25} style={{ color: "#1B6CA8" }} aria-label={en ? "Draft" : "Vázlat"} />
     );
 
-  function run(fn: () => Promise<void>) {
+  function keepInView() {
+    cardRef.current?.scrollIntoView({ block: "nearest", behavior: "smooth" });
+  }
+
+  function run(kind: Busy, fn: () => Promise<void>, okMsg: string) {
+    setBusy(kind);
     start(() => {
-      void fn();
+      void (async () => {
+        try {
+          await fn();
+          setFlash(okMsg);
+          keepInView();
+        } finally {
+          setBusy(null);
+        }
+      })();
     });
   }
 
+  const locked = pending || busy != null;
+
   return (
-    <div className="dash-card faq-card" style={{ marginBottom: 12 }}>
+    <div
+      ref={cardRef}
+      id={`faq-${faq.id}`}
+      className={`dash-card faq-card${busy ? " faq-card-busy" : ""}${flash ? " faq-card-ok" : ""}`}
+      style={{ marginBottom: 12 }}
+    >
       <div className="faq-card-head">
         <span className="faq-status" title={originLabel}>
           {statusIcon}
           <span className="muted small">{originLabel}</span>
         </span>
-        <button
-          type="button"
-          className="faq-icon-btn"
-          disabled={pending}
-          onClick={() => run(() => onDelete(faq.id))}
-          aria-label={en ? "Delete" : "Törlés"}
-          title={en ? "Delete" : "Törlés"}
-        >
-          <Trash2 size={16} />
-        </button>
+        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+          {flash && <span className="faq-flash">{flash}</span>}
+          <button
+            type="button"
+            className="faq-icon-btn"
+            disabled={locked}
+            onClick={() =>
+              run("delete", () => onDelete(faq.id), en ? "Deleted" : "Törölve")
+            }
+            aria-label={en ? "Delete" : "Törlés"}
+            title={en ? "Delete" : "Törlés"}
+          >
+            {busy === "delete" ? <Loader2 size={16} className="faq-spin" /> : <Trash2 size={16} />}
+          </button>
+        </div>
       </div>
 
       {editing ? (
@@ -90,6 +129,7 @@ export default function FaqCard({
             value={q}
             onChange={(e) => setQ(e.target.value)}
             style={field}
+            disabled={locked}
             aria-label={en ? "Question" : "Kérdés"}
           />
           <textarea
@@ -97,26 +137,40 @@ export default function FaqCard({
             onChange={(e) => setA(e.target.value)}
             rows={4}
             style={field}
+            disabled={locked}
             aria-label={en ? "Answer" : "Válasz"}
           />
           <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
             <button
               type="button"
               className="btn btn-primary btn-sm"
-              disabled={pending || !q.trim() || !a.trim()}
+              disabled={locked || !q.trim() || !a.trim()}
               onClick={() =>
-                run(async () => {
-                  await onSave(faq.id, q.trim(), a.trim(), lang);
-                  setEditing(false);
-                })
+                run(
+                  "save",
+                  async () => {
+                    await onSave(faq.id, q.trim(), a.trim(), lang);
+                    setEditing(false);
+                  },
+                  en ? "Saved" : "Mentve",
+                )
               }
             >
-              {en ? "Save" : "Mentés"}
+              {busy === "save" ? (
+                <>
+                  <Loader2 size={14} className="faq-spin" style={{ marginRight: 6, verticalAlign: "-2px" }} />
+                  {en ? "Saving…" : "Mentés…"}
+                </>
+              ) : en ? (
+                "Save"
+              ) : (
+                "Mentés"
+              )}
             </button>
             <button
               type="button"
               className="btn btn-outline btn-sm"
-              disabled={pending}
+              disabled={locked}
               onClick={() => {
                 setQ(displayQ);
                 setA(displayA);
@@ -139,29 +193,52 @@ export default function FaqCard({
                 <button
                   type="button"
                   className="btn btn-primary btn-sm"
-                  disabled={pending}
-                  onClick={() => run(() => onApprove(faq.id))}
+                  disabled={locked}
+                  onClick={() =>
+                    run("approve", () => onApprove(faq.id), en ? "Approved" : "Jóváhagyva")
+                  }
                 >
-                  {en ? "Approve" : "Jóváhagy"}
+                  {busy === "approve" ? (
+                    <>
+                      <Loader2 size={14} className="faq-spin" style={{ marginRight: 6, verticalAlign: "-2px" }} />
+                      {en ? "Approving…" : "Jóváhagyás…"}
+                    </>
+                  ) : en ? (
+                    "Approve"
+                  ) : (
+                    "Jóváhagy"
+                  )}
                 </button>
                 <button
                   type="button"
                   className="btn btn-outline btn-sm"
-                  disabled={pending}
-                  onClick={() => run(() => onReject(faq.id))}
+                  disabled={locked}
+                  onClick={() =>
+                    run("reject", () => onReject(faq.id), en ? "Rejected" : "Elvetve")
+                  }
                 >
-                  {en ? "Reject" : "Elvet"}
+                  {busy === "reject" ? (
+                    <>
+                      <Loader2 size={14} className="faq-spin" style={{ marginRight: 6, verticalAlign: "-2px" }} />
+                      {en ? "Rejecting…" : "Elvetés…"}
+                    </>
+                  ) : en ? (
+                    "Reject"
+                  ) : (
+                    "Elvet"
+                  )}
                 </button>
               </>
             )}
             <button
               type="button"
               className="btn btn-outline btn-sm"
-              disabled={pending}
+              disabled={locked}
               onClick={() => {
                 setQ(displayQ);
                 setA(displayA);
                 setEditing(true);
+                keepInView();
               }}
             >
               <Pencil size={14} style={{ marginRight: 6, verticalAlign: "-2px" }} />

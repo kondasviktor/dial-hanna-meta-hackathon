@@ -107,7 +107,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
           {/* Header stays mounted; its own Suspense only wraps the lang switch. */}
           <Header />
           <main>{children}</main>
-          <SiteFooter lang={lang} />
+          <SiteFooter />
         </body>
       </html>
     </ClerkProvider>

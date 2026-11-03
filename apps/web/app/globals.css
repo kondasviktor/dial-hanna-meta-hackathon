@@ -517,10 +517,12 @@ h1, h2, h3 {
 }
 .final h2 { font-size: 34px; margin: 0 0 8px; max-width: 20em; }
 .final p { color: #d6e4e6; }
-.footer {
-  margin-top: 64px;
+.footer,
+.site-footer {
+  max-width: 1200px;
+  margin: 64px auto 0;
   border-top: 1px solid var(--line);
-  padding: 28px 0 40px;
+  padding: 28px 24px 40px;
 }
 .footer-top {
   display: flex;
@@ -555,20 +557,17 @@ h1, h2, h3 {
 .footer-nav a { color: var(--muted); text-decoration: none; }
 .footer-nav a:hover { color: var(--ink); }
 
-.site-legal-footer {
-  max-width: 720px;
-  margin: 0 auto 48px;
-  padding: 0 24px;
+.faq-card-busy { opacity: 0.92; }
+.faq-card-ok { box-shadow: inset 3px 0 0 var(--deep-green); }
+.faq-flash {
   font-size: 13px;
+  font-weight: 600;
+  color: var(--deep-green);
 }
-.site-legal-footer nav {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 12px 20px;
-  color: var(--muted);
+@keyframes faq-spin {
+  to { transform: rotate(360deg); }
 }
-.site-legal-footer a { color: var(--muted); text-decoration: none; }
-.site-legal-footer a:hover { color: var(--ink); }
+.faq-spin { animation: faq-spin 0.7s linear infinite; display: inline-block; }
 
 .legal-page {
   max-width: 720px;

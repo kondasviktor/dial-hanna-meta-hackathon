@@ -466,38 +466,10 @@ function Final({ d, lang }: { d: LandingDict; lang: Lang }) {
   );
 }
 
-function Footer({ d, lang }: { d: LandingDict; lang: Lang }) {
-  const prefix = lang === "en" ? "/en" : "";
-  return (
-    <footer className="footer">
-      <div className="footer-top">
-        <p className="footer-credit muted small">
-          <strong className="footer-name">Dial Hanna</strong>
-          {" · "}
-          {d.footerRights} {d.footerCraftPrefix}
-          <a
-            href="https://www.vibecoderslife.com/"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="footer-vcl"
-          >
-            {d.footerCraftLink}
-          </a>
-        </p>
-        <nav className="footer-nav" aria-label="footer">
-          <a href={`${prefix}/privacy`}>{d.privacy}</a>
-          <a href={`${prefix}/terms`}>{d.terms}</a>
-          <a href="mailto:hello@dialhanna.com">{d.contact}</a>
-          <a href="/api/health">{d.footerStatus}</a>
-        </nav>
-      </div>
-    </footer>
-  );
-}
-
 export default function Landing({ lang }: { lang: Lang }) {
   // Resolve dict inside the client boundary — LandingDict embeds helpers
   // (callsUnit, verdictOk, …) that cannot cross the RSC → client prop bridge.
+  // Footer lives in root layout (same on every page).
   const d = landing[lang];
   return (
     <div className="landing">
@@ -511,7 +483,6 @@ export default function Landing({ lang }: { lang: Lang }) {
       <Pricing d={d} lang={lang} />
       <Faq d={d} />
       <Final d={d} lang={lang} />
-      <Footer d={d} lang={lang} />
     </div>
   );
 }
