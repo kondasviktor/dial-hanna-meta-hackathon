@@ -16,13 +16,12 @@ async function agentPromptFor(orgId: string): Promise<{ system: string; greetHu:
   const allFaqs = await db.select().from(faqs).where(eq(faqs.orgId, orgId));
   const playbooks = (await db.select().from(playbookSettings).where(eq(playbookSettings.orgId, orgId)))
     .filter((p) => p.enabled).map((p) => p.playbook);
-  const b = (profile?.profile ?? {}) as {
-    name?: string; hours?: unknown; address?: string; phone?: string; website?: string;
-    services?: { name?: string; price_text?: string }[];
-    staff?: { name?: string }[]; policies?: Record<string, string>;
-  };
   const { renderBusinessKnowledge } = await import("./business_knowledge.ts");
-  const knowledge = renderBusinessKnowledge(b, allFaqs, { fallbackName: "Vállalkozás" });
+  const knowledge = renderBusinessKnowledge(
+    (profile?.profile ?? null) as Parameters<typeof renderBusinessKnowledge>[0],
+    allFaqs,
+    { fallbackName: "Vállalkozás" },
+  );
   const p = buildSessionPayload({
     orgId, businessName: b.name ?? "Vállalkozás", timezone: "Europe/Budapest",
     knowledge, playbooks, bookingAllowed: playbooks.includes("booking"),

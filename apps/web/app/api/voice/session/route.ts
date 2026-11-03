@@ -48,12 +48,11 @@ export async function GET(req: Request) {
   const versions = await db.select().from(agentVersions).where(eq(agentVersions.orgId, org.id));
   const live = versions.find((v) => v.status === "live") ?? versions[0];
   const cfg = (live?.config ?? {}) as { keywords?: string[]; voiceId?: string };
-  const b = (profile?.profile ?? {}) as {
-    name?: string; address?: string; phone?: string; website?: string;
-    hours?: unknown; services?: { name?: string; price_text?: string }[];
-    policies?: Record<string, string>;
-  };
-  const knowledge = renderBusinessKnowledge(b, allFaqs, { fallbackName: org.name });
+  const knowledge = renderBusinessKnowledge(
+    (profile?.profile ?? null) as Parameters<typeof renderBusinessKnowledge>[0],
+    allFaqs,
+    { fallbackName: org.name },
+  );
 
   const keywords = [
     ...(cfg.keywords ?? []),
