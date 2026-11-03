@@ -4,10 +4,44 @@ import { revalidatePath } from "next/cache";
 import { getDb } from "@/db/client.ts";
 import { businessProfiles, faqs, knowledgeGaps, organizations } from "@/db/schema.ts";
 import { buildFaqDraft } from "@/lib/gaps.ts";
+import { chat, MODELS } from "@/lib/meta.ts";
 import { requireAdmin, resolveOrgId } from "@/lib/org.ts";
 import { dashLangFromSearch } from "@/lib/dash_lang.ts";
 import ImportForm from "../../onboarding/import-form";
 import FaqCard from "./faq-card";
+
+/** Translate Q&A into the other locale so HU/EN stay in sync after an owner edit. */
+async function translateFaqPair(
+  q: string,
+  a: string,
+  to: "hu" | "en",
+): Promise<{ q: string; a: string } | null> {
+  try {
+    const raw = await chat({
+      model: MODELS.extract,
+      reasoningEffort: "minimal",
+      maxTokens: 800,
+      json: true,
+      messages: [
+        {
+          role: "system",
+          content:
+            `You translate shop FAQ for a phone receptionist. Return ONLY JSON {"q":"...","a":"..."} in ${
+              to === "hu" ? "Hungarian" : "English"
+            }. Keep the same meaning, natural spoken tone. Never mention websites or crawl gaps.`,
+        },
+        { role: "user", content: JSON.stringify({ q, a }) },
+      ],
+    });
+    const parsed = JSON.parse(raw) as { q?: string; a?: string };
+    const tq = parsed.q?.trim();
+    const ta = parsed.a?.trim();
+    if (tq && ta) return { q: tq, a: ta };
+  } catch (e) {
+    console.error("faq-translate-failed", e);
+  }
+  return null;
+}
 
 export const dynamic = "force-dynamic";
 
@@ -98,12 +132,22 @@ async function saveFaq(id: string, q: string, a: string, lang: "hu" | "en" = "hu
   if (!qTrim || !aTrim) throw new Error("q-a-required");
   const row = (await db.select().from(faqs).where(eq(faqs.id, id)).limit(1))[0];
   if (!row) throw new Error("faq-not-found");
-  // Only the language being edited is written — the other locale stays as-is
-  // (import already stored both; there is no auto-translate on edit).
+
+  const other = lang === "hu" ? "en" : "hu";
+  const translated = await translateFaqPair(qTrim, aTrim, other);
+
   if (lang === "en") {
-    await db.update(faqs).set({ qEn: qTrim, aEn: aTrim }).where(eq(faqs.id, id));
+    await db.update(faqs).set({
+      qEn: qTrim,
+      aEn: aTrim,
+      ...(translated ? { qHu: translated.q, aHu: translated.a } : {}),
+    }).where(eq(faqs.id, id));
   } else {
-    await db.update(faqs).set({ qHu: qTrim, aHu: aTrim }).where(eq(faqs.id, id));
+    await db.update(faqs).set({
+      qHu: qTrim,
+      aHu: aTrim,
+      ...(translated ? { qEn: translated.q, aEn: translated.a } : {}),
+    }).where(eq(faqs.id, id));
   }
   revalidatePath("/dashboard/kb");
   revalidatePath("/onboarding");
