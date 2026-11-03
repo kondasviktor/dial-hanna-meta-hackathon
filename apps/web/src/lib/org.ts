@@ -1,9 +1,14 @@
 // Resolve the signed-in Clerk org → Neon organization row.
 
 import { auth, currentUser } from "@clerk/nextjs/server";
-import { eq } from "drizzle-orm";
+import { desc, eq } from "drizzle-orm";
 import { getDb } from "@/db/client.ts";
-import { organizations } from "@/db/schema.ts";
+import {
+  agentVersions,
+  businessProfiles,
+  organizations,
+  phoneNumbers,
+} from "@/db/schema.ts";
 import { isAdminEmail } from "@/lib/admin.ts";
 import { provisionOrganization } from "@/lib/clerk_webhook.ts";
 
@@ -40,4 +45,60 @@ export async function resolveOrgId(): Promise<{
     name: row?.name ?? null,
     plan: row?.plan ?? null,
   };
+}
+
+const UUID_RE =
+  /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+
+/** Resolve which Neon org a Twilio/voice call should load knowledge for. */
+export async function resolveCallOrg(opts?: {
+  orgId?: string | null;
+  toE164?: string | null;
+}): Promise<typeof organizations.$inferSelect | null> {
+  const db = getDb();
+  if (!db) return null;
+
+  const explicit = opts?.orgId?.trim();
+  if (explicit && UUID_RE.test(explicit)) {
+    const row = (
+      await db.select().from(organizations).where(eq(organizations.id, explicit)).limit(1)
+    )[0];
+    if (row) return row;
+  }
+
+  const to = opts?.toE164?.trim();
+  if (to && to.startsWith("+")) {
+    const phone = (
+      await db.select().from(phoneNumbers).where(eq(phoneNumbers.e164, to)).limit(1)
+    )[0];
+    if (phone) {
+      const row = (
+        await db.select().from(organizations).where(eq(organizations.id, phone.orgId)).limit(1)
+      )[0];
+      if (row) return row;
+    }
+  }
+
+  const live = (
+    await db.select().from(agentVersions).where(eq(agentVersions.status, "live")).limit(1)
+  )[0];
+  if (live) {
+    const row = (
+      await db.select().from(organizations).where(eq(organizations.id, live.orgId)).limit(1)
+    )[0];
+    if (row) return row;
+  }
+
+  // Prefer an org that actually has an imported business profile (not an empty shell).
+  const withProfile = (
+    await db
+      .select({ org: organizations })
+      .from(organizations)
+      .innerJoin(businessProfiles, eq(businessProfiles.orgId, organizations.id))
+      .orderBy(desc(businessProfiles.updatedAt))
+      .limit(1)
+  )[0];
+  if (withProfile?.org) return withProfile.org;
+
+  return (await db.select().from(organizations).limit(1))[0] ?? null;
 }

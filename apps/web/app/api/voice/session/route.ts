@@ -2,12 +2,13 @@ import { NextResponse } from "next/server";
 import { eq } from "drizzle-orm";
 import { getDb } from "@/db/client.ts";
 import {
-  organizations, businessProfiles, faqs, playbookSettings,
-  agentVersions, phoneNumbers, calls,
+  businessProfiles, faqs, playbookSettings,
+  agentVersions, calls,
 } from "@/db/schema.ts";
 import { renderBusinessKnowledge } from "@/lib/business_knowledge.ts";
 import { buildSessionPayload } from "@/lib/session.ts";
 import { verifyVoiceRequest } from "@/lib/voice_auth.ts";
+import { resolveCallOrg } from "@/lib/org.ts";
 
 export const dynamic = "force-dynamic";
 
@@ -24,21 +25,7 @@ export async function GET(req: Request) {
   const db = getDb();
   if (!db) return NextResponse.json({ ok: false, error: "db-unavailable" }, { status: 503 });
 
-  let org = null as typeof organizations.$inferSelect | null;
-  if (to) {
-    const phone = (await db.select().from(phoneNumbers).where(eq(phoneNumbers.e164, to)).limit(1))[0];
-    if (phone) {
-      org = (await db.select().from(organizations).where(eq(organizations.id, phone.orgId)).limit(1))[0] ?? null;
-    }
-  }
-  if (!org) {
-    // Fallback: first org with a live agent (admin hackathon single-tenant).
-    const live = (await db.select().from(agentVersions).where(eq(agentVersions.status, "live")).limit(1))[0];
-    if (live) org = (await db.select().from(organizations).where(eq(organizations.id, live.orgId)).limit(1))[0] ?? null;
-  }
-  if (!org) {
-    org = (await db.select().from(organizations).limit(1))[0] ?? null;
-  }
+  const org = await resolveCallOrg({ toE164: to || null });
   if (!org) return NextResponse.json({ ok: false, error: "no-org" }, { status: 404 });
 
   const profile = (await db.select().from(businessProfiles).where(eq(businessProfiles.orgId, org.id)).limit(1))[0];

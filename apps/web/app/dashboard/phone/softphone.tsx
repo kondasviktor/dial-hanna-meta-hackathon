@@ -51,6 +51,7 @@ export default function Softphone({ did, lang = "hu" }: { did: string; lang?: So
   const t = COPY[lang];
   const [status, setStatus] = useState<Status>("idle");
   const [message, setMessage] = useState<string>(COPY[lang].preparing);
+  const orgIdRef = useRef<string>("");
 
   const teardown = useCallback(() => {
     try {
@@ -78,11 +79,12 @@ export default function Softphone({ did, lang = "hu" }: { did: string; lang?: So
           const body = await res.json().catch(() => ({}));
           throw new Error(body.error ?? `token ${res.status}`);
         }
-        const { token } = (await res.json()) as { token: string };
+        const body = (await res.json()) as { token: string; orgId?: string | null };
         if (cancelled) return;
+        orgIdRef.current = body.orgId?.trim() || "";
 
         const { Device: TwilioDevice, Call: TwilioCall } = await import("@twilio/voice-sdk");
-        const device = new TwilioDevice(token, {
+        const device = new TwilioDevice(body.token, {
           codecPreferences: [TwilioCall.Codec.Opus, TwilioCall.Codec.PCMU],
           closeProtection: true,
         });
@@ -118,7 +120,9 @@ export default function Softphone({ did, lang = "hu" }: { did: string; lang?: So
     setStatus("connecting");
     setMessage(t.connecting);
     try {
-      const call = await device.connect({ params: { To: did || "hanna" } });
+      const params: Record<string, string> = { To: did || "hanna" };
+      if (orgIdRef.current) params.OrgId = orgIdRef.current;
+      const call = await device.connect({ params });
       callRef.current = call;
       call.on("accept", () => {
         setStatus("open");

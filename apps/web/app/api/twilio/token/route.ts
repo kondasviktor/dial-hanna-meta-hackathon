@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import twilio from "twilio";
-import { requireAdmin } from "@/lib/org.ts";
+import { requireAdmin, resolveOrgId } from "@/lib/org.ts";
 
 export const dynamic = "force-dynamic";
 
@@ -23,6 +23,7 @@ export async function GET() {
     );
   }
 
+  const org = await resolveOrgId();
   const identity = `admin_${(admin.email ?? "owner").replace(/[^a-zA-Z0-9_]/g, "_").slice(0, 100)}`;
   const AccessToken = twilio.jwt.AccessToken;
   const VoiceGrant = AccessToken.VoiceGrant;
@@ -42,5 +43,6 @@ export async function GET() {
     token: token.toJwt(),
     identity,
     to: process.env.TWILIO_PHONE_NUMBER ?? "",
+    orgId: org.orgUuid,
   });
 }

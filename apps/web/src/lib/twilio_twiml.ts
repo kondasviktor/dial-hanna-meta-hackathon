@@ -28,8 +28,18 @@ export function hannaPausedTwiml(lang: TtsLang = "en"): string {
 </Response>`;
 }
 
+function gatherActionUrl(lang: TtsLang, orgId?: string | null): string {
+  const u = new URL(`${appBaseUrl()}/api/twilio/gather`);
+  u.searchParams.set("lang", lang);
+  if (orgId) u.searchParams.set("org", orgId);
+  return u.toString();
+}
+
 /** Shared TwiML for inbound DID and browser softphone. */
-export function dialHannaTwiml(lang: TtsLang = "en"): string {
+export function dialHannaTwiml(
+  lang: TtsLang = "en",
+  opts?: { orgId?: string | null },
+): string {
   const voiceUrl = process.env.VOICE_SERVICE_URL?.replace(/\/$/, "");
   const streamBase = voiceUrl
     ?.replace(/^https:/i, "wss:")
@@ -53,7 +63,7 @@ export function dialHannaTwiml(lang: TtsLang = "en"): string {
       ? "Elnézést, nem értettem. Viszontlátásra."
       : "Sorry, I did not catch that. Goodbye for now.";
   const gatherLang = lang === "hu" ? "hu-HU" : "en-US";
-  const gather = `${appBaseUrl()}/api/twilio/gather?lang=${lang}`;
+  const gather = gatherActionUrl(lang, opts?.orgId);
   const play = escapeXml(playUrl(greeting, lang));
 
   return `<?xml version="1.0" encoding="UTF-8"?>
@@ -65,9 +75,14 @@ export function dialHannaTwiml(lang: TtsLang = "en"): string {
 </Response>`;
 }
 
-export function replyTwiml(spoken: string, continueGather = true, lang?: TtsLang): string {
+export function replyTwiml(
+  spoken: string,
+  continueGather = true,
+  lang?: TtsLang,
+  orgId?: string | null,
+): string {
   const l = lang ?? detectTtsLang(spoken);
-  const gather = `${appBaseUrl()}/api/twilio/gather?lang=${l}`;
+  const gather = gatherActionUrl(l, orgId);
   const gatherLang = l === "hu" ? "hu-HU" : "en-US";
   const play = escapeXml(playUrl(spoken, l));
   const bye =
