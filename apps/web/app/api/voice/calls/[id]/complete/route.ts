@@ -37,10 +37,12 @@ export async function POST(req: Request, ctx: Ctx) {
   const call = (await db.select().from(calls).where(eq(calls.id, id)).limit(1))[0];
   if (!call) return NextResponse.json({ ok: false, error: "call-not-found" }, { status: 404 });
 
+  // Transcript is used only in memory to extract the structured summary.
+  // We do not store call audio or the transcript text (privacy / Art. 28).
   await db.update(calls).set({
     endedAt: new Date(),
     durationS: payload.duration_s ?? null,
-    transcript: payload.transcript ?? null,
+    transcript: null,
     toolCalls: payload.tool_calls ?? null,
     timings: payload.timings ?? null,
     language: payload.language ?? call.language ?? "en",
@@ -61,7 +63,7 @@ export async function POST(req: Request, ctx: Ctx) {
       messages: [
         {
           role: "system",
-          content: `Extract a call outcome JSON: {intent, outcome, next_action:{type,due_by,summary_hu,summary_en}, caller:{name,phone,language}, booking_id, knowledge_gap_questions:[], sentiment, confidence}. Intent/outcome enums from Dial Hanna. language hu|en.`,
+          content: `Extract a call outcome JSON: {intent, outcome, next_action:{type,due_by,summary_hu,summary_en}, caller:{name,phone,language}, booking_id, knowledge_gap_questions:[], confidence}. Intent/outcome enums from Dial Hanna. language hu|en. Do not include sentiment.`,
         },
         { role: "user", content: transcriptText || "(empty transcript)" },
       ],
@@ -79,7 +81,7 @@ export async function POST(req: Request, ctx: Ctx) {
       outcome: outcome.outcome,
       nextAction: outcome.next_action,
       ownerStatus: outcome.next_action?.type === "none" ? "done" : "open",
-      sentiment: outcome.sentiment,
+      sentiment: null,
       confidence: Math.round((outcome.confidence ?? 0) * 100),
     };
     if (existing) {

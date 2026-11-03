@@ -19,8 +19,8 @@ function playUrl(text: string, lang?: TtsLang): string {
 export function hannaPausedTwiml(lang: TtsLang = "en"): string {
   const msg =
     lang === "hu"
-      ? "Köszönjük a hívást. Hanna jelenleg szünetel. Kérjük, hívjon vissza később."
-      : "Thanks for calling. Hanna is paused right now. Please try again later. Goodbye.";
+      ? "Köszönjük a hívást. Hanna, a mesterséges intelligencia asszisztens, jelenleg szünetel. Kérjük, hívjon vissza később."
+      : "Thanks for calling. Hanna, the AI assistant, is paused right now. Please try again later. Goodbye.";
   return `<?xml version="1.0" encoding="UTF-8"?>
 <Response>
   <Play>${escapeXml(playUrl(msg, lang))}</Play>

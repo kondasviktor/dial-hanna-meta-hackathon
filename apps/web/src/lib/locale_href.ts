@@ -6,6 +6,7 @@ export function localeHref(pathname: string, target: "hu" | "en"): string {
     if (path === "/") return "/en";
     if (path === "/privacy") return "/en/privacy";
     if (path === "/terms") return "/en/terms";
+    if (path === "/dpa") return "/en/dpa";
     if (path === "/waitlist") return "/waitlist?lang=en";
     if (path.startsWith("/en")) return path;
     // Dashboard / onboarding are HU-only for the hackathon — stay put.
@@ -19,6 +20,7 @@ export function localeHref(pathname: string, target: "hu" | "en"): string {
   if (path === "/en") return "/";
   if (path === "/en/privacy") return "/privacy";
   if (path === "/en/terms") return "/terms";
+  if (path === "/en/dpa") return "/dpa";
   if (path === "/waitlist") return "/waitlist";
   if (path.startsWith("/en/")) return path.replace(/^\/en/, "") || "/";
   return path;

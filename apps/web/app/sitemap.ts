@@ -10,7 +10,11 @@ export default function sitemap(): MetadataRoute.Sitemap {
     { path: "/waitlist", changeFrequency: "monthly", priority: 0.8 },
     { path: "/waitlist?lang=en", changeFrequency: "monthly", priority: 0.75 },
     { path: "/privacy", changeFrequency: "yearly", priority: 0.3 },
+    { path: "/en/privacy", changeFrequency: "yearly", priority: 0.25 },
     { path: "/terms", changeFrequency: "yearly", priority: 0.3 },
+    { path: "/en/terms", changeFrequency: "yearly", priority: 0.25 },
+    { path: "/dpa", changeFrequency: "yearly", priority: 0.3 },
+    { path: "/en/dpa", changeFrequency: "yearly", priority: 0.25 },
   ];
   return pages.map((p) => ({
     url: `${base}${p.path}`,

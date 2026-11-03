@@ -26,7 +26,8 @@ export interface CallOutcome {
   caller: { name: string | null; phone: string | null; language: string };
   booking_id: string | null;
   knowledge_gap_questions: string[];
-  sentiment: string;
+  /** Optional — not stored (privacy: summary only). */
+  sentiment?: string;
   confidence: number;
 }
 

@@ -43,5 +43,15 @@ export const MODELS = {
   live: process.env.MODEL_LIVE ?? "muse-spark-1.3",
   extract: process.env.MODEL_EXTRACT ?? "muse-wonder-1.0",
   judge: process.env.MODEL_JUDGE ?? "muse-spark-1.3",
+  /**
+   * Contributor-mode model. Meta may train on this content.
+   * Use only with synthetic fixtures (gate scripts). Never send live
+   * transcripts, caller numbers, or a customer's website / FAQ text here.
+   */
   simcaller: process.env.MODEL_SIMCALLER ?? "muse-spark-1.3-contributor",
 };
+
+/** True if the model id is a Meta Contributor (training-permitted) variant. */
+export function isContributorModel(model: string): boolean {
+  return /contributor/i.test(model);
+}

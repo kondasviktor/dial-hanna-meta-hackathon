@@ -466,7 +466,8 @@ function Final({ d, lang }: { d: LandingDict; lang: Lang }) {
   );
 }
 
-function Footer({ d }: { d: LandingDict }) {
+function Footer({ d, lang }: { d: LandingDict; lang: Lang }) {
+  const prefix = lang === "en" ? "/en" : "";
   return (
     <footer className="footer">
       <div className="footer-top">
@@ -484,8 +485,9 @@ function Footer({ d }: { d: LandingDict }) {
           </a>
         </p>
         <nav className="footer-nav" aria-label="footer">
-          <a href="/privacy">{d.privacy}</a>
-          <a href="/terms">{d.terms}</a>
+          <a href={`${prefix}/privacy`}>{d.privacy}</a>
+          <a href={`${prefix}/terms`}>{d.terms}</a>
+          <a href={`${prefix}/dpa`}>{d.dpa}</a>
           <a href="mailto:hello@dialhanna.com">{d.contact}</a>
           <a href="/api/health">{d.footerStatus}</a>
         </nav>
@@ -510,7 +512,7 @@ export default function Landing({ lang }: { lang: Lang }) {
       <Pricing d={d} lang={lang} />
       <Faq d={d} />
       <Final d={d} lang={lang} />
-      <Footer d={d} />
+      <Footer d={d} lang={lang} />
     </div>
   );
 }

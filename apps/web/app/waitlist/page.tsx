@@ -30,6 +30,7 @@ export default async function WaitlistPage({
         submitLabel={d.waitlistSubmit}
         successLabel={d.waitlistSuccess}
         placeholder={d.waitlistPlaceholder}
+        consentLabel={d.waitlistConsent}
       />
       <p className="muted small" style={{ marginTop: 24 }}>
         <a href={en ? "/en" : "/"}>{en ? "← Back" : "← Vissza"}</a>

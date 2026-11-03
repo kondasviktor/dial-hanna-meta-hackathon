@@ -30,6 +30,11 @@ test("booking confirmation rule present, blocklist rendered", () => {
   assert.match(prompt, /orvosi tanács/);
 });
 
+test("truthful AI disclosure when caller asks if Hanna is a robot", () => {
+  const { prompt } = renderPrompt(base);
+  assert.match(prompt, /artificial intelligence \(AI\) assistant/);
+});
+
 test("size guard trips on huge knowledge", () => {
   const big = "x".repeat(KNOWLEDGE_TOKEN_WARN * 4 + 100);
   const r = renderPrompt({ ...base, knowledge: big });

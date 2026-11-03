@@ -21,12 +21,12 @@ body {
   margin: 0;
   background: var(--ground);
   color: var(--ink);
-  font-family: "Instrument Sans", "Bricolage Grotesque", system-ui, sans-serif;
+  font-family: var(--font-instrument), var(--font-bricolage), system-ui, sans-serif;
   line-height: 1.6;
 }
 
 .mono {
-  font-family: "JetBrains Mono", ui-monospace, monospace;
+  font-family: var(--font-mono), ui-monospace, monospace;
 }
 
 a {
@@ -34,7 +34,7 @@ a {
 }
 
 h1, h2, h3 {
-  font-family: "Bricolage Grotesque", "Instrument Sans", system-ui, sans-serif;
+  font-family: var(--font-bricolage), var(--font-instrument), system-ui, sans-serif;
   line-height: 1.15;
   letter-spacing: -0.01em;
 }
@@ -69,7 +69,7 @@ h1, h2, h3 {
   font-weight: 700;
   text-decoration: none;
   margin-right: auto;
-  font-family: "Bricolage Grotesque", system-ui, sans-serif;
+  font-family: var(--font-bricolage), system-ui, sans-serif;
   font-size: 17px;
 }
 .brand-dot {
@@ -554,6 +554,47 @@ h1, h2, h3 {
 }
 .footer-nav a { color: var(--muted); text-decoration: none; }
 .footer-nav a:hover { color: var(--ink); }
+
+.site-legal-footer {
+  max-width: 720px;
+  margin: 0 auto 48px;
+  padding: 0 24px;
+  font-size: 13px;
+}
+.site-legal-footer nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px 20px;
+  color: var(--muted);
+}
+.site-legal-footer a { color: var(--muted); text-decoration: none; }
+.site-legal-footer a:hover { color: var(--ink); }
+
+.legal-page {
+  max-width: 720px;
+  margin: 48px auto;
+  padding: 24px;
+  line-height: 1.6;
+}
+.legal-page h1 { font-size: 28px; margin-bottom: 8px; }
+.legal-page h2 { font-size: 18px; margin-top: 28px; margin-bottom: 8px; }
+.legal-page table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+  margin: 12px 0;
+}
+.legal-page th,
+.legal-page td {
+  border: 1px solid var(--line);
+  padding: 8px 10px;
+  text-align: left;
+  vertical-align: top;
+}
+.legal-page th { background: color-mix(in srgb, var(--ground) 70%, var(--line)); }
+.legal-page ul { padding-left: 1.2em; }
+.legal-page .legal-meta { color: var(--muted); font-size: 13px; margin-bottom: 24px; }
+.legal-page .legal-lang { margin-top: 40px; padding-top: 24px; border-top: 1px solid var(--line); }
 
 /* ---------- dashboard ---------- */
 .dash-shell { display: flex; min-height: calc(100vh - 57px); }

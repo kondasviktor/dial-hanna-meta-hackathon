@@ -14,6 +14,8 @@ export default function WaitlistForm({
   submitLabel: string;
   successLabel: string;
   placeholder: string;
+  /** Kept for callers; consent copy is locale-hardcoded below. */
+  consentLabel?: string;
 }) {
   const [email, setEmail] = useState("");
   const [state, setState] = useState<"idle" | "loading" | "ok" | "err">("idle");
@@ -37,6 +39,13 @@ export default function WaitlistForm({
     return <p className="waitlist-ok">{successLabel}</p>;
   }
 
+  const privacyHref = locale === "en" ? "/en/privacy" : "/privacy";
+  const consentBody =
+    locale === "hu"
+      ? "Csak a Dial Hanna indulásáról írunk. Törléshez írj a hello@dialhanna.com címre. "
+      : "We'll only email you about the Dial Hanna launch. To be removed, email hello@dialhanna.com. ";
+  const privacyWord = locale === "hu" ? "Adatvédelem →" : "Privacy →";
+
   return (
     <form className="waitlist-form" onSubmit={onSubmit}>
       <input
@@ -50,6 +59,10 @@ export default function WaitlistForm({
       <button className="btn btn-primary" type="submit" disabled={state === "loading"}>
         {submitLabel}
       </button>
+      <p className="muted small" style={{ marginTop: 12 }}>
+        {consentBody}
+        <a href={privacyHref}>{privacyWord}</a>
+      </p>
       {state === "err" && (
         <p className="muted small">
           {locale === "hu" ? "Nem sikerült. Próbáld újra." : "Something went wrong. Try again."}

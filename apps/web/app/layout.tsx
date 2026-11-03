@@ -1,10 +1,31 @@
 import type { Metadata, Viewport } from "next";
 import { ClerkProvider } from "@clerk/nextjs";
+import { Bricolage_Grotesque, Instrument_Sans, JetBrains_Mono } from "next/font/google";
 import { headers } from "next/headers";
 import { Suspense } from "react";
 import Header from "./header";
+import SiteFooter from "./site-footer";
 import { SITE, siteUrl } from "@/lib/site.ts";
 import "./globals.css";
+
+const bricolage = Bricolage_Grotesque({
+  subsets: ["latin", "latin-ext"],
+  variable: "--font-bricolage",
+  display: "swap",
+});
+
+const instrument = Instrument_Sans({
+  subsets: ["latin", "latin-ext"],
+  variable: "--font-instrument",
+  display: "swap",
+});
+
+const jetbrains = JetBrains_Mono({
+  subsets: ["latin", "latin-ext"],
+  variable: "--font-mono",
+  weight: ["400", "500"],
+  display: "swap",
+});
 
 const base = siteUrl();
 
@@ -104,14 +125,8 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   const lang = h.get("x-page-lang") === "en" ? "en" : "hu";
   return (
     <ClerkProvider>
-      <html lang={lang}>
+      <html lang={lang} className={`${bricolage.variable} ${instrument.variable} ${jetbrains.variable}`}>
         <head>
-          <link rel="preconnect" href="https://fonts.googleapis.com" />
-          <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-          <link
-            href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400..700&family=Instrument+Sans:wght@400..700&family=JetBrains+Mono:wght@400;500&display=swap"
-            rel="stylesheet"
-          />
           <link rel="alternate" type="text/plain" href="/llms.txt" title="llms.txt" />
         </head>
         <body>
@@ -119,6 +134,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
             <Header />
           </Suspense>
           <main>{children}</main>
+          <SiteFooter lang={lang} />
         </body>
       </html>
     </ClerkProvider>

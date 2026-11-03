@@ -15,14 +15,14 @@ test("HU greeting has AI disclosure first", () => {
   assert.doesNotMatch(g, /rögzítjük/);
 });
 
-test("HU greeting with recording adds disclosure", () => {
+test("HU greeting never claims recording even if recordingOn is true", () => {
   const g = renderGreeting({ businessName: "Anna Szalon", language: "hu", recordingOn: true });
   assert.match(g, /az Anna Szalon vonalán/);
-  assert.match(g, /rögzítjük/);
+  assert.doesNotMatch(g, /rögzítjük/);
 });
 
-test("EN greeting", () => {
+test("EN greeting never claims recording", () => {
   const g = renderGreeting({ businessName: "Test Salon", language: "en", recordingOn: true });
   assert.match(g, /AI assistant/);
-  assert.match(g, /recorded/);
+  assert.doesNotMatch(g, /recorded/);
 });

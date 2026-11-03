@@ -56,8 +56,10 @@ export async function runLiveSuite(clerkOrgId: string, scenarioIds?: string[], m
   const wrappedAgent = async (history: Turn[], sc: (typeof scenarios)[number]) => {
     let h = history;
     for (let i = 0; i < maxTurns; i++) {
+      // Use standard (non-contributor) model: agent turns may contain real
+      // business knowledge, which must not go to Meta Contributor training.
       const callerMsg = await chat({
-        model: MODELS.simcaller, reasoningEffort: "low", maxTokens: 2000,
+        model: MODELS.live, reasoningEffort: "low", maxTokens: 2000,
         messages: [{ role: "system", content: `You are a test caller persona: ${sc.callerPersona}. Goal: ${sc.callerGoal}. Write ONE short caller utterance in ${sc.language === "hu" ? "Hungarian" : "English"}. Never break character.` },
           ...h.map((t) => ({ role: t.speaker === "agent" ? "assistant" : "user", content: t.text }))],
       });

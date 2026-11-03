@@ -23,3 +23,19 @@ test("root layout exports viewport and geo-friendly metadata hooks", () => {
   assert.match(src, /metadataBase/);
   assert.match(src, /alternates/);
 });
+
+test("fonts are self-hosted via next/font (no Google Fonts CDN)", () => {
+  const src = readFileSync(new URL("../app/layout.tsx", import.meta.url), "utf8");
+  assert.match(src, /next\/font\/google/);
+  assert.doesNotMatch(src, /fonts\.googleapis\.com/);
+  assert.doesNotMatch(src, /fonts\.gstatic\.com/);
+});
+
+test("legal routes exist including DPA", () => {
+  assert.equal(existsSync(new URL("../app/privacy/page.tsx", import.meta.url)), true);
+  assert.equal(existsSync(new URL("../app/terms/page.tsx", import.meta.url)), true);
+  assert.equal(existsSync(new URL("../app/dpa/page.tsx", import.meta.url)), true);
+  assert.equal(existsSync(new URL("../app/en/privacy/page.tsx", import.meta.url)), true);
+  assert.equal(existsSync(new URL("../app/en/terms/page.tsx", import.meta.url)), true);
+  assert.equal(existsSync(new URL("../app/en/dpa/page.tsx", import.meta.url)), true);
+});

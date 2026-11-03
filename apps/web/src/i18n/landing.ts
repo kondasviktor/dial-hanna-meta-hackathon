@@ -125,12 +125,14 @@ export interface LandingDict {
   footerStatus: string;
   privacy: string;
   terms: string;
+  dpa: string;
   contact: string;
   waitlistTitle: string;
   waitlistBody: string;
   waitlistSubmit: string;
   waitlistSuccess: string;
   waitlistPlaceholder: string;
+  waitlistConsent: string;
 }
 
 const hu: LandingDict = {
@@ -425,12 +427,15 @@ const hu: LandingDict = {
   footerStatus: "Státusz",
   privacy: "Adatvédelem",
   terms: "ÁSZF",
+  dpa: "Adatfeldolgozás",
   contact: "Kapcsolat",
   waitlistTitle: "Várólista",
   waitlistBody: "A Dial Hanna most várólistás. Nincs nyilvános próba és nincs böngészős hívás. Amikor a fizetős csomagok elindulnak, megírjuk, és 7 napig a saját számodon próbálhatod.",
   waitlistSubmit: "Feliratkozom",
   waitlistSuccess: "Kész. Megírjuk, amikor indulunk.",
   waitlistPlaceholder: "email@vallalkozas.hu",
+  waitlistConsent:
+    "Csak a Dial Hanna indulásáról írunk. Törléshez írj a hello@dialhanna.com címre. Adatvédelem →",
 };
 
 const en: LandingDict = {
@@ -725,12 +730,15 @@ const en: LandingDict = {
   footerStatus: "Status",
   privacy: "Privacy",
   terms: "Terms",
+  dpa: "Data processing",
   contact: "Contact",
   waitlistTitle: "Join the waitlist",
   waitlistBody: "Dial Hanna is waitlist-only for now. There is no public trial and no call-from-the-website. When paid plans open, we email you — then you can try 7 days on your own number.",
   waitlistSubmit: "Join the waitlist",
   waitlistSuccess: "You're on the list. We'll email you when we open.",
   waitlistPlaceholder: "you@business.com",
+  waitlistConsent:
+    "We'll only email you about the Dial Hanna launch. To be removed, email hello@dialhanna.com. Privacy →",
 };
 
 export const scenarios: Record<Lang, Scenario[]> = {

@@ -6,7 +6,6 @@ export default async function CallDetail({ params }: { params: Promise<{ id: str
   if (!d) {
     return <div style={{ padding: 32, fontFamily: "system-ui" }}><p>Hívás nem található.</p></div>;
   }
-  const turns = (d.call.transcript ?? []) as { speaker: string; text: string }[];
   const na = (d.outcome?.nextAction ?? {}) as { type?: string; summary_hu?: string; summary_en?: string };
   return (
     <div style={{ maxWidth: 760, margin: "0 auto", padding: "32px 24px 96px", fontFamily: "system-ui, sans-serif", lineHeight: 1.6 }}>
@@ -20,6 +19,7 @@ export default async function CallDetail({ params }: { params: Promise<{ id: str
         <strong>{d.outcome?.intent ?? "?"} → {d.outcome?.outcome ?? "?"}</strong>
         {na.summary_hu ? ` · Teendő: ${na.summary_hu}` : ""}
       </p>
+      <p className="muted small">MI-generált összefoglaló, hibákat tartalmazhat.</p>
       {d.bookings.length > 0 && (
         <>
           <h2 style={{ fontSize: 20 }}>Foglalások</h2>
@@ -28,10 +28,6 @@ export default async function CallDetail({ params }: { params: Promise<{ id: str
           ))}
         </>
       )}
-      <h2 style={{ fontSize: 20 }}>Leirat</h2>
-      {turns.map((t, i) => (
-        <p key={i}><strong>{t.speaker === "agent" ? "Hanna" : "Hívó"}:</strong> {t.text}</p>
-      ))}
     </div>
   );
 }
