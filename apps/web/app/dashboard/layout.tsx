@@ -11,7 +11,6 @@ export default async function DashboardLayout({ children }: { children: React.Re
   let openGaps: number | null = null;
   let orgLabel = org.name ?? "Vállalkozás";
   let planLabel = org.plan ?? "admin";
-  let liveLabel: string | null = null;
   try {
     if (org.clerkOrgId) {
       const d = await getDashboard(org.clerkOrgId);
@@ -19,7 +18,6 @@ export default async function DashboardLayout({ children }: { children: React.Re
         openGaps = d.gaps.filter((g) => g.status === "open").length;
         orgLabel = d.org.name;
         planLabel = d.org.plan;
-        liveLabel = d.live?.id ? `Élő · ${d.live.id.slice(0, 8)}` : null;
       }
     }
   } catch {
@@ -31,7 +29,6 @@ export default async function DashboardLayout({ children }: { children: React.Re
         openGaps={openGaps}
         orgName={orgLabel}
         orgMeta={planLabel}
-        liveLabel={liveLabel}
       />
       <div className="dash-main">{children}</div>
     </div>

@@ -16,8 +16,6 @@ type BizProfile = {
   address?: string;
   phone?: string;
   hours?: { weekday?: number; open?: string; close?: string; label?: string }[];
-  services?: { id?: string; name?: string; price_text?: string; duration_min?: number }[];
-  policies?: Record<string, string | undefined>;
 };
 
 const WEEKDAY_HU = ["Hét", "Ked", "Sze", "Csü", "Pén", "Szo", "Vas"];
@@ -155,11 +153,9 @@ export default async function KnowledgeBasePage({
   };
 
   const hoursLines = formatHours(profile?.hours, lang);
-  const services = Array.isArray(profile?.services) ? profile!.services!.filter((s) => s?.name?.trim()) : [];
   const missingLabels: string[] = [];
   if (hasProfileRow && profile) {
     if (hoursLines.length === 0) missingLabels.push(en ? "hours" : "nyitvatartás");
-    if (services.length === 0) missingLabels.push(en ? "services" : "szolgáltatások");
     if (!profile.address?.trim()) missingLabels.push(en ? "address" : "cím");
     if (!profile.phone?.trim()) missingLabels.push(en ? "phone" : "telefon");
   }
@@ -175,7 +171,6 @@ export default async function KnowledgeBasePage({
         address: "Address",
         phone: "Phone",
         hours: "Hours",
-        services: "Services",
         stillMissing: "Still missing from this profile",
         import: "Import",
         importHelp:
@@ -204,7 +199,6 @@ export default async function KnowledgeBasePage({
         address: "Cím",
         phone: "Telefon",
         hours: "Nyitvatartás",
-        services: "Szolgáltatások",
         stillMissing: "Hiányzik még ebből a profilból",
         import: "Import",
         importHelp:
@@ -268,35 +262,6 @@ export default async function KnowledgeBasePage({
                   {hoursLines.map((line) => (
                     <li key={line}>{line}</li>
                   ))}
-                </ul>
-              </div>
-            )}
-            {services.length > 0 && (
-              <div>
-                <strong>{t.services}:</strong>
-                <ul style={{ margin: "4px 0 0", paddingLeft: 18 }}>
-                  {services.slice(0, 20).map((s, i) => (
-                    <li key={s.id ?? `${s.name}-${i}`}>
-                      {s.name}
-                      {s.price_text ? ` · ${s.price_text}` : ""}
-                      {s.duration_min ? ` · ${s.duration_min} min` : ""}
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            )}
-            {profile.policies &&
-              Object.entries(profile.policies).some(([, v]) => String(v ?? "").trim()) && (
-              <div>
-                <strong>{en ? "Policies" : "Szabályok"}:</strong>
-                <ul style={{ margin: "4px 0 0", paddingLeft: 18 }}>
-                  {Object.entries(profile.policies)
-                    .filter(([, v]) => String(v ?? "").trim())
-                    .map(([k, v]) => (
-                      <li key={k}>
-                        <em>{k}:</em> {String(v)}
-                      </li>
-                    ))}
                 </ul>
               </div>
             )}

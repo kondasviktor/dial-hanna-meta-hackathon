@@ -21,12 +21,10 @@ function DashNavInner({
   openGaps,
   orgName,
   orgMeta,
-  liveLabel,
 }: {
   openGaps: number | null;
   orgName: string;
   orgMeta: string;
-  liveLabel: string | null;
 }) {
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -84,7 +82,6 @@ function DashNavInner({
       <div className="dash-org">
         <strong>{orgName}</strong>
         <span>{orgMeta}</span>
-        {liveLabel && <span className="dash-live">{liveLabel}</span>}
       </div>
       <nav aria-label="dashboard">
         {nav.map((n) => {
@@ -140,7 +137,6 @@ export default function DashNav(props: {
   openGaps: number | null;
   orgName: string;
   orgMeta: string;
-  liveLabel: string | null;
 }) {
   return (
     <Suspense fallback={<aside className="dash-side" />}>
