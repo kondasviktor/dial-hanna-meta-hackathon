@@ -15,19 +15,13 @@ async function loadKnowledge(): Promise<string> {
   const org = (await db.select().from(organizations).limit(1))[0];
   if (!org) return "No organization configured.";
   const prof = (await db.select().from(businessProfiles).where(eq(businessProfiles.orgId, org.id)).limit(1))[0];
-  const approved = await db.select().from(faqs).where(eq(faqs.orgId, org.id));
-  const live = approved.filter((f) => f.status === "approved");
-  const profile = (prof?.profile ?? {}) as { name?: string; address?: string; services?: { name: string }[] };
-  const lines = [
-    `Business: ${profile.name ?? org.name}`,
-    profile.address ? `Address: ${profile.address}` : "",
-    profile.services?.length
-      ? `Services: ${profile.services.map((s) => s.name).join(", ")}`
-      : "",
-    "Approved FAQs:",
-    ...live.map((f) => `Q: ${f.qEn || f.qHu}\nA: ${f.aEn || f.aHu}`),
-  ].filter(Boolean);
-  return lines.join("\n");
+  const allFaqs = await db.select().from(faqs).where(eq(faqs.orgId, org.id));
+  const { renderBusinessKnowledge } = await import("@/lib/business_knowledge.ts");
+  return renderBusinessKnowledge(
+    (prof?.profile ?? null) as Parameters<typeof renderBusinessKnowledge>[0],
+    allFaqs,
+    { fallbackName: org.name },
+  );
 }
 
 function callLang(req: Request, speech: string): TtsLang {
@@ -80,9 +74,12 @@ export async function POST(req: Request) {
       messages: [
         {
           role: "system",
-          content: `You are Hanna, a warm AI phone receptionist. Never call yourself "Dial Hanna" — only Hanna.
-Keep replies under 2 short sentences for phone TTS. Reply in ${replyLang}.
-Disclose you are an AI if asked. Use only this knowledge; if unknown, offer to take a message.
+          content: `You are Hanna, a warm AI phone receptionist for the business in the knowledge block. Never call yourself "Dial Hanna" — only Hanna.
+Keep replies under 2 short sentences for phone TTS (except when reading back an order). Reply in ${replyLang}.
+Disclose you are an AI if asked.
+Use the full knowledge: hours, address, phone, products/prices, policies, and approved FAQs. Do not invent facts.
+If the caller wants to order: collect product/size, pickup time in opening hours, name and phone; read back once; say the shop will confirm price if missing.
+If unknown, offer to take a message for the owner.
 Knowledge:
 ${knowledge}`,
         },

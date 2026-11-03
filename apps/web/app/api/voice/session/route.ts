@@ -1,10 +1,11 @@
 import { NextResponse } from "next/server";
-import { and, eq } from "drizzle-orm";
+import { eq } from "drizzle-orm";
 import { getDb } from "@/db/client.ts";
 import {
   organizations, businessProfiles, faqs, playbookSettings,
   agentVersions, phoneNumbers, calls,
 } from "@/db/schema.ts";
+import { renderBusinessKnowledge } from "@/lib/business_knowledge.ts";
 import { buildSessionPayload } from "@/lib/session.ts";
 import { verifyVoiceRequest } from "@/lib/voice_auth.ts";
 
@@ -41,23 +42,18 @@ export async function GET(req: Request) {
   if (!org) return NextResponse.json({ ok: false, error: "no-org" }, { status: 404 });
 
   const profile = (await db.select().from(businessProfiles).where(eq(businessProfiles.orgId, org.id)).limit(1))[0];
-  const approvedFaqs = (await db.select().from(faqs).where(and(eq(faqs.orgId, org.id), eq(faqs.status, "approved"))));
+  const allFaqs = await db.select().from(faqs).where(eq(faqs.orgId, org.id));
   const playbooks = (await db.select().from(playbookSettings).where(eq(playbookSettings.orgId, org.id)))
     .filter((p) => p.enabled).map((p) => p.playbook);
   const versions = await db.select().from(agentVersions).where(eq(agentVersions.orgId, org.id));
   const live = versions.find((v) => v.status === "live") ?? versions[0];
   const cfg = (live?.config ?? {}) as { keywords?: string[]; voiceId?: string };
   const b = (profile?.profile ?? {}) as {
-    name?: string; address?: string; hours?: unknown;
-    services?: { name?: string; price_text?: string }[];
+    name?: string; address?: string; phone?: string; website?: string;
+    hours?: unknown; services?: { name?: string; price_text?: string }[];
+    policies?: Record<string, string>;
   };
-  const knowledge = [
-    `Name: ${b.name ?? org.name}`,
-    `Address: ${b.address ?? ""}`,
-    `Services: ${(b.services ?? []).map((s) => `${s.name} (${s.price_text ?? "?"})`).join("; ")}`,
-    ...approvedFaqs.map((f) => `FAQ: ${f.qEn || f.qHu} → ${f.aEn || f.aHu}`),
-    ...approvedFaqs.map((f) => `GYIK: ${f.qHu} → ${f.aHu}`),
-  ].join("\n");
+  const knowledge = renderBusinessKnowledge(b, allFaqs, { fallbackName: org.name });
 
   const keywords = [
     ...(cfg.keywords ?? []),

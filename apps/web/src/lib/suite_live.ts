@@ -13,18 +13,16 @@ async function agentPromptFor(orgId: string): Promise<{ system: string; greetHu:
   const db = getDb();
   if (!db) throw new Error("DATABASE_URL-unset");
   const profile = (await db.select().from(businessProfiles).where(eq(businessProfiles.orgId, orgId)).limit(1))[0];
-  const approvedFaqs = await db.select().from(faqs).where(eq(faqs.orgId, orgId));
+  const allFaqs = await db.select().from(faqs).where(eq(faqs.orgId, orgId));
   const playbooks = (await db.select().from(playbookSettings).where(eq(playbookSettings.orgId, orgId)))
     .filter((p) => p.enabled).map((p) => p.playbook);
   const b = (profile?.profile ?? {}) as {
-    name?: string; hours?: unknown; address?: string; services?: { name?: string; price_text?: string }[];
+    name?: string; hours?: unknown; address?: string; phone?: string; website?: string;
+    services?: { name?: string; price_text?: string }[];
     staff?: { name?: string }[]; policies?: Record<string, string>;
   };
-  const knowledge = [
-    `Név: ${b.name ?? ""}`, `Cím: ${b.address ?? ""}`,
-    `Szolgáltatások: ${(b.services ?? []).map((s) => `${s.name} (${s.price_text ?? "?"})`).join("; ")}`,
-    ...approvedFaqs.filter((f) => f.status === "approved").map((f) => `GYIK: ${f.qHu} → ${f.aHu}`),
-  ].join("\n");
+  const { renderBusinessKnowledge } = await import("./business_knowledge.ts");
+  const knowledge = renderBusinessKnowledge(b, allFaqs, { fallbackName: "Vállalkozás" });
   const p = buildSessionPayload({
     orgId, businessName: b.name ?? "Vállalkozás", timezone: "Europe/Budapest",
     knowledge, playbooks, bookingAllowed: playbooks.includes("booking"),

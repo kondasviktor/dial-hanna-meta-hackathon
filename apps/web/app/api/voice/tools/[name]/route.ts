@@ -85,6 +85,41 @@ export async function POST(req: Request, ctx: Ctx) {
     });
   }
 
+  if (name === "take_order") {
+    if (!orgId || !callId) {
+      return NextResponse.json({ ok: false, error: "org-call-required" }, { status: 400 });
+    }
+    const product = String(args.product ?? args.item ?? args.service ?? "").trim();
+    const size = String(args.size ?? args.quantity ?? "").trim();
+    const pickup = String(args.pickup_time ?? args.pickup ?? args.when ?? "").trim();
+    const callerName = String(args.caller_name ?? args.callerName ?? args.name ?? "").trim();
+    const callerPhone = String(args.caller_phone ?? args.callerPhone ?? args.phone ?? "").trim();
+    const notes = String(args.notes ?? args.message ?? "").trim();
+    const summary = [product, size, pickup, notes].filter(Boolean).join(" · ") || "order";
+    const key = bookingIdempotencyKey(callId, pickup || "na", product || "order", 1);
+    const existing = (await db.select().from(bookings).where(eq(bookings.idempotencyKey, key)).limit(1))[0];
+    if (existing) {
+      return NextResponse.json({ ok: true, order_id: existing.id, duplicate: true, summary });
+    }
+    const inserted = await db.insert(bookings).values({
+      orgId,
+      callId,
+      idempotencyKey: key,
+      serviceId: product || "order",
+      slotStart: null,
+      slotEnd: null,
+      callerName: callerName || null,
+      callerPhone: callerPhone || null,
+      status: "confirmed",
+    }).returning({ id: bookings.id });
+    return NextResponse.json({
+      ok: true,
+      order_id: inserted[0]?.id,
+      summary,
+      note: "Order recorded for the shop to confirm price and pickup.",
+    });
+  }
+
   if (name === "log_knowledge_gap") {
     if (!orgId) return NextResponse.json({ ok: false, error: "org-required" }, { status: 400 });
     const q = String(args.question ?? "").trim();
