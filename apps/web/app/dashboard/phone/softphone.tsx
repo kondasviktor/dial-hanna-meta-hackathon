@@ -50,7 +50,7 @@ export default function Softphone({ did, lang = "hu" }: { did: string; lang?: So
   const callRef = useRef<Call | null>(null);
   const t = COPY[lang];
   const [status, setStatus] = useState<Status>("idle");
-  const [message, setMessage] = useState(COPY[lang].preparing);
+  const [message, setMessage] = useState<string>(COPY[lang].preparing);
 
   const teardown = useCallback(() => {
     try {
