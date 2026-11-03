@@ -50,6 +50,8 @@ export const MODELS = {
   live: process.env.MODEL_LIVE ?? "muse-spark-1.3",
   extract: process.env.MODEL_EXTRACT ?? "muse-wonder-1.0",
   judge: process.env.MODEL_JUDGE ?? "muse-spark-1.3",
+  /** Short FAQ HU↔EN sync — keep on Spark (or override); never Wonder. */
+  translate: process.env.MODEL_TRANSLATE ?? process.env.MODEL_LIVE ?? "muse-spark-1.3",
   /**
    * Contributor-mode model. Meta may train on this content.
    * Use only with synthetic fixtures (gate scripts). Never send live

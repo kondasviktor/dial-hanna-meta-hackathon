@@ -18,8 +18,9 @@ async function translateFaqPair(
   to: "hu" | "en",
 ): Promise<{ q: string; a: string } | null> {
   try {
+    // Spark (or MODEL_TRANSLATE), not Wonder — short FAQ sync must stay cheap.
     const raw = await chat({
-      model: MODELS.extract,
+      model: MODELS.translate,
       reasoningEffort: "minimal",
       maxTokens: 800,
       json: true,
