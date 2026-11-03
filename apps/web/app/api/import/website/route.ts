@@ -31,12 +31,14 @@ export async function POST(req: Request) {
   let sourceText: string;
   let pages: string[] | undefined;
   let crawlEngine: string | undefined;
+  let linkedWebsite: string | undefined;
   try {
     const src = await fetchImportSource(url);
     kind = src.kind;
     sourceText = src.text;
     pages = src.pages;
     crawlEngine = src.crawlEngine;
+    linkedWebsite = src.linkedWebsite;
   } catch (e) {
     return NextResponse.json({ ok: false, error: String(e) }, { status: 400 });
   }
@@ -118,6 +120,7 @@ export async function POST(req: Request) {
     faqCount: extracted.faqs.length,
     source: kind,
     crawlEngine: crawlEngine ?? "local",
+    linkedWebsite: linkedWebsite ?? extracted.business.website ?? null,
     missing: extracted.missing_required,
     pagesCrawled: (pages ?? extracted.pages_crawled ?? []).length,
   });

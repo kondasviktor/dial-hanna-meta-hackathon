@@ -4,6 +4,7 @@ import { chat, MODELS } from "./meta.ts";
 import { crawlWebsite, htmlToText } from "./crawl_site.ts";
 import {
   detectImportKind,
+  extractLinkedWebsite,
   fetchFacebookPageText,
   type ImportKind,
 } from "./import_source.ts";
@@ -26,9 +27,9 @@ export interface ExtractedProfile {
 }
 
 const SYSTEM = `You build a phone knowledge base for Dial Hanna, an AI receptionist for Hungarian small businesses.
-Source may be a multi-page website crawl (PAGE: url sections) OR a Facebook Page dump — treat them the same.
+Source may be a multi-page website crawl (PAGE: url sections), a Facebook Page dump, OR BOTH combined in one document — merge facts from every section; prefer concrete website pages over thin Facebook HTML.
 Return ONLY JSON matching:
-{ business: { name, website, address, phone, hours:[{weekday,open,close}], services:[{id,name,price_text,duration_min}], policies:{parking,payment,ordering,cancellation,other} },
+{ business: { name, website, address, phone, hours:[{weekday,open,close}], services:[{id,name,price_text,duration_min}], policies:{parking,payment,ordering,cancellation,other,events} },
   faqs:[{q_hu,a_hu,q_en,a_en}],
   items_meta:[{path,kind,evidence}],
   missing_required:[],
@@ -36,18 +37,18 @@ Return ONLY JSON matching:
 
 RULES:
 - weekday MUST be integer 1=Mon … 7=Sun (not day names).
+- Infer vertical from category/about/menu (restaurant, café, bar, bakery, salon, etc.).
 - Scan EVERY PAGE section. Product/menu pages often have prices (Ft, Ft/kg, Ft/db) — put real price_text on services when present. Never say "price not on homepage" if another crawled page shows prices.
-- List concrete popular products/services with prices when available (MAX 10 services — pick the most typical callers ask about), not vague category-only blurbs. Keep each price_text short.
-- policies.parking: only if the site mentions parking/parkoló; else omit (do not invent).
-- policies.payment: card/cash/transfer if stated; Hungarian shops often accept card+cash — only state what the pages say or clearly mark inference.
-- policies.ordering: how to order / pickup / lead time from the site.
-- policies.cancellation: cancel/reschedule rules if present.
-- faqs: return 6 to 8 items covering: (1) hours (2) location + parking if known (3) example prices / what they sell (4) how to PLACE an order with Hanna (cake/product, size, pickup time, name, phone — Hanna takes the order, do NOT tell the caller to dial the shop number they already called) (5) cancel or change an order (6) payment methods (7) optional extras (allergens, lead time, holiday).
-- Answers must help the caller finish the task on this call. Prefer actionable scripts over "call this number".
-- Speak as Hanna on the phone to a customer. NEVER mention the website, homepage, weboldal, honlap, Facebook, or "not listed online" — callers did not ask about the site. If a fact is missing, say the owner/shop will confirm, or offer to take a note — do not explain crawl gaps.
-- Never put crawl meta into customer-facing answers (no "a főoldalon nincs megadva", "nem szerepel a honlapon", "price not on the website", etc.). Put unknowns only in missing_required / items_meta.
+- List concrete popular products/services with prices when available (MAX 10 — most typical callers ask about). Keep each price_text short.
+- policies.parking / payment / ordering / cancellation: only from the source; omit if unknown. policies.events: live music, daily specials, private events if stated.
+- faqs: return 6 to 8 items, vertical-aware:
+  * Restaurant / café / bar: (1) hours (2) address + parking (3) cuisine / what they serve (4) BOOK A TABLE with Hanna — party size, date/time, name, phone (5) takeaway or online order ONLY if the source mentions it (6) payment (7) events / specials if mentioned. Prefer table booking language — do NOT invent cake/product retail ordering.
+  * Retail / bakery / services: (1) hours (2) location (3) products/prices (4) PLACE an order with Hanna (item, size, pickup, name, phone) (5) cancel/change (6) payment (7) extras (allergens, lead time).
+- Answers must help the caller finish the task on this call. Prefer actionable scripts over "call this number". Do NOT tell the caller to dial the shop number they already called.
+- Speak as Hanna on the phone. NEVER mention the website, homepage, weboldal, honlap, Facebook, or crawl gaps in answers. Missing facts → owner/shop will confirm or take a note; put gaps only in missing_required / items_meta.
 - kind is "fact" if clearly on a page, "inference" if guessed. Prefer Hungarian q_hu/a_hu; always include q_en/a_en.
-- Never invent exact prices as facts — if unknown, say the owner will confirm. If prices ARE on a crawled page, use them as facts.`;
+- Never invent exact prices as facts — if unknown, say the owner will confirm. If prices ARE on a crawled page, use them as facts.
+- business.website should be the real site (e.g. vakvarju.com), not the Facebook URL, when both appear.`;
 
 const PAD_TEMPLATES: { q_hu: string; a_hu: string; q_en: string; a_en: string }[] = [
   {
@@ -242,22 +243,15 @@ export async function fetchWebsiteText(url: string): Promise<string> {
   return crawl.text;
 }
 
-export async function fetchImportSource(
+async function crawlWebsiteSource(
   url: string,
-): Promise<{ kind: ImportKind; text: string; pages?: string[]; crawlEngine?: string }> {
-  const kind = detectImportKind(url);
-  if (kind === "facebook") {
-    return { kind, text: await fetchFacebookPageText(url) };
-  }
-
-  // Cheerio first, then apify/web-scraper (not WCC — that needs a higher plan).
+): Promise<{ text: string; pages: string[]; crawlEngine: string }> {
   if (process.env.APIFY_TOKEN?.trim()) {
     try {
       const { crawlWithApify } = await import("./crawl_apify.ts");
       const apify = await crawlWithApify(url);
       if (apify?.pages.length) {
         return {
-          kind,
           text: apify.text,
           pages: apify.pages,
           crawlEngine: apify.engine === "web-scraper" ? "apify-web-scraper" : "apify-cheerio",
@@ -267,7 +261,47 @@ export async function fetchImportSource(
       console.error("apify-crawl-fallback", e);
     }
   }
-
   const crawl = await crawlWebsite(url);
-  return { kind, text: crawl.text, pages: crawl.pages, crawlEngine: "local" };
+  return { text: crawl.text, pages: crawl.pages, crawlEngine: "local" };
+}
+
+export async function fetchImportSource(
+  url: string,
+): Promise<{
+  kind: ImportKind;
+  text: string;
+  pages?: string[];
+  crawlEngine?: string;
+  linkedWebsite?: string;
+}> {
+  const kind = detectImportKind(url);
+
+  if (kind === "facebook") {
+    const fbText = await fetchFacebookPageText(url);
+    const linked = extractLinkedWebsite(fbText);
+    if (!linked) {
+      return { kind, text: fbText, crawlEngine: "facebook" };
+    }
+    try {
+      const site = await crawlWebsiteSource(linked);
+      const merged = [
+        fbText.slice(0, 12_000),
+        `\n\n=== LINKED WEBSITE (from Facebook Page): ${linked} ===\n`,
+        site.text,
+      ].join("");
+      return {
+        kind,
+        text: merged,
+        pages: [url, ...site.pages],
+        crawlEngine: `facebook+${site.crawlEngine}`,
+        linkedWebsite: linked,
+      };
+    } catch (e) {
+      console.error("facebook-linked-website-crawl", e);
+      return { kind, text: fbText, crawlEngine: "facebook", linkedWebsite: linked };
+    }
+  }
+
+  const site = await crawlWebsiteSource(url);
+  return { kind, text: site.text, pages: site.pages, crawlEngine: site.crawlEngine };
 }

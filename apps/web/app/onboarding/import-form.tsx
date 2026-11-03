@@ -30,7 +30,11 @@ export default function ImportForm({ lang = "hu" }: { lang?: DashLang }) {
       setState("ok");
       const src =
         j.source === "facebook"
-          ? "Facebook Page"
+          ? j.linkedWebsite
+            ? en
+              ? "Facebook + website"
+              : "Facebook + weboldal"
+            : "Facebook Page"
           : en
             ? "website"
             : "weboldal";
@@ -40,10 +44,20 @@ export default function ImportForm({ lang = "hu" }: { lang?: DashLang }) {
             ? ` · ${j.pagesCrawled} pages`
             : ` · ${j.pagesCrawled} oldal`
           : "";
+      const linked =
+        typeof j.linkedWebsite === "string" && j.linkedWebsite
+          ? ` · ${j.linkedWebsite}`
+          : "";
+      const tip =
+        j.source === "facebook" && !j.linkedWebsite
+          ? en
+            ? " · Tip: set FACEBOOK_PAGE_ACCESS_TOKEN so we can follow the Page’s website"
+            : " · Tipp: állítsd be a FACEBOOK_PAGE_ACCESS_TOKEN-t, hogy a Page weboldalát is beolvassuk"
+          : "";
       setMsg(
         en
-          ? `${j.name ?? "Profile"} · ${src}${pages} · ${j.faqCount ?? 0} draft Q&As`
-          : `${j.name ?? "Profil"} · ${src}${pages} · ${j.faqCount ?? 0} kérdés vázlat`,
+          ? `${j.name ?? "Profile"} · ${src}${linked}${pages} · ${j.faqCount ?? 0} draft Q&As${tip}`
+          : `${j.name ?? "Profil"} · ${src}${linked}${pages} · ${j.faqCount ?? 0} kérdés vázlat${tip}`,
       );
       router.refresh();
     } catch (err) {
