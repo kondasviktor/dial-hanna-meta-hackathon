@@ -81,10 +81,13 @@ export const calls = pgTable("calls", {
   channel: text("channel").notNull(), // phone | browser
   fromE164: text("from_e164"),
   toE164: text("to_e164"),
+  /** Twilio CallSid (or other provider id) for in-call turn memory. */
+  externalId: text("external_id"),
   startedAt: timestamp("started_at").defaultNow(),
   endedAt: timestamp("ended_at"),
   durationS: integer("duration_s"),
   language: text("language"),
+  /** In-call turns only; cleared when the call ends (privacy). */
   transcript: jsonb("transcript"),
   toolCalls: jsonb("tool_calls"),
   timings: jsonb("timings"),
