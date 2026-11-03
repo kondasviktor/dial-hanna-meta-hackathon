@@ -274,6 +274,24 @@ const hu: LandingDict = {
       does: "időpontot foglal, és felveszi a kutya fajtáját meg a kért szolgáltatást.",
     },
     {
+      slug: "vendeglatas",
+      name: "Vendéglátás",
+      pain: "Tele a terem, a konyha pörög. A telefon asztalfoglalást vagy tortarendelést hozna — ha felvennéd.",
+      does: "felveszi az asztal- vagy tortarendelést, és megválaszolja a nyitvatartási kérdéseket.",
+    },
+    {
+      slug: "virag-ajandek",
+      name: "Virág és ajándék",
+      pain: "Szezonban a pultnál állsz, a telefon közben csörög. Aki nem ér el, máshol rendel.",
+      does: "felveszi a rendelést, az átvétel idejét és a címzett adatait.",
+    },
+    {
+      slug: "nyelviskola-magantanar",
+      name: "Nyelviskola és magántanár",
+      pain: "Órán vagy, a telefon a táskában. Az új diák addig dönt, amíg visszahívod.",
+      does: "próbaórát egyeztet, és megválaszolja az órarendi kérdéseket.",
+    },
+    {
       slug: "szabaduszok-maganszemelyek",
       name: "Szabadúszók és magánszemélyek",
       pain: "Megbeszélésen vagy fókuszban, a telefon némítva. A lehetőség nem vár.",
@@ -554,6 +572,24 @@ const en: LandingDict = {
       name: "Pet grooming",
       pain: "Wet hands, a barking client on the table. The owner calls twice in the meantime.",
       does: "books the appointment and takes the breed plus the requested service.",
+    },
+    {
+      slug: "vendeglatas",
+      name: "Hospitality",
+      pain: "The floor is full, the kitchen is flying. The phone would bring a table booking or a cake order — if you could pick up.",
+      does: "takes the table or cake order and answers opening-hour questions.",
+    },
+    {
+      slug: "virag-ajandek",
+      name: "Flowers & gifts",
+      pain: "You're at the counter in peak season while the phone rings. Whoever can't reach you orders elsewhere.",
+      does: "takes the order, the pickup time and the recipient details.",
+    },
+    {
+      slug: "nyelviskola-magantanar",
+      name: "Language schools & tutors",
+      pain: "You're in a lesson, phone in the bag. The new student decides before you can call back.",
+      does: "arranges a trial lesson and answers timetable questions.",
     },
     {
       slug: "szabaduszok-maganszemelyek",

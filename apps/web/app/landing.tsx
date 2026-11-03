@@ -11,6 +11,9 @@ import {
   Camera,
   PawPrint,
   Briefcase,
+  UtensilsCrossed,
+  Flower2,
+  GraduationCap,
   type LucideProps,
 } from "lucide-react";
 import { calculate, formatHuf } from "@/lib/calculator.ts";
@@ -31,6 +34,9 @@ const VERTICAL_ICONS: Record<string, ComponentType<LucideProps>> = {
   "edzok-studiok": Dumbbell,
   "fotos-rendezveny": Camera,
   "kutya-kozmetika": PawPrint,
+  "vendeglatas": UtensilsCrossed,
+  "virag-ajandek": Flower2,
+  "nyelviskola-magantanar": GraduationCap,
   "szabaduszok-maganszemelyek": Briefcase,
 };
 
