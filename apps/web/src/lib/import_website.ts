@@ -1,6 +1,7 @@
-// Website or Facebook Page → Muse Wonder profile extraction (always 5 FAQs).
+// Website or Facebook Page → Meta extract model → business profile + FAQs.
 
 import { chat, MODELS } from "./meta.ts";
+import { crawlWebsite, htmlToText } from "./crawl_site.ts";
 import {
   detectImportKind,
   fetchFacebookPageText,
@@ -21,19 +22,30 @@ export interface ExtractedProfile {
   items_meta: { path: string; kind: "fact" | "inference"; evidence?: string }[];
   missing_required: string[];
   keywords?: string[];
+  pages_crawled?: string[];
 }
 
-const SYSTEM = `You extract a Hungarian small-business profile for an AI phone assistant (Dial Hanna).
-Source may be a website OR a Facebook Page dump — treat them the same.
+const SYSTEM = `You build a phone knowledge base for Dial Hanna, an AI receptionist for Hungarian small businesses.
+Source may be a multi-page website crawl (PAGE: url sections) OR a Facebook Page dump — treat them the same.
 Return ONLY JSON matching:
-{ business: { name, website, address, phone, hours:[{weekday,open,close}], services:[{id,name,price_text,duration_min}], policies:{} },
+{ business: { name, website, address, phone, hours:[{weekday,open,close}], services:[{id,name,price_text,duration_min}], policies:{parking,payment,ordering,cancellation,other} },
   faqs:[{q_hu,a_hu,q_en,a_en}],
   items_meta:[{path,kind,evidence}],
   missing_required:[],
   keywords:[] }.
-CRITICAL: faqs MUST contain exactly 5 items (typical caller questions: hours, services/prices, booking, location/parking, policies).
-kind is "fact" if clearly on the page, "inference" if guessed. Prefer Hungarian q_hu/a_hu; always include q_en/a_en too.
-Never invent exact prices as facts — say the owner will confirm if unknown.`;
+
+RULES:
+- weekday MUST be integer 1=Mon … 7=Sun (not day names).
+- Scan EVERY PAGE section. Product/menu pages often have prices (Ft, Ft/kg, Ft/db) — put real price_text on services when present. Never say "price not on homepage" if another crawled page shows prices.
+- List concrete popular products/services with prices when available (MAX 10 services — pick the most typical callers ask about), not vague category-only blurbs. Keep each price_text short.
+- policies.parking: only if the site mentions parking/parkoló; else omit (do not invent).
+- policies.payment: card/cash/transfer if stated; Hungarian shops often accept card+cash — only state what the pages say or clearly mark inference.
+- policies.ordering: how to order / pickup / lead time from the site.
+- policies.cancellation: cancel/reschedule rules if present.
+- faqs: return 6 to 8 items covering: (1) hours (2) location + parking if known (3) example prices / what they sell (4) how to PLACE an order with Hanna (cake/product, size, pickup time, name, phone — Hanna takes the order, do NOT tell the caller to dial the shop number they already called) (5) cancel or change an order (6) payment methods (7) optional extras (allergens, lead time, holiday).
+- Answers must help the caller finish the task on this call. Prefer actionable scripts over "call this number".
+- kind is "fact" if clearly on a page, "inference" if guessed. Prefer Hungarian q_hu/a_hu; always include q_en/a_en.
+- Never invent exact prices as facts — if unknown, say the owner will confirm. If prices ARE on a crawled page, use them as facts.`;
 
 const PAD_TEMPLATES: { q_hu: string; a_hu: string; q_en: string; a_en: string }[] = [
   {
@@ -43,28 +55,34 @@ const PAD_TEMPLATES: { q_hu: string; a_hu: string; q_en: string; a_en: string }[
     a_en: "The owner still needs to confirm exact hours. Can I take a callback request?",
   },
   {
-    q_hu: "Milyen szolgáltatásokat kínáltok?",
-    a_hu: "Szívesen segítek — mondja el, mire van szüksége, és jegyzetlek a tulajdonosnak.",
-    q_en: "What services do you offer?",
-    a_en: "Happy to help — tell me what you need and I’ll note it for the owner.",
+    q_hu: "Mit lehet rendelni, és mennyibe kerül?",
+    a_hu: "Elmondom a kínálatot, amire van adatunk; ha az ár nincs meg, felveszem a kérést a tulajdonosnak.",
+    q_en: "What can I order, and what does it cost?",
+    a_en: "I’ll share what we have on file; if a price is missing I’ll note your request for the owner.",
   },
   {
-    q_hu: "Szeretnék időpontot foglalni.",
-    a_hu: "Foglaláshoz kérem a nevét, elérhetőségét és a kívánt időablakot.",
-    q_en: "I’d like to book an appointment.",
-    a_en: "For a booking I’ll need your name, contact, and preferred time window.",
+    q_hu: "Szeretnék rendelni / időpontot foglalni.",
+    a_hu: "Felveszem a rendelést: mi kell, méret vagy adag, mikorra, és a neve plusz telefonszáma.",
+    q_en: "I’d like to order or book.",
+    a_en: "I’ll take the order: what you need, size, when, plus your name and phone number.",
   },
   {
-    q_hu: "Hol találhatóatok / van parkoló?",
-    a_hu: "A címet a profilból mondom, ha ismert; parkolásról a tulajdonos erősít meg részleteket.",
-    q_en: "Where are you / is there parking?",
-    a_en: "I’ll share the address from the profile if known; parking details need owner confirmation.",
+    q_hu: "Hol vagytok, van parkoló?",
+    a_hu: "A címet a profilból mondom; parkolásról csak azt, ami a tudásbázisban van — ha nincs adat, üzenetet hagyok.",
+    q_en: "Where are you, is there parking?",
+    a_en: "I’ll share the address from the profile; parking only if we have it on file — otherwise I’ll leave a note.",
   },
   {
-    q_hu: "Lehet lemondani vagy átrakni az időpontot?",
-    a_hu: "Lemondást és áthelyezést felveszem üzenetben a tulajdonosnak.",
-    q_en: "Can I cancel or reschedule?",
-    a_en: "I’ll take cancel or reschedule requests as a message for the owner.",
+    q_hu: "Lehet lemondani vagy módosítani a rendelést?",
+    a_hu: "Lemondást és módosítást felveszem a tulajdonosnak a neveddel és a rendelés részleteivel.",
+    q_en: "Can I cancel or change an order?",
+    a_en: "I’ll take cancel or change requests for the owner with your name and order details.",
+  },
+  {
+    q_hu: "Mivel lehet fizetni?",
+    a_hu: "Ha van adat a tudásbázisban, azt mondom; különben megjegyzem a kérdését a tulajdonosnak.",
+    q_en: "How can I pay?",
+    a_en: "I’ll share payment options on file; otherwise I’ll note the question for the owner.",
   },
 ];
 
@@ -78,7 +96,10 @@ const WEEKDAY_NAME_TO_ISO: Record<string, number> = {
   vasárnap: 7, vasarnap: 7, sunday: 7, sun: 7,
 };
 
-/** Coerce Wonder's free-form hours into {weekday:1-7, open, close}. */
+const FAQ_MIN = 6;
+const FAQ_MAX = 8;
+
+/** Coerce free-form hours into {weekday:1-7, open, close}. */
 export function normalizeHours(
   hours: ExtractedProfile["business"]["hours"] | unknown,
 ): ExtractedProfile["business"]["hours"] {
@@ -104,19 +125,19 @@ export function normalizeHours(
   return out;
 }
 
-export function normalizeToFiveFaqs(
+export function normalizeFaqs(
   faqs: ExtractedProfile["faqs"],
   businessName?: string,
 ): ExtractedProfile["faqs"] {
   const cleaned = (faqs ?? []).filter((f) => f.q_hu?.trim() && f.a_hu?.trim());
-  const out = cleaned.slice(0, 5).map((f) => ({
+  const out = cleaned.slice(0, FAQ_MAX).map((f) => ({
     q_hu: f.q_hu.trim(),
     a_hu: f.a_hu.trim(),
     q_en: f.q_en?.trim() || f.q_hu.trim(),
     a_en: f.a_en?.trim() || f.a_hu.trim(),
   }));
   let i = 0;
-  while (out.length < 5) {
+  while (out.length < FAQ_MIN) {
     const t = PAD_TEMPLATES[i % PAD_TEMPLATES.length];
     const name = businessName?.trim();
     out.push({
@@ -129,26 +150,49 @@ export function normalizeToFiveFaqs(
   return out;
 }
 
-export async function extractFromHtml(url: string, html: string): Promise<ExtractedProfile> {
-  const text = html
-    .replace(/<script[\s\S]*?<\/script>/gi, " ")
-    .replace(/<style[\s\S]*?<\/style>/gi, " ")
-    .replace(/<[^>]+>/g, " ")
-    .replace(/\s+/g, " ")
-    .slice(0, 24_000);
-  // Wonder with reasoning_effort=high often burns the whole max_tokens budget
-  // on reasoning and returns content:null (finish_reason=length) — see Daubner import.
-  const raw = await chat({
-    model: MODELS.extract,
-    reasoningEffort: "minimal",
-    maxTokens: 2500,
-    json: true,
-    messages: [
-      { role: "system", content: SYSTEM },
-      { role: "user", content: `URL: ${url}\n\nPAGE TEXT:\n${text}` },
-    ],
-  });
-  const parsed = JSON.parse(raw) as ExtractedProfile;
+/** @deprecated use normalizeFaqs */
+export function normalizeToFiveFaqs(
+  faqs: ExtractedProfile["faqs"],
+  businessName?: string,
+): ExtractedProfile["faqs"] {
+  return normalizeFaqs(faqs, businessName).slice(0, 5);
+}
+
+export async function extractFromHtml(
+  url: string,
+  htmlOrCrawlText: string,
+  pagesCrawled?: string[],
+): Promise<ExtractedProfile> {
+  const text = htmlOrCrawlText.includes("=== PAGE:")
+    ? htmlOrCrawlText.slice(0, 55_000)
+    : htmlToText(htmlOrCrawlText).slice(0, 55_000);
+
+  async function callExtract(userContent: string, maxTokens: number): Promise<ExtractedProfile> {
+    const raw = await chat({
+      model: MODELS.extract,
+      reasoningEffort: "minimal",
+      maxTokens,
+      json: true,
+      messages: [
+        { role: "system", content: SYSTEM },
+        { role: "user", content: userContent },
+      ],
+    });
+    return JSON.parse(raw) as ExtractedProfile;
+  }
+
+  const pageList = (pagesCrawled ?? []).join(", ") || "single document";
+  const baseUser = `Seed URL: ${url}\nPages in this crawl: ${pageList}\n\nCRAWLED TEXT:\n`;
+  let parsed: ExtractedProfile;
+  try {
+    parsed = await callExtract(`${baseUser}${text.slice(0, 40_000)}`, 4500);
+  } catch {
+    // Usually finish_reason=length → truncated JSON. Retry compact.
+    parsed = await callExtract(
+      `${baseUser}${text.slice(0, 22_000)}\n\nCOMPACT MODE: max 8 services, short price_text, exactly 6 faqs, short answers.`,
+      2800,
+    );
+  }
   if (!parsed.business) parsed.business = {};
   if (!Array.isArray(parsed.faqs)) parsed.faqs = [];
   if (!Array.isArray(parsed.items_meta)) parsed.items_meta = [];
@@ -156,32 +200,45 @@ export async function extractFromHtml(url: string, html: string): Promise<Extrac
   parsed.business.website = parsed.business.website ?? url;
   parsed.business.hours = normalizeHours(parsed.business.hours);
   if (!Array.isArray(parsed.business.services)) parsed.business.services = [];
-  parsed.faqs = normalizeToFiveFaqs(parsed.faqs, parsed.business.name);
+  if (!parsed.business.policies || typeof parsed.business.policies !== "object") {
+    parsed.business.policies = {};
+  }
+  parsed.faqs = normalizeFaqs(parsed.faqs, parsed.business.name);
+  parsed.pages_crawled = pagesCrawled;
   return parsed;
 }
 
 export async function fetchWebsiteText(url: string): Promise<string> {
-  const u = new URL(url);
-  if (!["http:", "https:"].includes(u.protocol)) throw new Error("bad-url");
-  // Prefer a browser UA — some HU bakery/CMS sites return a "update your browser"
-  // stub to unknown bots (e.g. daubnercukraszda.hu).
-  const r = await fetch(u.toString(), {
-    headers: {
-      "User-Agent":
-        "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
-      Accept: "text/html,application/xhtml+xml;q=0.9,*/*;q=0.8",
-      "Accept-Language": "hu-HU,hu;q=0.9,en;q=0.8",
-    },
-    redirect: "follow",
-  });
-  if (!r.ok) throw new Error(`fetch-${r.status}`);
-  return await r.text();
+  const crawl = await crawlWebsite(url);
+  return crawl.text;
 }
 
-export async function fetchImportSource(url: string): Promise<{ kind: ImportKind; text: string }> {
+export async function fetchImportSource(
+  url: string,
+): Promise<{ kind: ImportKind; text: string; pages?: string[]; crawlEngine?: string }> {
   const kind = detectImportKind(url);
   if (kind === "facebook") {
     return { kind, text: await fetchFacebookPageText(url) };
   }
-  return { kind, text: await fetchWebsiteText(url) };
+
+  // Prefer Apify WCC when token is set; fall back to local same-origin crawl.
+  if (process.env.APIFY_TOKEN?.trim()) {
+    try {
+      const { crawlWithApifyWcc } = await import("./crawl_apify.ts");
+      const apify = await crawlWithApifyWcc(url);
+      if (apify?.pages.length) {
+        return {
+          kind,
+          text: apify.text,
+          pages: apify.pages,
+          crawlEngine: "apify-cheerio",
+        };
+      }
+    } catch (e) {
+      console.error("apify-wcc-fallback", e);
+    }
+  }
+
+  const crawl = await crawlWebsite(url);
+  return { kind, text: crawl.text, pages: crawl.pages, crawlEngine: "local" };
 }

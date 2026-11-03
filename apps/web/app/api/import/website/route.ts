@@ -29,19 +29,23 @@ export async function POST(req: Request) {
 
   let kind: string;
   let sourceText: string;
+  let pages: string[] | undefined;
+  let crawlEngine: string | undefined;
   try {
     const src = await fetchImportSource(url);
     kind = src.kind;
     sourceText = src.text;
+    pages = src.pages;
+    crawlEngine = src.crawlEngine;
   } catch (e) {
     return NextResponse.json({ ok: false, error: String(e) }, { status: 400 });
   }
 
   let extracted;
   try {
-    extracted = await extractFromHtml(url, sourceText);
+    extracted = await extractFromHtml(url, sourceText, pages);
   } catch (e) {
-    return NextResponse.json({ ok: false, error: `wonder:${String(e)}` }, { status: 502 });
+    return NextResponse.json({ ok: false, error: `extract:${String(e)}` }, { status: 502 });
   }
 
   const orgId = orgRes.orgUuid;
@@ -74,7 +78,7 @@ export async function POST(req: Request) {
     }
   }
 
-  for (const f of extracted.faqs.slice(0, 5)) {
+  for (const f of extracted.faqs.slice(0, 8)) {
     if (!f.q_hu?.trim() || !f.a_hu?.trim()) continue;
     await db.insert(faqs).values({
       orgId,
@@ -103,6 +107,8 @@ export async function POST(req: Request) {
       missing: extracted.missing_required,
       items_meta: extracted.items_meta,
       source: kind,
+      crawlEngine: crawlEngine ?? "local",
+      pages: pages ?? extracted.pages_crawled ?? [],
     },
   });
 
@@ -111,6 +117,8 @@ export async function POST(req: Request) {
     name: extracted.business.name ?? null,
     faqCount: extracted.faqs.length,
     source: kind,
+    crawlEngine: crawlEngine ?? "local",
     missing: extracted.missing_required,
+    pagesCrawled: (pages ?? extracted.pages_crawled ?? []).length,
   });
 }

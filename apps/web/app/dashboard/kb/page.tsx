@@ -17,7 +17,7 @@ type BizProfile = {
   phone?: string;
   hours?: { weekday?: number; open?: string; close?: string; label?: string }[];
   services?: { id?: string; name?: string; price_text?: string; duration_min?: number }[];
-  policies?: Record<string, string>;
+  policies?: Record<string, string | undefined>;
 };
 
 const WEEKDAY_HU = ["Hét", "Ked", "Sze", "Csü", "Pén", "Szo", "Vas"];
@@ -170,7 +170,7 @@ export default async function KnowledgeBasePage({
         intro: "Import a website or Facebook Page, fill gaps, and approve FAQs.",
         profile: "Profile",
         noProfile:
-          "No business profile yet. Paste a website below — Muse Wonder fills the details.",
+          "No business profile yet. Paste a website below — our AI agent fills in the details from the site.",
         name: "Name",
         address: "Address",
         phone: "Phone",
@@ -179,7 +179,7 @@ export default async function KnowledgeBasePage({
         stillMissing: "Still missing from this profile",
         import: "Import",
         importHelp:
-          "Paste a website or Facebook Page URL — Wonder drafts 5 Q&As. No site? Add FAQs manually below. Only approved answers go live.",
+          "Paste a website or Facebook Page URL — we crawl key pages (menu, contact, prices) and draft Q&As for Hanna. No site? Add FAQs manually. Only approved answers go live.",
         gaps: "Open gaps",
         gapsHelp: "What Hanna did not know — answer in one line and she will use it next time.",
         noGaps: "No open gaps.",
@@ -199,7 +199,7 @@ export default async function KnowledgeBasePage({
         intro: "Weboldal vagy Facebook Page beillesztése, hiányzó válaszok pótlása, és a jóváhagyott tudás.",
         profile: "Profil",
         noProfile:
-          "Még nincs üzleti profil. Illeszd be lent a weboldalt — a Muse Wonder tölti ki a részleteket.",
+          "Még nincs üzleti profil. Illeszd be lent a weboldalt — az AI asszisztensünk kitölti a részleteket a webhelyről.",
         name: "Név",
         address: "Cím",
         phone: "Telefon",
@@ -208,7 +208,7 @@ export default async function KnowledgeBasePage({
         stillMissing: "Hiányzik még ebből a profilból",
         import: "Import",
         importHelp:
-          "Illeszd be a weboldal vagy Facebook Page címét — készül belőle 5 kérdés–válasz vázlat. Nincs oldalad? Írd be kézzel lent. Csak a jóváhagyott válasz megy élőbe.",
+          "Illeszd be a weboldal vagy Facebook Page címét — több oldalt is végigolvasunk (kínálat, kapcsolat, árak), és kérdés–válasz vázlatot készítünk Hannának. Nincs oldalad? Írd be kézzel. Csak a jóváhagyott válasz megy élőbe.",
         gaps: "Pótolandó válaszok",
         gapsHelp: "Amit Hanna nem tudott: írd meg egy mondatban, és legközelebb már válaszol.",
         noGaps: "Nincs nyitott kérdés.",
@@ -275,13 +275,28 @@ export default async function KnowledgeBasePage({
               <div>
                 <strong>{t.services}:</strong>
                 <ul style={{ margin: "4px 0 0", paddingLeft: 18 }}>
-                  {services.map((s, i) => (
+                  {services.slice(0, 20).map((s, i) => (
                     <li key={s.id ?? `${s.name}-${i}`}>
                       {s.name}
                       {s.price_text ? ` · ${s.price_text}` : ""}
                       {s.duration_min ? ` · ${s.duration_min} min` : ""}
                     </li>
                   ))}
+                </ul>
+              </div>
+            )}
+            {profile.policies &&
+              Object.entries(profile.policies).some(([, v]) => String(v ?? "").trim()) && (
+              <div>
+                <strong>{en ? "Policies" : "Szabályok"}:</strong>
+                <ul style={{ margin: "4px 0 0", paddingLeft: 18 }}>
+                  {Object.entries(profile.policies)
+                    .filter(([, v]) => String(v ?? "").trim())
+                    .map(([k, v]) => (
+                      <li key={k}>
+                        <em>{k}:</em> {String(v)}
+                      </li>
+                    ))}
                 </ul>
               </div>
             )}

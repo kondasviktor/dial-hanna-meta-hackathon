@@ -34,10 +34,26 @@ export default function ImportForm({ lang = "hu" }: { lang?: DashLang }) {
           : en
             ? "website"
             : "weboldal";
+      const pages =
+        typeof j.pagesCrawled === "number" && j.pagesCrawled > 0
+          ? en
+            ? ` · ${j.pagesCrawled} pages`
+            : ` · ${j.pagesCrawled} oldal`
+          : "";
+      const engine =
+        j.crawlEngine === "apify-cheerio" || j.crawlEngine === "apify-wcc"
+          ? en
+            ? " · Apify crawl"
+            : " · Apify beolvasás"
+          : j.crawlEngine === "local"
+            ? en
+              ? " · local crawl"
+              : " · helyi beolvasás"
+            : "";
       setMsg(
         en
-          ? `${j.name ?? "Profile"} · ${src} · ${j.faqCount ?? 5} draft Q&As`
-          : `${j.name ?? "Profil"} · ${src} · ${j.faqCount ?? 5} kérdés vázlat`,
+          ? `${j.name ?? "Profile"} · ${src}${pages}${engine} · ${j.faqCount ?? 0} draft Q&As`
+          : `${j.name ?? "Profil"} · ${src}${pages}${engine} · ${j.faqCount ?? 0} kérdés vázlat`,
       );
       router.refresh();
     } catch (err) {
