@@ -2,12 +2,14 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import type { DashLang } from "@/lib/dash_lang.ts";
 
-export default function ImportForm() {
+export default function ImportForm({ lang = "hu" }: { lang?: DashLang }) {
   const [url, setUrl] = useState("");
   const [state, setState] = useState<"idle" | "loading" | "ok" | "err">("idle");
   const [msg, setMsg] = useState("");
   const router = useRouter();
+  const en = lang === "en";
 
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -22,12 +24,21 @@ export default function ImportForm() {
       const j = await r.json();
       if (!r.ok || !j.ok) {
         setState("err");
-        setMsg(j.error ?? "hiba");
+        setMsg(j.error ?? (en ? "error" : "hiba"));
         return;
       }
       setState("ok");
-      const src = j.source === "facebook" ? "Facebook Page" : "weboldal";
-      setMsg(`${j.name ?? "Profil"} · ${src} · ${j.faqCount ?? 5} kérdés vázlat`);
+      const src =
+        j.source === "facebook"
+          ? "Facebook Page"
+          : en
+            ? "website"
+            : "weboldal";
+      setMsg(
+        en
+          ? `${j.name ?? "Profile"} · ${src} · ${j.faqCount ?? 5} draft Q&As`
+          : `${j.name ?? "Profil"} · ${src} · ${j.faqCount ?? 5} kérdés vázlat`,
+      );
       router.refresh();
     } catch (err) {
       setState("err");
@@ -42,17 +53,31 @@ export default function ImportForm() {
         required
         value={url}
         onChange={(e) => setUrl(e.target.value)}
-        placeholder="https://pelda-szalon.hu vagy https://facebook.com/pelda.szalon"
+        placeholder={
+          en
+            ? "https://example-salon.com or https://facebook.com/example.salon"
+            : "https://pelda-szalon.hu vagy https://facebook.com/pelda.szalon"
+        }
         style={{ flex: 1, minWidth: 220, border: "1px solid #D8DDD6", borderRadius: 8, padding: "10px 12px", font: "inherit" }}
       />
       <button
         type="submit"
         disabled={state === "loading"}
-        style={{ background: "#0C1C20", color: "#fff", border: 0, borderRadius: 8, padding: "10px 16px", cursor: "pointer" }}
+        className="btn btn-primary btn-sm"
       >
-        {state === "loading" ? "Olvasás…" : "Elemzés"}
+        {state === "loading"
+          ? en
+            ? "Reading…"
+            : "Olvasás…"
+          : en
+            ? "Analyze"
+            : "Elemzés"}
       </button>
-      {msg && <p style={{ width: "100%", color: state === "err" ? "#8A2A12" : "#0B5D3F", margin: 0 }}>{msg}</p>}
+      {msg && (
+        <p style={{ width: "100%", color: state === "err" ? "#8A2A12" : "#0B5D3F", margin: 0 }}>
+          {msg}
+        </p>
+      )}
     </form>
   );
 }

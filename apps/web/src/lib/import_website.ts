@@ -68,6 +68,42 @@ const PAD_TEMPLATES: { q_hu: string; a_hu: string; q_en: string; a_en: string }[
   },
 ];
 
+const WEEKDAY_NAME_TO_ISO: Record<string, number> = {
+  hétfő: 1, hetfo: 1, monday: 1, mon: 1,
+  kedd: 2, tuesday: 2, tue: 2,
+  szerda: 3, wednesday: 3, wed: 3,
+  csütörtök: 4, csutortok: 4, thursday: 4, thu: 4,
+  péntek: 5, pentek: 5, friday: 5, fri: 5,
+  szombat: 6, saturday: 6, sat: 6,
+  vasárnap: 7, vasarnap: 7, sunday: 7, sun: 7,
+};
+
+/** Coerce Wonder's free-form hours into {weekday:1-7, open, close}. */
+export function normalizeHours(
+  hours: ExtractedProfile["business"]["hours"] | unknown,
+): ExtractedProfile["business"]["hours"] {
+  if (!Array.isArray(hours)) return [];
+  const out: NonNullable<ExtractedProfile["business"]["hours"]> = [];
+  for (const raw of hours) {
+    if (!raw || typeof raw !== "object") continue;
+    const h = raw as Record<string, unknown>;
+    let weekday: number | undefined;
+    if (typeof h.weekday === "number" && h.weekday >= 1 && h.weekday <= 7) {
+      weekday = h.weekday;
+    } else if (typeof h.weekday === "string") {
+      const key = h.weekday.trim().toLowerCase();
+      weekday = WEEKDAY_NAME_TO_ISO[key];
+      const asNum = Number(key);
+      if (weekday == null && asNum >= 1 && asNum <= 7) weekday = asNum;
+    }
+    const open = typeof h.open === "string" ? h.open.trim() : "";
+    const close = typeof h.close === "string" ? h.close.trim() : "";
+    if (weekday == null || !open || !close) continue;
+    out.push({ weekday, open, close });
+  }
+  return out;
+}
+
 export function normalizeToFiveFaqs(
   faqs: ExtractedProfile["faqs"],
   businessName?: string,
@@ -100,10 +136,12 @@ export async function extractFromHtml(url: string, html: string): Promise<Extrac
     .replace(/<[^>]+>/g, " ")
     .replace(/\s+/g, " ")
     .slice(0, 24_000);
+  // Wonder with reasoning_effort=high often burns the whole max_tokens budget
+  // on reasoning and returns content:null (finish_reason=length) — see Daubner import.
   const raw = await chat({
     model: MODELS.extract,
-    reasoningEffort: "high",
-    maxTokens: 1200,
+    reasoningEffort: "minimal",
+    maxTokens: 2500,
     json: true,
     messages: [
       { role: "system", content: SYSTEM },
@@ -116,6 +154,8 @@ export async function extractFromHtml(url: string, html: string): Promise<Extrac
   if (!Array.isArray(parsed.items_meta)) parsed.items_meta = [];
   if (!Array.isArray(parsed.missing_required)) parsed.missing_required = [];
   parsed.business.website = parsed.business.website ?? url;
+  parsed.business.hours = normalizeHours(parsed.business.hours);
+  if (!Array.isArray(parsed.business.services)) parsed.business.services = [];
   parsed.faqs = normalizeToFiveFaqs(parsed.faqs, parsed.business.name);
   return parsed;
 }
@@ -123,8 +163,15 @@ export async function extractFromHtml(url: string, html: string): Promise<Extrac
 export async function fetchWebsiteText(url: string): Promise<string> {
   const u = new URL(url);
   if (!["http:", "https:"].includes(u.protocol)) throw new Error("bad-url");
+  // Prefer a browser UA — some HU bakery/CMS sites return a "update your browser"
+  // stub to unknown bots (e.g. daubnercukraszda.hu).
   const r = await fetch(u.toString(), {
-    headers: { "User-Agent": "DialHannaBot/0.1 (+https://dialhanna.com)" },
+    headers: {
+      "User-Agent":
+        "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+      Accept: "text/html,application/xhtml+xml;q=0.9,*/*;q=0.8",
+      "Accept-Language": "hu-HU,hu;q=0.9,en;q=0.8",
+    },
     redirect: "follow",
   });
   if (!r.ok) throw new Error(`fetch-${r.status}`);

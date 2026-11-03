@@ -1,17 +1,23 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
-import { useEffect, useState } from "react";
+import { usePathname, useSearchParams } from "next/navigation";
+import { Suspense, useEffect, useState } from "react";
+import { withDashLang, type DashLang } from "@/lib/dash_lang.ts";
 
-/** Hackathon nav — merged phone/calls and knowledge/gaps. */
-const NAV = [
+const NAV_HU = [
   { href: "/dashboard", label: "Áttekintés", exact: true },
   { href: "/dashboard/calls", label: "Telefon", exact: false },
   { href: "/dashboard/kb", label: "Tudás", exact: false, badge: true },
 ];
 
-export default function DashNav({
+const NAV_EN = [
+  { href: "/dashboard", label: "Overview", exact: true },
+  { href: "/dashboard/calls", label: "Phone", exact: false },
+  { href: "/dashboard/kb", label: "Knowledge", exact: false, badge: true },
+];
+
+function DashNavInner({
   openGaps,
   orgName,
   orgMeta,
@@ -23,6 +29,10 @@ export default function DashNav({
   liveLabel: string | null;
 }) {
   const pathname = usePathname();
+  const searchParams = useSearchParams();
+  const lang: DashLang = searchParams.get("lang")?.toLowerCase() === "en" ? "en" : "hu";
+  const nav = lang === "en" ? NAV_EN : NAV_HU;
+  const search = searchParams.toString();
   const [hannaOn, setHannaOn] = useState(true);
   const [saving, setSaving] = useState(false);
 
@@ -77,10 +87,11 @@ export default function DashNav({
         {liveLabel && <span className="dash-live">{liveLabel}</span>}
       </div>
       <nav aria-label="dashboard">
-        {NAV.map((n) => {
+        {nav.map((n) => {
           const on = n.exact ? pathname === n.href : pathname.startsWith(n.href);
+          const href = withDashLang(n.href, lang, search);
           return (
-            <Link key={n.href} href={n.href} className={on ? "dash-link on" : "dash-link"} aria-current={on ? "page" : undefined}>
+            <Link key={n.href} href={href} className={on ? "dash-link on" : "dash-link"} aria-current={on ? "page" : undefined}>
               {n.label}
               {n.badge && openGaps != null && openGaps > 0 && (
                 <span className="dash-count">{openGaps}</span>
@@ -102,15 +113,38 @@ export default function DashNav({
             <span className="hanna-knob" />
           </span>
           <span className="hanna-switch-label">
-            {hannaOn ? "Hanna bekapcsolva" : "Hanna kikapcsolva"}
+            {lang === "en"
+              ? hannaOn
+                ? "Hanna is on"
+                : "Hanna is paused"
+              : hannaOn
+                ? "Hanna bekapcsolva"
+                : "Hanna kikapcsolva"}
           </span>
         </button>
         <p>
-          {hannaOn
-            ? "Átirányított hívásokat ő veszi fel."
-            : "Szünet — a hívásokat nem veszi fel."}
+          {lang === "en"
+            ? hannaOn
+              ? "She answers forwarded calls."
+              : "Paused — she will not answer calls."
+            : hannaOn
+              ? "Átirányított hívásokat ő veszi fel."
+              : "Szünet — a hívásokat nem veszi fel."}
         </p>
       </div>
     </aside>
+  );
+}
+
+export default function DashNav(props: {
+  openGaps: number | null;
+  orgName: string;
+  orgMeta: string;
+  liveLabel: string | null;
+}) {
+  return (
+    <Suspense fallback={<aside className="dash-side" />}>
+      <DashNavInner {...props} />
+    </Suspense>
   );
 }

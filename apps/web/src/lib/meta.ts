@@ -34,8 +34,15 @@ export async function chat(o: ChatOpts): Promise<string> {
   });
   if (!r.ok) throw new Error(`meta-http-${r.status}: ${(await r.text()).slice(0, 200)}`);
   const j = await r.json();
-  const content = j.choices?.[0]?.message?.content;
-  if (typeof content !== "string" || !content.trim()) throw new Error("meta-empty-content");
+  const choice = j.choices?.[0];
+  const content = choice?.message?.content;
+  if (typeof content !== "string" || !content.trim()) {
+    const finish = choice?.finish_reason ?? "unknown";
+    const reasoning = j.usage?.completion_tokens_details?.reasoning_tokens;
+    throw new Error(
+      `meta-empty-content(finish=${finish}${reasoning != null ? `,reasoning=${reasoning}` : ""})`,
+    );
+  }
   return content;
 }
 

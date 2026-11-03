@@ -1,6 +1,7 @@
 "use client";
 
-import { usePathname } from "next/navigation";
+import { Suspense, useEffect, useState } from "react";
+import { usePathname, useSearchParams } from "next/navigation";
 import {
   UserButton,
   OrganizationSwitcher,
@@ -34,11 +35,48 @@ function GuestActions({
   );
 }
 
-export default function Header() {
+function LangSwitch({ en }: { en: boolean }) {
   const pathname = usePathname();
+  const searchParams = useSearchParams();
+  const [hash, setHash] = useState("");
+
+  useEffect(() => {
+    setHash(window.location.hash);
+    const onHash = () => setHash(window.location.hash);
+    window.addEventListener("hashchange", onHash);
+    return () => window.removeEventListener("hashchange", onHash);
+  }, [pathname]);
+
+  const search = searchParams.toString();
+  const huHref = localeHref(pathname, "hu", search, hash);
+  const enHref = localeHref(pathname, "en", search, hash);
+
+  return (
+    <div className="lang-switch" aria-label="language">
+      <a href={huHref} className={en ? "" : "on"} hrefLang="hu">
+        HU
+      </a>
+      <a href={enHref} className={en ? "on" : ""} hrefLang="en">
+        EN
+      </a>
+    </div>
+  );
+}
+
+function HeaderInner() {
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
   const { isLoaded, isSignedIn } = useAuth();
   const { openSignIn } = useClerk();
-  const en = pathname === "/en" || pathname.startsWith("/en/");
+  const dashEn = searchParams.get("lang")?.toLowerCase() === "en";
+  const en =
+    pathname === "/en" ||
+    pathname.startsWith("/en/") ||
+    ((pathname.startsWith("/dashboard") ||
+      pathname.startsWith("/onboarding") ||
+      pathname.startsWith("/create-org") ||
+      pathname.startsWith("/waitlist")) &&
+      dashEn);
   const d = (en ? landing.en : landing.hu).nav;
   const home = en ? "/en" : "/";
   const waitlist = waitlistHref(en ? "en" : "hu");
@@ -47,8 +85,8 @@ export default function Header() {
     pathname.startsWith("/onboarding") ||
     pathname.startsWith("/create-org");
 
-  // Show guest buttons until we *know* the user is signed in (no empty Clerk slot).
   const showGuest = !isLoaded || !isSignedIn;
+  const dashHref = en ? "/dashboard?lang=en" : "/dashboard";
 
   return (
     <header className="site-header">
@@ -66,16 +104,7 @@ export default function Header() {
             <a href={`${home}#faq`}>{d.faq}</a>
           </nav>
         )}
-        <div className="lang-switch" aria-label="language">
-          <a href={localeHref(pathname, "hu")} className={en ? "" : "on"}>HU</a>
-          <a
-            href={localeHref(pathname, "en")}
-            className={en ? "on" : ""}
-            title={onDashboard ? "Dashboard is Hungarian for the hackathon" : undefined}
-          >
-            EN
-          </a>
-        </div>
+        <LangSwitch en={en} />
 
         <div className="header-actions">
           {showGuest ? (
@@ -87,7 +116,9 @@ export default function Header() {
             />
           ) : (
             <>
-              <a href="/dashboard" className="btn btn-ghost btn-sm">dashboard</a>
+              <a href={dashHref} className="btn btn-ghost btn-sm">
+                dashboard
+              </a>
               <OrganizationSwitcher
                 appearance={{
                   elements: {
@@ -102,5 +133,13 @@ export default function Header() {
         </div>
       </div>
     </header>
+  );
+}
+
+export default function Header() {
+  return (
+    <Suspense fallback={<header className="site-header" />}>
+      <HeaderInner />
+    </Suspense>
   );
 }
