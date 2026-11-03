@@ -27,7 +27,7 @@ export default function FaqCard({
   onApprove: (id: string) => Promise<void>;
   onReject: (id: string) => Promise<void>;
   onDelete: (id: string) => Promise<void>;
-  onSave: (id: string, q: string, a: string) => Promise<void>;
+  onSave: (id: string, q: string, a: string, lang: DashLang) => Promise<void>;
 }) {
   const en = lang === "en";
   const [editing, setEditing] = useState(false);
@@ -106,7 +106,7 @@ export default function FaqCard({
               disabled={pending || !q.trim() || !a.trim()}
               onClick={() =>
                 run(async () => {
-                  await onSave(faq.id, q.trim(), a.trim());
+                  await onSave(faq.id, q.trim(), a.trim(), lang);
                   setEditing(false);
                 })
               }

@@ -89,7 +89,7 @@ async function deleteFaq(id: string) {
   revalidatePath("/dashboard");
 }
 
-async function saveFaq(id: string, q: string, a: string) {
+async function saveFaq(id: string, q: string, a: string, lang: "hu" | "en" = "hu") {
   "use server";
   const db = getDb();
   if (!db) throw new Error("DATABASE_URL-unset");
@@ -98,13 +98,13 @@ async function saveFaq(id: string, q: string, a: string) {
   if (!qTrim || !aTrim) throw new Error("q-a-required");
   const row = (await db.select().from(faqs).where(eq(faqs.id, id)).limit(1))[0];
   if (!row) throw new Error("faq-not-found");
-  // Keep both locales in sync when the owner edits the visible language.
-  await db.update(faqs).set({
-    qHu: qTrim,
-    aHu: aTrim,
-    qEn: qTrim,
-    aEn: aTrim,
-  }).where(eq(faqs.id, id));
+  // Only the language being edited is written — the other locale stays as-is
+  // (import already stored both; there is no auto-translate on edit).
+  if (lang === "en") {
+    await db.update(faqs).set({ qEn: qTrim, aEn: aTrim }).where(eq(faqs.id, id));
+  } else {
+    await db.update(faqs).set({ qHu: qTrim, aHu: aTrim }).where(eq(faqs.id, id));
+  }
   revalidatePath("/dashboard/kb");
   revalidatePath("/onboarding");
 }
