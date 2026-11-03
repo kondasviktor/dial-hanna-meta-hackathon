@@ -40,26 +40,10 @@ export default function ImportForm({ lang = "hu" }: { lang?: DashLang }) {
             ? ` · ${j.pagesCrawled} pages`
             : ` · ${j.pagesCrawled} oldal`
           : "";
-      const engine =
-        j.crawlEngine === "apify-cheerio" ||
-        j.crawlEngine === "apify-web-scraper" ||
-        j.crawlEngine === "apify-wcc"
-          ? en
-            ? j.crawlEngine === "apify-web-scraper"
-              ? " · Apify browser"
-              : " · Apify crawl"
-            : j.crawlEngine === "apify-web-scraper"
-              ? " · Apify böngésző"
-              : " · Apify beolvasás"
-          : j.crawlEngine === "local"
-            ? en
-              ? " · local crawl"
-              : " · helyi beolvasás"
-            : "";
       setMsg(
         en
-          ? `${j.name ?? "Profile"} · ${src}${pages}${engine} · ${j.faqCount ?? 0} draft Q&As`
-          : `${j.name ?? "Profil"} · ${src}${pages}${engine} · ${j.faqCount ?? 0} kérdés vázlat`,
+          ? `${j.name ?? "Profile"} · ${src}${pages} · ${j.faqCount ?? 0} draft Q&As`
+          : `${j.name ?? "Profil"} · ${src}${pages} · ${j.faqCount ?? 0} kérdés vázlat`,
       );
       router.refresh();
     } catch (err) {

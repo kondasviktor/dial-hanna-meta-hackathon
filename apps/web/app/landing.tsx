@@ -487,7 +487,6 @@ function Footer({ d, lang }: { d: LandingDict; lang: Lang }) {
         <nav className="footer-nav" aria-label="footer">
           <a href={`${prefix}/privacy`}>{d.privacy}</a>
           <a href={`${prefix}/terms`}>{d.terms}</a>
-          <a href={`${prefix}/dpa`}>{d.dpa}</a>
           <a href="mailto:hello@dialhanna.com">{d.contact}</a>
           <a href="/api/health">{d.footerStatus}</a>
         </nav>

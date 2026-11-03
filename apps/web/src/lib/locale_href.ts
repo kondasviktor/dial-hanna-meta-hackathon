@@ -30,7 +30,7 @@ export function localeHref(
     if (path === "/") return "/en" + h;
     if (path === "/privacy") return "/en/privacy" + h;
     if (path === "/terms") return "/en/terms" + h;
-    if (path === "/dpa") return "/en/dpa" + h;
+    if (path === "/dpa") return "/en/privacy" + (h || "#data-processing");
     if (path === "/waitlist") return "/waitlist?lang=en" + h;
     if (path.startsWith("/en")) return path + h;
     return "/en" + h;
@@ -40,7 +40,7 @@ export function localeHref(
   if (path === "/en") return "/" + h;
   if (path === "/en/privacy") return "/privacy" + h;
   if (path === "/en/terms") return "/terms" + h;
-  if (path === "/en/dpa") return "/dpa" + h;
+  if (path === "/en/dpa") return "/privacy" + (h || "#adatfeldolgozas");
   if (path === "/waitlist") return "/waitlist" + h;
   if (path.startsWith("/en/")) return (path.replace(/^\/en/, "") || "/") + h;
   return path + h;

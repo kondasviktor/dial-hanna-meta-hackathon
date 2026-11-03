@@ -1,13 +1,6 @@
-import type { Metadata } from "next";
-import { siteUrl } from "@/lib/site.ts";
-import DpaContent from "@/legal/dpa.tsx";
+import { redirect } from "next/navigation";
 
-export const metadata: Metadata = {
-  title: "Data processing / Adatfeldolgozás",
-  alternates: {
-    canonical: `${siteUrl()}/en/dpa`,
-    languages: { hu: `${siteUrl()}/dpa`, en: `${siteUrl()}/en/dpa` },
-  },
-};
-
-export default DpaContent;
+/** Old URL — content lives under Privacy §11. */
+export default function DpaRedirectEn() {
+  redirect("/en/privacy#data-processing");
+}

@@ -17,7 +17,7 @@ export default function PrivacyContent() {
         A Dial Hanna üzemeltetője a <strong>Dial Hanna</strong> szolgáltatás (
         <a href="https://dialhanna.com">dialhanna.com</a>). Kapcsolat:{" "}
         <a href="mailto:hello@dialhanna.com">hello@dialhanna.com</a>.
-        Adatvédelmi tisztviselőt nem jelöltünk ki, mert a jogszabályok alapján
+          Adatvédelmi tisztviselőt nem jelöltünk ki, mert a jogszabályok alapján
         jelenleg nem kötelező. A szolgáltató teljes azonosító adatai (név, székhely,
         nyilvántartási szám, adószám) a fizetős indulás előtt megjelennek ezen
         az oldalon.
@@ -32,8 +32,8 @@ export default function PrivacyContent() {
         <li>
           <strong>A vállalkozást felhívó személyek</strong> esetén a vállalkozás az
           adatkezelő, a Dial Hanna pedig az{" "}
-          <a href="/dpa">Adatfeldolgozási feltételek</a> szerinti{" "}
-          <strong>adatfeldolgozó</strong>.
+          <a href="#adatfeldolgozas">adatfeldolgozási feltételek</a> szerinti{" "}
+          <strong>adatfeldolgozó</strong> (GDPR 28. cikk).
         </li>
       </ul>
 
@@ -206,6 +206,84 @@ export default function PrivacyContent() {
         változásról a fióktulajdonosokat e-mailben is értesítjük, ha van fiókjuk.
       </p>
 
+      <h2 id="adatfeldolgozas">11. Adatfeldolgozás (GDPR 28. cikk)</h2>
+      <p>
+        Az alábbi feltételek az <a href="/terms">ÁSZF</a> részét képezik, amikor a
+        Dial Hanna a vállalkozás adatfeldolgozójaként kezeli a hívók és a
+        személyzet adatait.
+      </p>
+      <h3>11.1 Tárgy, időtartam, jelleg, cél</h3>
+      <p>
+        <strong>Tárgy:</strong> a továbbított hívások fogadása, strukturált
+        összefoglaló és következő lépés készítése és tárolása, Q&amp;A tervezet a
+        vállalkozás weboldalából / Oldalából.
+        <br />
+        <strong>Időtartam:</strong> a fiók fennállása, majd törlés 30 napon belül.
+        <br />
+        <strong>Jelleg és cél:</strong> automatizált hangasszisztens és
+        utófeldolgozás a vállalkozás utasítására.
+      </p>
+      <h3>11.2 Adatok és érintettek</h3>
+      <p>
+        <strong>Adatok:</strong> hívó telefonszám, név ha elhangzik, a kérés az
+        összefoglalóban, összefoglaló, következő lépés, foglalás adatai.{" "}
+        <strong>Nincs tárolt hangfelvétel és nincs tárolt leirat.</strong>
+        <br />
+        <strong>Érintettek:</strong> a vállalkozást felhívó személyek, valamint a
+        vállalkozás munkatársai (fiókhoz kapcsolódó adatok).
+      </p>
+      <h3>11.3 Utasítások és titoktartás</h3>
+      <p>
+        Csak a vállalkozás dokumentált utasításai szerint dolgozunk (az ÁSZF, a
+        beállítások és az irányítópult). A hozzáféréssel rendelkező személyek
+        titoktartásra kötelezettek (jelenleg a szolgáltató üzemeltetője).
+      </p>
+      <h3>11.4 Biztonság (GDPR 32. cikk)</h3>
+      <ul>
+        <li>TLS a forgalomban</li>
+        <li>Titkosítás nyugalmi állapotban az adatbázison</li>
+        <li>Éles hozzáférés korlátozva az üzemeltetőre</li>
+      </ul>
+      <h3>11.5 További adatfeldolgozók</h3>
+      <p>
+        A vállalkozás általános felhatalmazást ad a fenti 6. pontban felsorolt
+        alvállalkozókra. Új alvállalkozóról legalább 15 nappal előre értesítünk;
+        a vállalkozás kifogással élhet.
+      </p>
+      <h3>11.6 Érintetti kérelmek és együttműködés</h3>
+      <p>
+        Segítünk az érintetti kérelmekben és a GDPR 32–36. cikk szerinti
+        kötelezettségekben, a vállalkozás ésszerű kérésére.
+      </p>
+      <h3>11.7 Adatvédelmi incidens</h3>
+      <p>
+        A vállalkozást indokolatlan késedelem nélkül értesítjük; célunk 48 órán
+        belül.
+      </p>
+      <h3>11.8 Törlés / visszaadás</h3>
+      <p>
+        A szerződés végén az adatokat töröljük vagy a vállalkozás kérésére
+        visszaadjuk (a 30 napos törlési határidőn belül), kivéve ha a jog
+        megőrzést ír elő.
+      </p>
+      <h3>11.9 Ellenőrzés és adattovábbítás</h3>
+      <p>
+        Ellenőrzés kérdőíves formában. Az USA-ba irányuló továbbítás biztosítékai
+        a 7. pont szerint (DPF vagy SCC).
+      </p>
+      <h3>11.10 Melléklet — sablon a hívók tájékoztatásához</h3>
+      <p>
+        Másolja be a saját adatvédelmi tájékoztatójába (a [Vállalkozás] helyére
+        a saját nevét írja):
+      </p>
+      <blockquote>
+        A [Vállalkozás] hívásait, ha nem tudjuk felvenni, Hanna, a vállalkozás
+        mesterséges intelligencia asszisztense fogadhatja. A hívást nem
+        rögzítjük. A vállalkozás írásos összefoglalót és javasolt következő
+        lépést kap. Hozzáférés vagy törlés iránti kérelemmel a vállalkozást
+        keresse.
+      </blockquote>
+
       <section className="legal-lang" lang="en" id="en">
         <h1>Privacy</h1>
         <p className="legal-meta">
@@ -231,7 +309,9 @@ export default function PrivacyContent() {
           <li>
             For people who call a business, <strong>that business is the
             controller</strong> and Dial Hanna is its <strong>processor</strong>{" "}
-            under the <a href="/en/dpa">Data Processing Terms</a>.
+            under the{" "}
+            <a href="#data-processing">data processing terms</a> below (GDPR
+            Art. 28).
           </li>
         </ul>
 
@@ -400,6 +480,79 @@ export default function PrivacyContent() {
           Version and date at the top of this page. Material changes are also
           emailed to account holders when accounts exist.
         </p>
+
+        <h2 id="data-processing">11. Data processing (GDPR Art. 28)</h2>
+        <p>
+          These terms form part of the <a href="/en/terms">Terms</a> when Dial
+          Hanna processes caller and staff data as the business’s processor.
+        </p>
+        <h3>11.1 Subject matter, duration, nature and purpose</h3>
+        <p>
+          <strong>Subject:</strong> answering forwarded calls; drafting and
+          storing a structured summary and next step; drafting Q&amp;A from the
+          customer’s website / Page.
+          <br />
+          <strong>Duration:</strong> the account, then deletion within 30 days.
+          <br />
+          <strong>Nature and purpose:</strong> automated voice assistant and
+          post-call processing on the business’s instructions.
+        </p>
+        <h3>11.2 Data and data subjects</h3>
+        <p>
+          <strong>Data:</strong> caller number, name if spoken, the request as
+          reflected in the summary, summary, next step, booking details.{" "}
+          <strong>No stored audio and no stored transcript.</strong>
+          <br />
+          <strong>Subjects:</strong> people who call the business, and the
+          business’s staff (account-related data).
+        </p>
+        <h3>11.3 Instructions and confidentiality</h3>
+        <p>
+          Processing only on documented instructions (Terms, settings,
+          dashboard). People with access are under confidentiality (today, the
+          operator).
+        </p>
+        <h3>11.4 Security (Art. 32)</h3>
+        <ul>
+          <li>TLS in transit</li>
+          <li>Encryption at rest on the database</li>
+          <li>Production access limited to the operator</li>
+        </ul>
+        <h3>11.5 Subprocessors</h3>
+        <p>
+          General authorisation for the subprocessors listed in section 6 above.
+          At least 15 days’ notice of changes; the business may object.
+        </p>
+        <h3>11.6 Data-subject requests and cooperation</h3>
+        <p>
+          We help with data-subject requests and with Art. 32–36 duties, on the
+          business’s reasonable request.
+        </p>
+        <h3>11.7 Breach notice</h3>
+        <p>
+          We notify the customer without undue delay; target within 48 hours.
+        </p>
+        <h3>11.8 Deletion or return</h3>
+        <p>
+          At the end of the contract we delete or, on request, return the data
+          (within the 30-day deletion window), unless law requires retention.
+        </p>
+        <h3>11.9 Audit and transfers</h3>
+        <p>
+          Audit by questionnaire. Transfer safeguards as in section 7 (DPF or
+          SCCs).
+        </p>
+        <h3>11.10 Appendix — caller notice template</h3>
+        <p>
+          Paste into your own privacy notice (replace [Business] with your
+          name):
+        </p>
+        <blockquote>
+          If [Business] cannot answer your call, Hanna, an AI assistant of
+          [Business], may pick up. The call is not recorded. The business
+          receives a written summary and a suggested next step. For access or
+          deletion, contact the business.
+        </blockquote>
       </section>
 
       <p style={{ marginTop: 32 }}>

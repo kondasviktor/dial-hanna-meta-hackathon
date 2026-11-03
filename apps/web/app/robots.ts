@@ -13,10 +13,8 @@ export default function robots(): MetadataRoute.Robots {
           "/waitlist",
           "/privacy",
           "/terms",
-          "/dpa",
           "/en/privacy",
           "/en/terms",
-          "/en/dpa",
           "/llms.txt",
         ],
         disallow: [

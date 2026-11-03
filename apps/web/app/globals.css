@@ -748,6 +748,38 @@ h1, h2, h3 {
 .dash-cols .dash-card { margin-bottom: 0; }
 .dash-card-fill { flex: 1; display: flex; flex-direction: column; }
 .dash-card h2 { font-size: 19px; margin: 0 0 12px; }
+.faq-card-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+.faq-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+.faq-icon-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border: none;
+  border-radius: 8px;
+  background: transparent;
+  color: #6b7280;
+  cursor: pointer;
+}
+.faq-icon-btn:hover {
+  background: #f3f4f6;
+  color: #8A2A12;
+}
+.faq-icon-btn:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
 .todo { padding: 12px 0; border-top: 1px solid var(--line); font-size: 15px; }
 .todo:first-of-type { border-top: none; }
 .todo .due { display: block; font-size: 13px; color: var(--muted); }

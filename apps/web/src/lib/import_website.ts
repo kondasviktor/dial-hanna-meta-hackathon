@@ -44,6 +44,8 @@ RULES:
 - policies.cancellation: cancel/reschedule rules if present.
 - faqs: return 6 to 8 items covering: (1) hours (2) location + parking if known (3) example prices / what they sell (4) how to PLACE an order with Hanna (cake/product, size, pickup time, name, phone — Hanna takes the order, do NOT tell the caller to dial the shop number they already called) (5) cancel or change an order (6) payment methods (7) optional extras (allergens, lead time, holiday).
 - Answers must help the caller finish the task on this call. Prefer actionable scripts over "call this number".
+- Speak as Hanna on the phone to a customer. NEVER mention the website, homepage, weboldal, honlap, Facebook, or "not listed online" — callers did not ask about the site. If a fact is missing, say the owner/shop will confirm, or offer to take a note — do not explain crawl gaps.
+- Never put crawl meta into customer-facing answers (no "a főoldalon nincs megadva", "nem szerepel a honlapon", "price not on the website", etc.). Put unknowns only in missing_required / items_meta.
 - kind is "fact" if clearly on a page, "inference" if guessed. Prefer Hungarian q_hu/a_hu; always include q_en/a_en.
 - Never invent exact prices as facts — if unknown, say the owner will confirm. If prices ARE on a crawled page, use them as facts.`;
 
@@ -125,6 +127,33 @@ export function normalizeHours(
   return out;
 }
 
+/** Strip crawl/website meta that must never be spoken to callers. */
+export function scrubSpokenAnswer(text: string): string {
+  let t = text.trim();
+  // Drop clauses that explain website gaps (HU + EN).
+  t = t.replace(
+    /[.;,]?\s*(a\s+)?(főoldalon|honlapon|weboldalon|weboldalon|webhelyen)[^.?!]*[.?!]?/gi,
+    "",
+  );
+  t = t.replace(
+    /[.;,]?\s*(nem szerepel(nek)?|nincs megadva|nem található)[^.?!]*(honlap|weboldal|főoldal|webhely)[^.?!]*[.?!]?/gi,
+    "",
+  );
+  t = t.replace(
+    /[.;,]?\s*(not (listed|shown|available|found)|no (price|info|information))[^.?!]*(website|homepage|site|online)[^.?!]*[.?!]?/gi,
+    "",
+  );
+  t = t.replace(
+    /[.;,]?\s*(price|prices|info|information)[^.?!]*not (on|listed on)[^.?!]*(website|homepage|site)[^.?!]*[.?!]?/gi,
+    "",
+  );
+  t = t.replace(/\s{2,}/g, " ").replace(/\s+([.,;!?])/g, "$1").trim();
+  if (!t) {
+    return "Ezt a tulajdonos / üzlet visszaigazolja; felveszem a kérésedet.";
+  }
+  return t;
+}
+
 export function normalizeFaqs(
   faqs: ExtractedProfile["faqs"],
   businessName?: string,
@@ -132,9 +161,9 @@ export function normalizeFaqs(
   const cleaned = (faqs ?? []).filter((f) => f.q_hu?.trim() && f.a_hu?.trim());
   const out = cleaned.slice(0, FAQ_MAX).map((f) => ({
     q_hu: f.q_hu.trim(),
-    a_hu: f.a_hu.trim(),
+    a_hu: scrubSpokenAnswer(f.a_hu),
     q_en: f.q_en?.trim() || f.q_hu.trim(),
-    a_en: f.a_en?.trim() || f.a_hu.trim(),
+    a_en: scrubSpokenAnswer(f.a_en?.trim() || f.a_hu),
   }));
   let i = 0;
   while (out.length < FAQ_MIN) {

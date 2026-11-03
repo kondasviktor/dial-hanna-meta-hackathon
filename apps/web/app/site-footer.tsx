@@ -13,7 +13,6 @@ export default function SiteFooter({ lang }: { lang: "hu" | "en" }) {
       <nav aria-label={en ? "Legal" : "Jogi"}>
         <a href={en ? "/en/privacy" : "/privacy"}>{en ? "Privacy" : "Adatvédelem"}</a>
         <a href={en ? "/en/terms" : "/terms"}>{en ? "Terms" : "ÁSZF"}</a>
-        <a href={en ? "/en/dpa" : "/dpa"}>{en ? "Data processing" : "Adatfeldolgozás"}</a>
         <a href="mailto:hello@dialhanna.com">{en ? "Contact" : "Kapcsolat"}</a>
       </nav>
     </footer>

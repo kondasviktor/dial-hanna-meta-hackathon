@@ -5,8 +5,9 @@ import { getDb } from "@/db/client.ts";
 import { businessProfiles, faqs, knowledgeGaps, organizations } from "@/db/schema.ts";
 import { buildFaqDraft } from "@/lib/gaps.ts";
 import { requireAdmin, resolveOrgId } from "@/lib/org.ts";
-import { dashLangFromSearch, type DashLang } from "@/lib/dash_lang.ts";
+import { dashLangFromSearch } from "@/lib/dash_lang.ts";
 import ImportForm from "../../onboarding/import-form";
+import FaqCard from "./faq-card";
 
 export const dynamic = "force-dynamic";
 
@@ -21,7 +22,7 @@ type BizProfile = {
 const WEEKDAY_HU = ["Hét", "Ked", "Sze", "Csü", "Pén", "Szo", "Vas"];
 const WEEKDAY_EN = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
 
-function formatHours(hours: BizProfile["hours"], lang: DashLang): string[] {
+function formatHours(hours: BizProfile["hours"], lang: "hu" | "en"): string[] {
   if (!Array.isArray(hours) || hours.length === 0) return [];
   const days = lang === "en" ? WEEKDAY_EN : WEEKDAY_HU;
   return hours.map((h) => {
@@ -60,14 +61,50 @@ async function answerGap(formData: FormData) {
   revalidatePath("/dashboard");
 }
 
-async function setFaqStatus(formData: FormData) {
+async function approveFaq(id: string) {
   "use server";
   const db = getDb();
   if (!db) throw new Error("DATABASE_URL-unset");
-  const id = String(formData.get("faqId") ?? "");
-  const status = String(formData.get("status") ?? "");
-  if (status !== "approved" && status !== "rejected") throw new Error("bad-status");
-  await db.update(faqs).set({ status }).where(eq(faqs.id, id));
+  await db.update(faqs).set({ status: "approved" }).where(eq(faqs.id, id));
+  revalidatePath("/dashboard/kb");
+  revalidatePath("/onboarding");
+}
+
+async function rejectFaq(id: string) {
+  "use server";
+  const db = getDb();
+  if (!db) throw new Error("DATABASE_URL-unset");
+  await db.update(faqs).set({ status: "rejected" }).where(eq(faqs.id, id));
+  revalidatePath("/dashboard/kb");
+  revalidatePath("/onboarding");
+}
+
+async function deleteFaq(id: string) {
+  "use server";
+  const db = getDb();
+  if (!db) throw new Error("DATABASE_URL-unset");
+  await db.delete(faqs).where(eq(faqs.id, id));
+  revalidatePath("/dashboard/kb");
+  revalidatePath("/onboarding");
+  revalidatePath("/dashboard");
+}
+
+async function saveFaq(id: string, q: string, a: string) {
+  "use server";
+  const db = getDb();
+  if (!db) throw new Error("DATABASE_URL-unset");
+  const qTrim = q.trim();
+  const aTrim = a.trim();
+  if (!qTrim || !aTrim) throw new Error("q-a-required");
+  const row = (await db.select().from(faqs).where(eq(faqs.id, id)).limit(1))[0];
+  if (!row) throw new Error("faq-not-found");
+  // Keep both locales in sync when the owner edits the visible language.
+  await db.update(faqs).set({
+    qHu: qTrim,
+    aHu: aTrim,
+    qEn: qTrim,
+    aEn: aTrim,
+  }).where(eq(faqs.id, id));
   revalidatePath("/dashboard/kb");
   revalidatePath("/onboarding");
 }
@@ -146,11 +183,6 @@ export default async function KnowledgeBasePage({
   }
 
   const openGaps = gaps.filter((g) => g.status === "open");
-  const badge = (origin: string) => {
-    if (origin === "import") return "import";
-    if (origin === "gap") return en ? "gap" : "pótlás";
-    return en ? "manual" : "kézi";
-  };
 
   const hoursLines = formatHours(profile?.hours, lang);
   const missingLabels: string[] = [];
@@ -186,8 +218,6 @@ export default async function KnowledgeBasePage({
         add: "Add",
         faqs: "FAQs",
         empty: "Empty so far.",
-        approve: "Approve",
-        reject: "Reject",
       }
     : {
         title: "Tudás",
@@ -214,8 +244,6 @@ export default async function KnowledgeBasePage({
         add: "Hozzáadás",
         faqs: "Kérdések és válaszok",
         empty: "Még üres.",
-        approve: "Jóváhagy",
-        reject: "Elvet",
       };
 
   return (
@@ -324,39 +352,17 @@ export default async function KnowledgeBasePage({
         {t.faqs}
       </h2>
       {rows.length === 0 && <p className="muted">{t.empty}</p>}
-      {rows.map((f) => {
-        const q = en ? f.qEn || f.qHu : f.qHu;
-        const a = en ? f.aEn || f.aHu : f.aHu;
-        return (
-          <div key={f.id} className="dash-card" style={{ marginBottom: 12 }}>
-            <p className="muted small">
-              {badge(f.origin)} · {f.status}
-            </p>
-            <p>
-              <strong>{q}</strong>
-            </p>
-            <p>{a}</p>
-            {f.status === "draft" && (
-              <div style={{ display: "flex", gap: 8, marginTop: 8 }}>
-                <form action={setFaqStatus}>
-                  <input type="hidden" name="faqId" value={f.id} />
-                  <input type="hidden" name="status" value="approved" />
-                  <button type="submit" className="btn btn-primary btn-sm">
-                    {t.approve}
-                  </button>
-                </form>
-                <form action={setFaqStatus}>
-                  <input type="hidden" name="faqId" value={f.id} />
-                  <input type="hidden" name="status" value="rejected" />
-                  <button type="submit" className="btn btn-outline btn-sm">
-                    {t.reject}
-                  </button>
-                </form>
-              </div>
-            )}
-          </div>
-        );
-      })}
+      {rows.map((f) => (
+        <FaqCard
+          key={f.id}
+          faq={f}
+          lang={lang}
+          onApprove={approveFaq}
+          onReject={rejectFaq}
+          onDelete={deleteFaq}
+          onSave={saveFaq}
+        />
+      ))}
     </div>
   );
 }

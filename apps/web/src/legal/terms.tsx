@@ -39,7 +39,7 @@ export default function TermsContent() {
         <li>Jogosult a számát továbbítani.</li>
         <li>
           Tájékoztatja a hívóit — ehhez az{" "}
-          <a href="/dpa">Adatfeldolgozási feltételek</a> mellékletében van
+          <a href="/privacy#adatfeldolgozas">Adatvédelem</a> 11.10. pontjában van
           sablon.
         </li>
         <li>
@@ -102,7 +102,8 @@ export default function TermsContent() {
 
       <h2>12. Adatfeldolgozás</h2>
       <p>
-        Az <a href="/dpa">Adatfeldolgozási feltételek</a> az ÁSZF részét képezik.
+        Az <a href="/privacy#adatfeldolgozas">Adatvédelem</a> 11. pontja az ÁSZF
+        részét képezi.
       </p>
 
       <section className="legal-lang" lang="en" id="en">
@@ -136,8 +137,8 @@ export default function TermsContent() {
         <ul>
           <li>You have the right to forward the number.</li>
           <li>
-            You inform your callers, using the template in the{" "}
-            <a href="/en/dpa">Data Processing Terms</a>.
+            You inform your callers, using the template in{" "}
+            <a href="/en/privacy#data-processing">Privacy</a> §11.10.
           </li>
           <li>
             You review and approve the AI-drafted Q&amp;A and are responsible for
@@ -198,8 +199,8 @@ export default function TermsContent() {
 
         <h2>12. Data processing</h2>
         <p>
-          The <a href="/en/dpa">Data Processing Terms</a> are incorporated by
-          reference.
+          <a href="/en/privacy#data-processing">Privacy</a> §11 is incorporated
+          by reference.
         </p>
       </section>
 

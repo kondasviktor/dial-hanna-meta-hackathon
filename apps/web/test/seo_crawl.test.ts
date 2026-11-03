@@ -31,11 +31,16 @@ test("fonts are self-hosted via next/font (no Google Fonts CDN)", () => {
   assert.doesNotMatch(src, /fonts\.gstatic\.com/);
 });
 
-test("legal routes exist including DPA", () => {
+test("legal routes exist; DPA redirects into privacy", () => {
   assert.equal(existsSync(new URL("../app/privacy/page.tsx", import.meta.url)), true);
   assert.equal(existsSync(new URL("../app/terms/page.tsx", import.meta.url)), true);
-  assert.equal(existsSync(new URL("../app/dpa/page.tsx", import.meta.url)), true);
   assert.equal(existsSync(new URL("../app/en/privacy/page.tsx", import.meta.url)), true);
   assert.equal(existsSync(new URL("../app/en/terms/page.tsx", import.meta.url)), true);
-  assert.equal(existsSync(new URL("../app/en/dpa/page.tsx", import.meta.url)), true);
+  const dpa = readFileSync(new URL("../app/dpa/page.tsx", import.meta.url), "utf8");
+  const dpaEn = readFileSync(new URL("../app/en/dpa/page.tsx", import.meta.url), "utf8");
+  assert.match(dpa, /redirect\("\/privacy/);
+  assert.match(dpaEn, /redirect\("\/en\/privacy/);
+  const privacy = readFileSync(new URL("../src/legal/privacy.tsx", import.meta.url), "utf8");
+  assert.match(privacy, /id="adatfeldolgozas"/);
+  assert.match(privacy, /id="data-processing"/);
 });
