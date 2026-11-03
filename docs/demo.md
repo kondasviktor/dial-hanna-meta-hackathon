@@ -6,8 +6,8 @@ until submission flip is approved.
 ## Beats
 
 1. **Problem (0:00)** — Busy salon owner misses a call.
-2. **Wonder import (0:20)** — Admin pastes a website **or Facebook Page** URL.
-   Wonder drafts exactly **5** Q&As. Approve them. (No voice note. No Shops.)
+2. **Wonder import (0:20)** — Admin pastes a **website** URL.
+   Wonder drafts Q&As. Approve them. (No voice note. No Shops. No Facebook Page.)
 3. **Phone call (0:55)** — Wi‑Fi softphone (Twilio, English for Meta judges).
    Do not flash the DID on screen. Hanna discloses she is an AI, books or takes
    a message. Optional cut: HU Telnyx line for local demo.

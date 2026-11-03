@@ -31,16 +31,25 @@ export async function POST(req: Request) {
   let sourceText: string;
   let pages: string[] | undefined;
   let crawlEngine: string | undefined;
-  let linkedWebsite: string | undefined;
   try {
     const src = await fetchImportSource(url);
     kind = src.kind;
     sourceText = src.text;
     pages = src.pages;
     crawlEngine = src.crawlEngine;
-    linkedWebsite = src.linkedWebsite;
   } catch (e) {
-    return NextResponse.json({ ok: false, error: String(e) }, { status: 400 });
+    const msg = String(e);
+    if (msg.includes("facebook-not-supported")) {
+      return NextResponse.json(
+        {
+          ok: false,
+          error: "facebook-not-supported",
+          message: "Facebook Page import is not available — paste the business website URL instead.",
+        },
+        { status: 400 },
+      );
+    }
+    return NextResponse.json({ ok: false, error: msg }, { status: 400 });
   }
 
   let extracted;
@@ -53,7 +62,7 @@ export async function POST(req: Request) {
   const orgId = orgRes.orgUuid;
   await db.insert(knowledgeSources).values({
     orgId,
-    type: kind === "facebook" ? "facebook" : "url",
+    type: "url",
     uri: url,
     rawText: sourceText.slice(0, 8000),
     status: "processed",
@@ -120,7 +129,6 @@ export async function POST(req: Request) {
     faqCount: extracted.faqs.length,
     source: kind,
     crawlEngine: crawlEngine ?? "local",
-    linkedWebsite: linkedWebsite ?? extracted.business.website ?? null,
     missing: extracted.missing_required,
     pagesCrawled: (pages ?? extracted.pages_crawled ?? []).length,
   });

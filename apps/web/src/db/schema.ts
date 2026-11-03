@@ -27,7 +27,7 @@ export const businessProfiles = pgTable("business_profiles", {
 export const knowledgeSources = pgTable("knowledge_sources", {
   id: uuid("id").primaryKey().defaultRandom(),
   orgId: uuid("org_id").notNull(),
-  type: text("type").notNull(), // url | facebook | voice_note | doc | manual
+  type: text("type").notNull(), // url | voice_note | doc | manual
   uri: text("uri"),
   rawText: text("raw_text"),
   status: text("status").notNull().default("pending"),

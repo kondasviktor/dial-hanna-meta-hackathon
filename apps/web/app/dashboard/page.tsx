@@ -135,7 +135,7 @@ export default async function Dashboard() {
           <div className="dash-card dash-card-fill">
             <h2>Tudás</h2>
             <p className="muted small">
-              Weboldal vagy Facebook Page beillesztése, hiányzó válaszok, jóváhagyott tudás.
+              Weboldal beillesztése, hiányzó válaszok, jóváhagyott tudás.
             </p>
             <p>
               <Link href="/dashboard/kb" className="btn btn-outline btn-sm">

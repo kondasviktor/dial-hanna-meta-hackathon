@@ -258,7 +258,7 @@ export default async function KnowledgeBasePage({
   const t = en
     ? {
         title: "Knowledge",
-        intro: "Import a website or Facebook Page, fill gaps, and approve FAQs.",
+        intro: "Import a website, fill gaps, and approve FAQs.",
         profile: "Profile",
         noProfile:
           "No business profile yet. Paste a website below — our AI agent fills in the details from the site.",
@@ -269,7 +269,7 @@ export default async function KnowledgeBasePage({
         stillMissing: "Still missing from this profile",
         import: "Import",
         importHelp:
-          "Paste a website or Facebook Page URL — we crawl key pages (menu, contact, prices) and draft Q&As for Hanna. No site? Add FAQs manually. Only approved answers go live.",
+          "Paste a website URL — we crawl key pages (menu, contact, prices) and draft Q&As for Hanna. No site? Add FAQs manually. Only approved answers go live.",
         gaps: "Open gaps",
         gapsHelp: "What Hanna did not know — answer in one line and she will use it next time.",
         noGaps: "No open gaps.",
@@ -286,7 +286,7 @@ export default async function KnowledgeBasePage({
       }
     : {
         title: "Tudás",
-        intro: "Weboldal vagy Facebook Page beillesztése, hiányzó válaszok pótlása, és a jóváhagyott tudás.",
+        intro: "Weboldal beillesztése, hiányzó válaszok pótlása, és a jóváhagyott tudás.",
         profile: "Profil",
         noProfile:
           "Még nincs üzleti profil. Illeszd be lent a weboldalt — az AI asszisztensünk kitölti a részleteket a webhelyről.",
@@ -297,7 +297,7 @@ export default async function KnowledgeBasePage({
         stillMissing: "Hiányzik még ebből a profilból",
         import: "Import",
         importHelp:
-          "Illeszd be a weboldal vagy Facebook Page címét — több oldalt is végigolvasunk (kínálat, kapcsolat, árak), és kérdés–válasz vázlatot készítünk Hannának. Nincs oldalad? Írd be kézzel. Csak a jóváhagyott válasz megy élőbe.",
+          "Illeszd be a weboldal címét — több oldalt is végigolvasunk (kínálat, kapcsolat, árak), és kérdés–válasz vázlatot készítünk Hannának. Nincs oldalad? Írd be kézzel. Csak a jóváhagyott válasz megy élőbe.",
         gaps: "Pótolandó válaszok",
         gapsHelp: "Amit Hanna nem tudott: írd meg egy mondatban, és legközelebb már válaszol.",
         noGaps: "Nincs nyitott kérdés.",

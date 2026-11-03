@@ -1,13 +1,8 @@
-// Website or Facebook Page → Meta extract model → business profile + FAQs.
+// Website crawl → Meta extract model → business profile + FAQs.
 
 import { chat, MODELS } from "./meta.ts";
 import { crawlWebsite, htmlToText } from "./crawl_site.ts";
-import {
-  detectImportKind,
-  extractLinkedWebsite,
-  fetchFacebookPageText,
-  type ImportKind,
-} from "./import_source.ts";
+import { detectImportKind, type ImportKind } from "./import_source.ts";
 
 export interface ExtractedProfile {
   business: {
@@ -27,7 +22,7 @@ export interface ExtractedProfile {
 }
 
 const SYSTEM = `You build a phone knowledge base for Dial Hanna, an AI receptionist for Hungarian small businesses.
-Source may be a multi-page website crawl (PAGE: url sections), a Facebook Page dump, OR BOTH combined in one document — merge facts from every section; prefer concrete website pages over thin Facebook HTML.
+Source is a multi-page website crawl (PAGE: url sections) — merge facts from every section.
 Return ONLY JSON matching:
 { business: { name, website, address, phone, hours:[{weekday,open,close}], services:[{id,name,price_text,duration_min}], policies:{parking,payment,ordering,cancellation,other,events} },
   faqs:[{q_hu,a_hu,q_en,a_en}],
@@ -45,10 +40,9 @@ RULES:
   * Restaurant / café / bar: (1) hours (2) address + parking (3) cuisine / what they serve (4) BOOK A TABLE with Hanna — party size, date/time, name, phone (5) takeaway or online order ONLY if the source mentions it (6) payment (7) events / specials if mentioned. Prefer table booking language — do NOT invent cake/product retail ordering.
   * Retail / bakery / services: (1) hours (2) location (3) products/prices (4) PLACE an order with Hanna (item, size, pickup, name, phone) (5) cancel/change (6) payment (7) extras (allergens, lead time).
 - Answers must help the caller finish the task on this call. Prefer actionable scripts over "call this number". Do NOT tell the caller to dial the shop number they already called.
-- Speak as Hanna on the phone. NEVER mention the website, homepage, weboldal, honlap, Facebook, or crawl gaps in answers. Missing facts → owner/shop will confirm or take a note; put gaps only in missing_required / items_meta.
+- Speak as Hanna on the phone. NEVER mention the website, homepage, weboldal, honlap, or crawl gaps in answers. Missing facts → owner/shop will confirm or take a note; put gaps only in missing_required / items_meta.
 - kind is "fact" if clearly on a page, "inference" if guessed. Prefer Hungarian q_hu/a_hu; always include q_en/a_en.
-- Never invent exact prices as facts — if unknown, say the owner will confirm. If prices ARE on a crawled page, use them as facts.
-- business.website should be the real site (e.g. vakvarju.com), not the Facebook URL, when both appear.`;
+- Never invent exact prices as facts — if unknown, say the owner will confirm. If prices ARE on a crawled page, use them as facts.`;
 
 const PAD_TEMPLATES: { q_hu: string; a_hu: string; q_en: string; a_en: string }[] = [
   {
@@ -272,36 +266,8 @@ export async function fetchImportSource(
   text: string;
   pages?: string[];
   crawlEngine?: string;
-  linkedWebsite?: string;
 }> {
   const kind = detectImportKind(url);
-
-  if (kind === "facebook") {
-    const fbText = await fetchFacebookPageText(url);
-    const linked = extractLinkedWebsite(fbText);
-    if (!linked) {
-      return { kind, text: fbText, crawlEngine: "facebook" };
-    }
-    try {
-      const site = await crawlWebsiteSource(linked);
-      const merged = [
-        fbText.slice(0, 12_000),
-        `\n\n=== LINKED WEBSITE (from Facebook Page): ${linked} ===\n`,
-        site.text,
-      ].join("");
-      return {
-        kind,
-        text: merged,
-        pages: [url, ...site.pages],
-        crawlEngine: `facebook+${site.crawlEngine}`,
-        linkedWebsite: linked,
-      };
-    } catch (e) {
-      console.error("facebook-linked-website-crawl", e);
-      return { kind, text: fbText, crawlEngine: "facebook", linkedWebsite: linked };
-    }
-  }
-
   const site = await crawlWebsiteSource(url);
   return { kind, text: site.text, pages: site.pages, crawlEngine: site.crawlEngine };
 }

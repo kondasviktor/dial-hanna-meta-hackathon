@@ -31,7 +31,7 @@ export default function TermsContent() {
         A továbbított hívásokat mesterséges intelligencia hangasszisztens (Hanna)
         fogadja. A vállalkozás az irányítópulton összefoglalót és következő lépést
         kap (később e-mailben is, a fiók e-mail címére). A Q&amp;A a vállalkozás
-        által megadott weboldalból vagy Facebook Oldalból készül tervezetként.
+        által megadott weboldalból készül tervezetként.
       </p>
 
       <h2>4. Az ügyfél kötelezettségei</h2>
@@ -46,7 +46,7 @@ export default function TermsContent() {
           Átnézi és jóváhagyja az MI által tervezett Q&amp;A-t, és felel annak
           pontosságáért.
         </li>
-        <li>Csak olyan weboldalt és Oldalt ad meg, amely felett rendelkezik.</li>
+        <li>Csak olyan weboldalt ad meg, amely felett rendelkezik.</li>
         <li>
           Nem állítja be Hannát egészségügyi adatok, bankkártyaszámok vagy más
           különleges adatok gyűjtésére.
@@ -130,7 +130,7 @@ export default function TermsContent() {
           Forwarded calls are answered by an AI voice assistant (Hanna). The
           business receives a summary and next step on the dashboard (later also
           by email, to the account email only). Q&amp;A is drafted from the
-          website or Facebook Page the customer submits.
+          website the customer submits.
         </p>
 
         <h2>4. Customer obligations</h2>
@@ -144,7 +144,7 @@ export default function TermsContent() {
             You review and approve the AI-drafted Q&amp;A and are responsible for
             its accuracy.
           </li>
-          <li>You submit only websites and Pages you control.</li>
+          <li>You submit only websites you control.</li>
           <li>
             You do not configure Hanna to collect health data, card numbers or
             other sensitive data.

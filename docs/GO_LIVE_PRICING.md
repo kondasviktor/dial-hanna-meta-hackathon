@@ -29,7 +29,7 @@ Card-required converts better than no-card; 3‑day trials are too short for a s
 ## Meta hackathon (now)
 
 - Public: waitlist on `dialhanna.com` / Vercel.
-- Admin demo: website **or** Facebook Page → Muse Wonder → **5** draft Q&As → approve → Wi‑Fi softphone (Twilio EN for Meta judges). Telnyx HU is ready for HU inbound after flip.
+- Admin demo: website → Muse Wonder → draft Q&As → approve → Wi‑Fi softphone (Twilio EN for Meta judges). Telnyx HU is ready for HU inbound after flip.
 - No Stripe, no per-customer numbers.
 
 ## After Nov 4
@@ -37,5 +37,5 @@ Card-required converts better than no-card; 3‑day trials are too short for a s
 1. Stripe Essential (card) + softphone trial or paid go-live with DID.
 2. Hard minute cutover at 40 → “leave a message.”
 3. Number pool: assign / recycle via Telnyx API.
-4. Facebook Login (App Review) for Page connect; website URL stays.
+4. Website URL import stays the knowledge path (no Facebook Page connect).
 5. ElevenLabs usage + Meta API billing on paid path.

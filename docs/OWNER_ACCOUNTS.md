@@ -8,7 +8,6 @@ Do these once. Keys stay in `.env` / Vercel env — never commit them.
 - [ ] **Twilio** — US Voice DID + softphone → `TWILIO_*`; webhooks on `https://dialhanna.com/api/twilio/*` (Meta EN demo)
 - [ ] **Telnyx** — HU DID `***REMOVED***` → `TELNYX_*`; webhook `https://dialhanna.com/api/telnyx/webhook`
 - [ ] **ElevenLabs** — API key + **separate** HU/EN library voices → `ELEVENLABS_API_KEY`, `ELEVENLABS_VOICE_ID_HU`, `ELEVENLABS_VOICE_ID_EN` (Flash TTS only; no STT/Agents). Do not reuse one designed voice for both languages.
-- [ ] **Facebook Page import (optional)** — Meta App dev token → `FACEBOOK_PAGE_ACCESS_TOKEN` for Graph Page fields
 - [ ] **Go-live plan** — see `docs/GO_LIVE_PRICING.md` (no dedicated DID on free trial)
 - [ ] **Google Calendar** — OAuth app in testing mode, test Gmail as test user → `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`
 - [ ] **Neon** — run `apps/web/drizzle/0002_waitlist.sql`

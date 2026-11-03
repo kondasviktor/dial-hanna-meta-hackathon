@@ -24,40 +24,28 @@ export default function ImportForm({ lang = "hu" }: { lang?: DashLang }) {
       const j = await r.json();
       if (!r.ok || !j.ok) {
         setState("err");
-        setMsg(j.error ?? (en ? "error" : "hiba"));
+        if (j.error === "facebook-not-supported") {
+          setMsg(
+            en
+              ? "Facebook Pages are not supported — paste the business website URL."
+              : "Facebook Oldal nem támogatott — a vállalkozás weboldalának címét illeszd be.",
+          );
+          return;
+        }
+        setMsg(j.message ?? j.error ?? (en ? "error" : "hiba"));
         return;
       }
       setState("ok");
-      const src =
-        j.source === "facebook"
-          ? j.linkedWebsite
-            ? en
-              ? "Facebook + website"
-              : "Facebook + weboldal"
-            : "Facebook Page"
-          : en
-            ? "website"
-            : "weboldal";
       const pages =
         typeof j.pagesCrawled === "number" && j.pagesCrawled > 0
           ? en
             ? ` · ${j.pagesCrawled} pages`
             : ` · ${j.pagesCrawled} oldal`
           : "";
-      const linked =
-        typeof j.linkedWebsite === "string" && j.linkedWebsite
-          ? ` · ${j.linkedWebsite}`
-          : "";
-      const tip =
-        j.source === "facebook" && !j.linkedWebsite
-          ? en
-            ? " · Tip: set FACEBOOK_PAGE_ACCESS_TOKEN so we can follow the Page’s website"
-            : " · Tipp: állítsd be a FACEBOOK_PAGE_ACCESS_TOKEN-t, hogy a Page weboldalát is beolvassuk"
-          : "";
       setMsg(
         en
-          ? `${j.name ?? "Profile"} · ${src}${linked}${pages} · ${j.faqCount ?? 0} draft Q&As${tip}`
-          : `${j.name ?? "Profil"} · ${src}${linked}${pages} · ${j.faqCount ?? 0} kérdés vázlat${tip}`,
+          ? `${j.name ?? "Profile"} · website${pages} · ${j.faqCount ?? 0} draft Q&As`
+          : `${j.name ?? "Profil"} · weboldal${pages} · ${j.faqCount ?? 0} kérdés vázlat`,
       );
       router.refresh();
     } catch (err) {
@@ -73,11 +61,7 @@ export default function ImportForm({ lang = "hu" }: { lang?: DashLang }) {
         required
         value={url}
         onChange={(e) => setUrl(e.target.value)}
-        placeholder={
-          en
-            ? "https://example-salon.com or https://facebook.com/example.salon"
-            : "https://pelda-szalon.hu vagy https://facebook.com/pelda.szalon"
-        }
+        placeholder={en ? "https://example-salon.com" : "https://pelda-szalon.hu"}
         style={{ flex: 1, minWidth: 220, border: "1px solid #D8DDD6", borderRadius: 8, padding: "10px 12px", font: "inherit" }}
       />
       <button

@@ -61,7 +61,7 @@ export default function PrivacyContent() {
             <td>A fiók fennállása + 30 nap</td>
           </tr>
           <tr>
-            <td>Üzleti weboldal / Facebook Oldal tartalma, tervezett GYIK</td>
+            <td>Üzleti weboldal tartalma, tervezett GYIK</td>
             <td>Q&amp;A tervezet a vállalkozásnak</td>
             <td>Feldolgozó, a vállalkozás utasítására</td>
             <td>A fiók törléséig</td>
@@ -216,7 +216,7 @@ export default function PrivacyContent() {
       <p>
         <strong>Tárgy:</strong> a továbbított hívások fogadása, strukturált
         összefoglaló és következő lépés készítése és tárolása, Q&amp;A tervezet a
-        vállalkozás weboldalából / Oldalából.
+        vállalkozás weboldalából.
         <br />
         <strong>Időtartam:</strong> a fiók fennállása, majd törlés 30 napon belül.
         <br />
@@ -339,7 +339,7 @@ export default function PrivacyContent() {
               <td>Account term + 30 days</td>
             </tr>
             <tr>
-              <td>Business website / Facebook Page content, drafted Q&amp;A</td>
+              <td>Business website content, drafted Q&amp;A</td>
               <td>Draft Q&amp;A for the business</td>
               <td>Processor, on the business’s instructions</td>
               <td>Until the account is deleted</td>
@@ -490,7 +490,7 @@ export default function PrivacyContent() {
         <p>
           <strong>Subject:</strong> answering forwarded calls; drafting and
           storing a structured summary and next step; drafting Q&amp;A from the
-          customer’s website / Page.
+          customer’s website.
           <br />
           <strong>Duration:</strong> the account, then deletion within 30 days.
           <br />
