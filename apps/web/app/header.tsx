@@ -1,7 +1,8 @@
 "use client";
 
 import { Suspense, useEffect, useState } from "react";
-import { usePathname, useSearchParams } from "next/navigation";
+import Link from "next/link";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import {
   UserButton,
   OrganizationSwitcher,
@@ -9,7 +10,18 @@ import {
   useClerk,
 } from "@clerk/nextjs";
 import { landing, waitlistHref } from "@/i18n/landing.ts";
+import { withDashLang } from "@/lib/dash_lang.ts";
 import { localeHref } from "@/lib/locale_href.ts";
+
+const APP_SHELL = ["/dashboard", "/onboarding", "/create-org", "/waitlist"] as const;
+
+function isAppShell(pathname: string): boolean {
+  return APP_SHELL.some((p) => pathname === p || pathname.startsWith(`${p}/`));
+}
+
+function marketingEn(pathname: string): boolean {
+  return pathname === "/en" || pathname.startsWith("/en/");
+}
 
 /** Guest CTAs are plain HTML — never wrapped in Clerk gates (avoids load flash). */
 function GuestActions({
@@ -35,9 +47,10 @@ function GuestActions({
   );
 }
 
-function LangSwitch({ en }: { en: boolean }) {
+function LangSwitchInner() {
   const pathname = usePathname();
   const searchParams = useSearchParams();
+  const router = useRouter();
   const [hash, setHash] = useState("");
 
   useEffect(() => {
@@ -48,45 +61,122 @@ function LangSwitch({ en }: { en: boolean }) {
   }, [pathname]);
 
   const search = searchParams.toString();
+  const shell = isAppShell(pathname);
+  const en = shell
+    ? searchParams.get("lang")?.toLowerCase() === "en"
+    : marketingEn(pathname);
+
   const huHref = localeHref(pathname, "hu", search, hash);
   const enHref = localeHref(pathname, "en", search, hash);
 
+  function go(target: "hu" | "en", href: string, e: React.MouseEvent) {
+    e.preventDefault();
+    if (shell) {
+      // Soft query update — keeps header / Clerk org mounted (no Suspense remount).
+      router.replace(withDashLang(pathname, target, search), { scroll: false });
+      return;
+    }
+    router.push(href);
+  }
+
   return (
     <div className="lang-switch" aria-label="language">
-      <a href={huHref} className={en ? "" : "on"} hrefLang="hu">
+      <a
+        href={huHref}
+        className={en ? "" : "on"}
+        hrefLang="hu"
+        onClick={(e) => go("hu", huHref, e)}
+      >
         HU
       </a>
-      <a href={enHref} className={en ? "on" : ""} hrefLang="en">
+      <a
+        href={enHref}
+        className={en ? "on" : ""}
+        hrefLang="en"
+        onClick={(e) => go("en", enHref, e)}
+      >
         EN
       </a>
     </div>
   );
 }
 
-function HeaderInner() {
+function LangSwitchFallback() {
+  return (
+    <div className="lang-switch" aria-label="language">
+      <span className="on">HU</span>
+      <span>EN</span>
+    </div>
+  );
+}
+
+function MarketingNav() {
   const pathname = usePathname();
   const searchParams = useSearchParams();
+  const en = isAppShell(pathname)
+    ? searchParams.get("lang")?.toLowerCase() === "en"
+    : marketingEn(pathname);
+  const d = (en ? landing.en : landing.hu).nav;
+  // On dashboard the section nav is hidden by parent; this only renders off-dashboard.
+  const base = marketingEn(pathname) ? "/en" : "/";
+  return (
+    <nav className="site-nav" aria-label="sections">
+      <a href={`${base}#how`}>{d.how}</a>
+      <a href={`${base}#get`}>{d.get}</a>
+      <a href={`${base}#industries`}>{d.industries}</a>
+      <a href={`${base}#pricing`}>{d.pricing}</a>
+      <a href={`${base}#faq`}>{d.faq}</a>
+    </nav>
+  );
+}
+
+function HeaderActions() {
+  const pathname = usePathname();
   const { isLoaded, isSignedIn } = useAuth();
   const { openSignIn } = useClerk();
-  const dashEn = searchParams.get("lang")?.toLowerCase() === "en";
-  const en =
-    pathname === "/en" ||
-    pathname.startsWith("/en/") ||
-    ((pathname.startsWith("/dashboard") ||
-      pathname.startsWith("/onboarding") ||
-      pathname.startsWith("/create-org") ||
-      pathname.startsWith("/waitlist")) &&
-      dashEn);
+  // Pathname-only for auth chrome — never useSearchParams here (avoids remounting Clerk).
+  const en = marketingEn(pathname);
   const d = (en ? landing.en : landing.hu).nav;
-  const home = en ? "/en" : "/";
   const waitlist = waitlistHref(en ? "en" : "hu");
+  const showGuest = !isLoaded || !isSignedIn;
+  const dashHref = en ? "/dashboard?lang=en" : "/dashboard";
+
+  return (
+    <div className="header-actions">
+      {showGuest ? (
+        <GuestActions
+          signinLabel={d.signin}
+          ctaLabel={d.cta}
+          waitlist={waitlist}
+          onSignIn={() => openSignIn({})}
+        />
+      ) : (
+        <>
+          <Link href={dashHref} className="btn btn-ghost btn-sm" prefetch>
+            dashboard
+          </Link>
+          <OrganizationSwitcher
+            appearance={{
+              elements: {
+                rootBox: "header-org",
+                organizationSwitcherTrigger: "header-org-trigger",
+              },
+            }}
+          />
+          <UserButton />
+        </>
+      )}
+    </div>
+  );
+}
+
+export default function Header() {
+  const pathname = usePathname();
   const onDashboard =
     pathname.startsWith("/dashboard") ||
     pathname.startsWith("/onboarding") ||
     pathname.startsWith("/create-org");
-
-  const showGuest = !isLoaded || !isSignedIn;
-  const dashHref = en ? "/dashboard?lang=en" : "/dashboard";
+  const home = marketingEn(pathname) ? "/en" : "/";
 
   return (
     <header className="site-header">
@@ -96,50 +186,15 @@ function HeaderInner() {
           Dial Hanna
         </a>
         {!onDashboard && (
-          <nav className="site-nav" aria-label="sections">
-            <a href={`${home}#how`}>{d.how}</a>
-            <a href={`${home}#get`}>{d.get}</a>
-            <a href={`${home}#industries`}>{d.industries}</a>
-            <a href={`${home}#pricing`}>{d.pricing}</a>
-            <a href={`${home}#faq`}>{d.faq}</a>
-          </nav>
+          <Suspense fallback={<nav className="site-nav" aria-hidden />}>
+            <MarketingNav />
+          </Suspense>
         )}
-        <LangSwitch en={en} />
-
-        <div className="header-actions">
-          {showGuest ? (
-            <GuestActions
-              signinLabel={d.signin}
-              ctaLabel={d.cta}
-              waitlist={waitlist}
-              onSignIn={() => openSignIn({})}
-            />
-          ) : (
-            <>
-              <a href={dashHref} className="btn btn-ghost btn-sm">
-                dashboard
-              </a>
-              <OrganizationSwitcher
-                appearance={{
-                  elements: {
-                    rootBox: "header-org",
-                    organizationSwitcherTrigger: "header-org-trigger",
-                  },
-                }}
-              />
-              <UserButton />
-            </>
-          )}
-        </div>
+        <Suspense fallback={<LangSwitchFallback />}>
+          <LangSwitchInner />
+        </Suspense>
+        <HeaderActions />
       </div>
     </header>
-  );
-}
-
-export default function Header() {
-  return (
-    <Suspense fallback={<header className="site-header" />}>
-      <HeaderInner />
-    </Suspense>
   );
 }

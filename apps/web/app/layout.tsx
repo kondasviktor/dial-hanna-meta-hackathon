@@ -2,7 +2,6 @@ import type { Metadata, Viewport } from "next";
 import { ClerkProvider } from "@clerk/nextjs";
 import { Bricolage_Grotesque, Instrument_Sans, JetBrains_Mono } from "next/font/google";
 import { headers } from "next/headers";
-import { Suspense } from "react";
 import Header from "./header";
 import SiteFooter from "./site-footer";
 import { SITE, siteUrl } from "@/lib/site.ts";
@@ -95,31 +94,6 @@ export const metadata: Metadata = {
   },
 };
 
-function HeaderFallback() {
-  return (
-    <header className="site-header">
-      <div className="site-header-inner">
-        <a className="brand" href="/">
-          <span className="brand-dot" aria-hidden />
-          Dial Hanna
-        </a>
-        <div className="lang-switch" aria-label="language">
-          <a href="/" className="on">HU</a>
-          <a href="/en">EN</a>
-        </div>
-        <div className="header-actions">
-          <button className="btn btn-ghost btn-sm" type="button" disabled>
-            Belépés
-          </button>
-          <a className="btn btn-primary btn-sm" href="/waitlist">
-            Várólista
-          </a>
-        </div>
-      </div>
-    </header>
-  );
-}
-
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
   const h = await headers();
   const lang = h.get("x-page-lang") === "en" ? "en" : "hu";
@@ -130,9 +104,8 @@ export default async function RootLayout({ children }: { children: React.ReactNo
           <link rel="alternate" type="text/plain" href="/llms.txt" title="llms.txt" />
         </head>
         <body>
-          <Suspense fallback={<HeaderFallback />}>
-            <Header />
-          </Suspense>
+          {/* Header stays mounted; its own Suspense only wraps the lang switch. */}
+          <Header />
           <main>{children}</main>
           <SiteFooter lang={lang} />
         </body>
