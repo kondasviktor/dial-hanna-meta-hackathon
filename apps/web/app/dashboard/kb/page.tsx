@@ -78,6 +78,7 @@ async function answerGap(formData: FormData) {
   const gapId = String(formData.get("gapId") ?? "");
   const answer = String(formData.get("answer") ?? "").trim();
   const editedQuestion = String(formData.get("question") ?? "").trim();
+  const ownerLang = String(formData.get("lang") ?? "hu") === "en" ? "en" : "hu";
   const gap = (await db.select().from(knowledgeGaps).where(eq(knowledgeGaps.id, gapId)).limit(1))[0];
   if (!gap) throw new Error("gap-not-found");
   // Owners fix misheard questions (STT garble) before they become FAQs;
@@ -92,12 +93,31 @@ async function answerGap(formData: FormData) {
     return;
   }
   const draft = buildFaqDraft(question, answer);
+  // The owner's language is verbatim; the other side is translated now (same
+  // Spark pair-sync as FAQ edits) so no [..-TRANSLATION-NEEDED] placeholder
+  // ever reaches the live knowledge. Marker remains only if translation fails.
+  let { qHu, aHu, qEn, aEn } = draft;
+  if (ownerLang === "en") {
+    qEn = question.endsWith("?") ? question : `${question}?`;
+    aEn = answer;
+    const t = await translateFaqPair(question, answer, "hu");
+    if (t) {
+      qHu = t.q;
+      aHu = t.a;
+    }
+  } else {
+    const t = await translateFaqPair(question, answer, "en");
+    if (t) {
+      qEn = t.q;
+      aEn = t.a;
+    }
+  }
   const inserted = await db.insert(faqs).values({
     orgId: gap.orgId,
-    qHu: draft.qHu,
-    aHu: draft.aHu,
-    qEn: draft.qEn,
-    aEn: draft.aEn,
+    qHu,
+    aHu,
+    qEn,
+    aEn,
     origin: "gap",
     status: "approved",
   }).returning({ id: faqs.id });
@@ -426,6 +446,7 @@ export default async function KnowledgeBasePage({
           <div key={g.id} style={{ borderTop: "1px solid #e8c87a", padding: "12px 0" }}>
             <form action={answerGap} style={{ display: "grid", gap: 8 }}>
               <input type="hidden" name="gapId" value={g.id} />
+              <input type="hidden" name="lang" value={en ? "en" : "hu"} />
               <input
                 name="question"
                 defaultValue={g.question}

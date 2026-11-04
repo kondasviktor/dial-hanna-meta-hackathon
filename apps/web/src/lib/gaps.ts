@@ -31,7 +31,9 @@ export function buildFaqDraft(question: string, ownerAnswer: string): FaqDraft {
   return {
     qHu: q.endsWith("?") ? q : `${q}?`,
     aHu: a,
-    // Placeholders pending translation pass (Spark or owner). Never live until approved.
+    // Placeholder other-language pair. The gap-answer action translates the
+    // other side immediately; this marker survives only if translation fails,
+    // and the owner can fix it in the FAQ editor (which re-syncs the pair).
     qEn: `[EN-TRANSLATION-NEEDED] ${q}`,
     aEn: `[EN-TRANSLATION-NEEDED] ${a}`,
   };
