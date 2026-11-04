@@ -44,10 +44,9 @@ function thinkActionUrl(lang: TtsLang, orgId?: string | null): string {
 
 /** Instant acknowledgement while Spark thinks (static Hanna filler mp3). */
 export function fillerThenThinkTwiml(lang: TtsLang = "en", orgId?: string | null): string {
-  const filler =
-    lang === "hu"
-      ? `${appBaseUrl()}/audio/filler-hu.mp3`
-      : `${appBaseUrl()}/audio/filler-en.mp3`;
+  // Use public /api/twilio/tts (always allowlisted) so Clerk never 404s the Play URL.
+  // Short text is Cache-Control cached after the first hit.
+  const filler = playUrl(lang === "hu" ? "Egy pillanat." : "Okay.", lang);
   return `<?xml version="1.0" encoding="UTF-8"?>
 <Response>
   <Play>${escapeXml(filler)}</Play>

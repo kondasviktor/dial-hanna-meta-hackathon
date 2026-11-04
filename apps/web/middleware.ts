@@ -11,6 +11,7 @@ const isPublic = createRouteMatcher([
   "/en/privacy",
   "/en/terms",
   "/en/dpa",
+  "/audio(.*)",
   "/api/health",
   "/api/db-ping",
   "/api/waitlist",
@@ -69,7 +70,8 @@ export default clerkMiddleware(async (auth, req) => {
 
 export const config = {
   matcher: [
-    "/((?!_next|[^?]*\\.(?:html?|css|js(?!on)|jpe?g|webp|png|gif|svg|ttf|woff2?|ico|csv|docx?|xlsx?|zip|webmanifest)).*)",
+    // Skip static assets (include mp3 — softphone filler clips).
+    "/((?!_next|[^?]*\\.(?:html?|css|js(?!on)|jpe?g|webp|png|gif|svg|ttf|woff2?|ico|csv|docx?|xlsx?|zip|webmanifest|mp3|mpeg)).*)",
     "/(api|trpc)(.*)",
   ],
 };
