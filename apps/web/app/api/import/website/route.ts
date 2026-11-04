@@ -6,7 +6,9 @@ import { requireAdmin, resolveOrgId } from "@/lib/org.ts";
 import { extractFromHtml, fetchImportSource } from "@/lib/import_website.ts";
 
 export const dynamic = "force-dynamic";
-export const maxDuration = 60;
+// Crawl (Apify up to ~95s worst case) + Wonder extraction needs real headroom;
+// on plans capped lower, the client shows a friendly retry message instead.
+export const maxDuration = 300;
 
 export async function POST(req: Request) {
   const admin = await requireAdmin();

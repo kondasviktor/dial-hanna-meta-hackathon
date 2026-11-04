@@ -92,8 +92,8 @@ export async function crawlWithApifyCheerio(
   const token = process.env.APIFY_TOKEN?.trim();
   if (!token) return null;
 
-  const maxPages = opts?.maxPages ?? 15;
-  const waitSecs = opts?.waitSecs ?? 55;
+  const maxPages = opts?.maxPages ?? 10;
+  const waitSecs = opts?.waitSecs ?? 35;
   const client = new ApifyClient({ token });
   const start = new URL(startUrl);
 
@@ -124,8 +124,8 @@ export async function crawlWithApifyWebScraper(
   const token = process.env.APIFY_TOKEN?.trim();
   if (!token) return null;
 
-  const maxPages = opts?.maxPages ?? 12;
-  const waitSecs = opts?.waitSecs ?? 120;
+  const maxPages = opts?.maxPages ?? 10;
+  const waitSecs = opts?.waitSecs ?? 60;
   const client = new ApifyClient({ token });
   const start = new URL(startUrl);
 

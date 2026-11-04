@@ -43,11 +43,26 @@ export default function ImportForm({ lang = "hu" }: { lang?: DashLang }) {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ url }),
       });
-      const j = await r.json();
+      // A timed-out function returns an HTML error page, not JSON — parse
+      // defensively so the owner never sees a raw SyntaxError.
+      const rawText = await r.text();
       stopProgress();
-      if (!r.ok || !j.ok) {
+      let j: {
+        ok?: boolean;
+        error?: string;
+        message?: string;
+        name?: string;
+        pagesCrawled?: number;
+        faqCount?: number;
+      } | null = null;
+      try {
+        j = JSON.parse(rawText);
+      } catch {
+        j = null;
+      }
+      if (!r.ok || !j?.ok) {
         setState("err");
-        if (j.error === "facebook-not-supported") {
+        if (j?.error === "facebook-not-supported") {
           setMsg(
             en
               ? "Facebook Pages are not supported — paste the business website URL."
@@ -55,7 +70,12 @@ export default function ImportForm({ lang = "hu" }: { lang?: DashLang }) {
           );
           return;
         }
-        setMsg(j.message ?? j.error ?? (en ? "error" : "hiba"));
+        setMsg(
+          j?.message ??
+            (en
+              ? "The import took too long or the site did not respond. Please try again."
+              : "Az import túl sokáig tartott, vagy az oldal nem válaszolt. Próbáld újra."),
+        );
         return;
       }
       setState("ok");

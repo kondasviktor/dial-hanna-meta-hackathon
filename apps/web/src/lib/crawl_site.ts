@@ -1,8 +1,11 @@
 /** Same-origin multi-page crawl for knowledge import (not homepage-only). */
 
 export const BROWSER_HEADERS: HeadersInit = {
+  // Some hosts' WAFs blocklist exact common bot UAs (bpatisserie.com resets
+  // Chrome/120 and Chrome/131 at TLS level; this string verified passing).
+  // Apify is the primary crawler in production; this is the local fallback.
   "User-Agent":
-    "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+    "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0 Safari/537.36",
   Accept: "text/html,application/xhtml+xml;q=0.9,*/*;q=0.8",
   "Accept-Language": "hu-HU,hu;q=0.9,en;q=0.8",
 };
@@ -86,15 +89,21 @@ export async function crawlWebsite(
   if (!["http:", "https:"].includes(start.protocol)) throw new Error("bad-url");
 
   async function get(url: string): Promise<{ url: string; html: string } | null> {
-    try {
-      const r = await fetch(url, { headers: BROWSER_HEADERS, redirect: "follow" });
-      if (!r.ok) return null;
-      const ct = r.headers.get("content-type") ?? "";
-      if (ct && !/html|text|xml/i.test(ct)) return null;
-      return { url: r.url || url, html: await r.text() };
-    } catch {
-      return null;
+    // One retry: small-business hosts reset TLS connections intermittently,
+    // and a single reset used to fail the whole import.
+    for (let attempt = 0; attempt < 2; attempt++) {
+      try {
+        const r = await fetch(url, { headers: BROWSER_HEADERS, redirect: "follow" });
+        if (!r.ok) return null;
+        const ct = r.headers.get("content-type") ?? "";
+        if (ct && !/html|text|xml/i.test(ct)) return null;
+        return { url: r.url || url, html: await r.text() };
+      } catch {
+        if (attempt === 1) return null;
+        await new Promise((res) => setTimeout(res, 800));
+      }
     }
+    return null;
   }
 
   const home = await get(start.toString());
