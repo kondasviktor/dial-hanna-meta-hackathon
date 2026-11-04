@@ -40,7 +40,7 @@ function formatHours(hours: BizProfileKnowledge["hours"]): string[] {
 export function renderBusinessKnowledge(
   profile: BizProfileKnowledge | null | undefined,
   faqs: FaqKnowledgeRow[],
-  opts?: { fallbackName?: string },
+  opts?: { fallbackName?: string; lang?: "hu" | "en" },
 ): string {
   const b = profile ?? {};
   const name = b.name?.trim() || opts?.fallbackName?.trim() || "";
@@ -85,13 +85,24 @@ export function renderBusinessKnowledge(
   if (approved.length) {
     lines.push("Jóváhagyott GYIK / Approved FAQs (prefer these wordings when they match):");
     for (const f of approved) {
-      lines.push(`Q (HU): ${f.qHu.trim()}`);
-      lines.push(`A (HU): ${f.aHu.trim()}`);
       const qe = f.qEn?.trim();
       const ae = f.aEn?.trim();
-      if (qe && ae) {
+      // Live calls render only the call's language — carrying both languages
+      // doubled the block and pushed owner-answered FAQs past the size cap.
+      if (opts?.lang === "en" && qe && ae) {
         lines.push(`Q (EN): ${qe}`);
         lines.push(`A (EN): ${ae}`);
+      } else if (opts?.lang === "hu") {
+        lines.push(`Q (HU): ${f.qHu.trim()}`);
+        lines.push(`A (HU): ${f.aHu.trim()}`);
+      } else if (!opts?.lang && qe && ae) {
+        lines.push(`Q (HU): ${f.qHu.trim()}`);
+        lines.push(`A (HU): ${f.aHu.trim()}`);
+        lines.push(`Q (EN): ${qe}`);
+        lines.push(`A (EN): ${ae}`);
+      } else {
+        lines.push(`Q (HU): ${f.qHu.trim()}`);
+        lines.push(`A (HU): ${f.aHu.trim()}`);
       }
     }
   }

@@ -27,6 +27,41 @@ test("renders hours phone services policies and approved faqs", () => {
   assert.doesNotMatch(text, /Draft only/);
 });
 
+// Live calls render only the call's language. Rendering both HU+EN pairs
+// doubled the block and pushed owner-answered FAQs past the 3500-char cap,
+// so Hanna "did not know" answers that were in the knowledge base.
+test("lang render keeps only that language's faq pairs", () => {
+  const text = renderBusinessKnowledge(
+    { name: "Pékség" },
+    [
+      {
+        qHu: "Szállítotok Uber Eatsszel?",
+        aHu: "Nem szállítunk, csak elvitelre.",
+        qEn: "Can I order via Uber Eats?",
+        aEn: "We don't offer delivery, pickup only.",
+        status: "approved",
+      },
+    ],
+    { lang: "en" },
+  );
+  assert.match(text, /Can I order via Uber Eats\?/);
+  assert.doesNotMatch(text, /Szállítotok Uber Eatsszel\?/);
+  const hu = renderBusinessKnowledge(
+    { name: "Pékség" },
+    [
+      {
+        qHu: "Szállítotok Uber Eatsszel?",
+        aHu: "Nem szállítunk, csak elvitelre.",
+        qEn: "Can I order via Uber Eats?",
+        aEn: "We don't offer delivery, pickup only.",
+        status: "approved",
+      },
+    ],
+    { lang: "hu" },
+  );
+  assert.match(hu, /Szállítotok Uber Eatsszel\?/);
+});
+
 test("prompt order rules mention take_order and full knowledge", async () => {
   const { renderPrompt } = await import("../src/lib/prompt.ts");
   const { prompt } = renderPrompt({

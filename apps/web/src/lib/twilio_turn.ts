@@ -10,7 +10,11 @@ import type { CallTurn } from "@/lib/call_memory.ts";
 /** Turns sent to Spark (keep short for latency). */
 export const LLM_HISTORY_TURNS = 8;
 
-export async function loadKnowledge(orgId?: string | null, toE164?: string | null): Promise<{
+export async function loadKnowledge(
+  orgId?: string | null,
+  toE164?: string | null,
+  lang?: "hu" | "en",
+): Promise<{
   knowledge: string;
   orgId: string | null;
   businessName: string;
@@ -37,7 +41,7 @@ export async function loadKnowledge(orgId?: string | null, toE164?: string | nul
   ]);
   const prof = profRow[0];
   const profile = (prof?.profile ?? null) as Parameters<typeof renderBusinessKnowledge>[0];
-  let knowledge = renderBusinessKnowledge(profile, allFaqs, { fallbackName: org.name });
+  let knowledge = renderBusinessKnowledge(profile, allFaqs, { fallbackName: org.name, lang });
   // Cap knowledge size — large product lists burn Spark latency.
   if (knowledge.length > 3500) knowledge = `${knowledge.slice(0, 3500)}\n…`;
   const businessName =

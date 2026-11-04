@@ -80,7 +80,7 @@ export async function POST(req: Request) {
   if (isGoodbye(speech) || isBareNo(speech)) {
     const bye = lang === "hu" ? "Köszönöm a hívást. Viszontlátásra!" : "Thanks for calling. Goodbye!";
     if (callSid) {
-      const loaded = await loadKnowledge(orgFromQuery, toE164);
+      const loaded = await loadKnowledge(orgFromQuery, toE164, lang);
       if (loaded.orgId) {
         const session = await ensureCallSession({
           callSid,
@@ -142,7 +142,7 @@ export async function POST(req: Request) {
     const orgHint =
       orgFromQuery && UUID_RE.test(orgFromQuery) ? orgFromQuery : null;
     const [loaded, hintedSession] = await Promise.all([
-      loadKnowledge(orgFromQuery, toE164),
+      loadKnowledge(orgFromQuery, toE164, lang),
       callSid && orgHint
         ? ensureCallSession({
             callSid,
