@@ -61,7 +61,8 @@ export function outcomeSystemPrompt(): string {
 intent must be exactly one of: ${INTENTS.join(", ")}.
 outcome must be exactly one of: ${OUTCOMES.join(", ")}.
 next_action.type must be exactly one of: ${NEXT_ACTIONS.join(", ")}.
-caller.language is hu|en. confidence is a number 0..1.`;
+caller.language is hu|en. confidence is a number 0..1.
+Always write both next_action summaries (summary_hu AND summary_en), even when next_action.type is none — one short sentence each, e.g. what was answered and that no follow-up is needed. Never leave a summary empty.`;
 }
 
 // Consistency rules the validator enforces beyond the JSON schema.

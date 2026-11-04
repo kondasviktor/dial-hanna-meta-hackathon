@@ -15,7 +15,7 @@ import {
   softphoneSystemPrompt,
 } from "@/lib/twilio_turn.ts";
 import { finalizeCallOutcome } from "@/lib/finalize_call.ts";
-import { missOutcome, parseRetry } from "@/lib/gather_retry.ts";
+import { closesConversation, isBareNo, missOutcome, parseRetry } from "@/lib/gather_retry.ts";
 import { replyTwiml } from "@/lib/twilio_twiml.ts";
 
 export const dynamic = "force-dynamic";
@@ -77,7 +77,7 @@ export async function POST(req: Request) {
     });
   }
 
-  if (isGoodbye(speech)) {
+  if (isGoodbye(speech) || isBareNo(speech)) {
     const bye = lang === "hu" ? "Köszönöm a hívást. Viszontlátásra!" : "Thanks for calling. Goodbye!";
     if (callSid) {
       const loaded = await loadKnowledge(orgFromQuery, toE164);
@@ -89,27 +89,45 @@ export async function POST(req: Request) {
           toE164,
           language: lang,
         });
-        if (session) {
-          // Caller hung up: outcome extraction runs after the reply, using the
-          // in-memory transcript — so the dashboard shows intent → outcome.
-          const finalTurns = [
-            ...session.turns,
-            { role: "user" as const, content: speech },
-            { role: "assistant" as const, content: bye },
-          ];
-          const lines = finalTurns.map((t) => `${t.role === "user" ? "caller" : "hanna"}: ${t.content}`);
-          const callId = session.callId;
-          const orgId = loaded.orgId;
-          after(async () => {
-            await finalizeCallOutcome(callId, orgId, lines);
-            await endCallSession(callId);
+        // Bare "no / thanks" ends the call only when it answers Hanna's
+        // anything-else question; otherwise it is a normal turn. Explicit
+        // goodbyes always close.
+        const lastAssistant = [...(session?.turns ?? [])]
+          .reverse()
+          .find((t) => t.role === "assistant")?.content;
+        const closing = isGoodbye(speech) || closesConversation(speech, lastAssistant);
+        if (closing) {
+          if (session) {
+            // Caller hung up: outcome extraction runs after the reply, using the
+            // in-memory transcript — so the dashboard shows intent → outcome.
+            const finalTurns = [
+              ...session.turns,
+              { role: "user" as const, content: speech },
+              { role: "assistant" as const, content: bye },
+            ];
+            const lines = finalTurns.map((t) => `${t.role === "user" ? "caller" : "hanna"}: ${t.content}`);
+            const callId = session.callId;
+            const orgId = loaded.orgId;
+            after(async () => {
+              await finalizeCallOutcome(callId, orgId, lines);
+              await endCallSession(callId);
+            });
+          }
+          // Say goodbye and end the call.
+          return new NextResponse(replyTwiml(bye, false, lang, orgFromQuery), {
+            headers: { "Content-Type": "text/xml; charset=utf-8" },
           });
         }
+        // Mid-order "no": fall through to the normal reply path below.
       }
     }
-    return new NextResponse(replyTwiml(bye, false, lang, orgFromQuery), {
-      headers: { "Content-Type": "text/xml; charset=utf-8" },
-    });
+    // No call session (unknown org): still close politely on goodbye words.
+    if (isGoodbye(speech)) {
+      return new NextResponse(replyTwiml(bye, false, lang, orgFromQuery), {
+        headers: { "Content-Type": "text/xml; charset=utf-8" },
+      });
+    }
+    // Bare "no" without context: let the model answer it as a normal turn.
   }
 
   let orgId = orgFromQuery;

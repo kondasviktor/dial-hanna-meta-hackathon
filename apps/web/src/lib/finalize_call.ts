@@ -16,29 +16,33 @@ export async function finalizeCallOutcome(
 ): Promise<{ outcome: string | null }> {
   const transcriptText = transcriptLines.join("\n").slice(0, 12_000);
   let outcome: CallOutcome | null = null;
-  try {
-    const raw = await chat({
-      model: MODELS.live,
-      reasoningEffort: "low",
-      json: true,
-      // Reasoning tokens eat this budget (DEVIATIONS #4): one probe burned
-      // ~800 reasoning tokens on a 3-line transcript, so keep wide headroom.
-      maxTokens: 2000,
-      messages: [
-        { role: "system", content: outcomeSystemPrompt() },
-        { role: "user", content: transcriptText || "(empty transcript)" },
-      ],
-    });
-    const parsed = JSON.parse(raw) as CallOutcome;
-    const check = validateOutcome(parsed);
-    if (check.ok) {
-      outcome = parsed;
-    } else {
-      // Shape only (no transcript text): why did the dashboard miss a row?
-      console.error("outcome-invalid", check.errors);
+  // One silent retry: the model sometimes drops a field on the first pass,
+  // and this runs after hangup so a second attempt costs the caller nothing.
+  for (let attempt = 1; attempt <= 2 && !outcome; attempt++) {
+    try {
+      const raw = await chat({
+        model: MODELS.live,
+        reasoningEffort: "low",
+        json: true,
+        // Reasoning tokens eat this budget (DEVIATIONS #4): one probe burned
+        // ~800 reasoning tokens on a 3-line transcript, so keep wide headroom.
+        maxTokens: 2000,
+        messages: [
+          { role: "system", content: outcomeSystemPrompt() },
+          { role: "user", content: transcriptText || "(empty transcript)" },
+        ],
+      });
+      const parsed = JSON.parse(raw) as CallOutcome;
+      const check = validateOutcome(parsed);
+      if (check.ok) {
+        outcome = parsed;
+      } else {
+        // Shape only (no transcript text): why did the dashboard miss a row?
+        console.error(`outcome-invalid attempt=${attempt}`, check.errors);
+      }
+    } catch (e) {
+      console.error(`outcome-extract attempt=${attempt}`, e);
     }
-  } catch (e) {
-    console.error("outcome-extract", e);
   }
 
   if (!outcome) return { outcome: null };
