@@ -14,6 +14,7 @@ import {
   maybeLogKnowledgeGap,
   softphoneSystemPrompt,
 } from "@/lib/twilio_turn.ts";
+import { finalizeCallOutcome } from "@/lib/finalize_call.ts";
 import { replyTwiml } from "@/lib/twilio_twiml.ts";
 
 export const dynamic = "force-dynamic";
@@ -78,7 +79,22 @@ export async function POST(req: Request) {
           toE164,
           language: lang,
         });
-        if (session) await endCallSession(session.callId);
+        if (session) {
+          // Caller hung up: outcome extraction runs after the reply, using the
+          // in-memory transcript — so the dashboard shows intent → outcome.
+          const finalTurns = [
+            ...session.turns,
+            { role: "user" as const, content: speech },
+            { role: "assistant" as const, content: bye },
+          ];
+          const lines = finalTurns.map((t) => `${t.role === "user" ? "caller" : "hanna"}: ${t.content}`);
+          const callId = session.callId;
+          const orgId = loaded.orgId;
+          after(async () => {
+            await finalizeCallOutcome(callId, orgId, lines);
+            await endCallSession(callId);
+          });
+        }
       }
     }
     return new NextResponse(replyTwiml(bye, false, lang, orgFromQuery), {

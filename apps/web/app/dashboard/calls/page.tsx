@@ -84,19 +84,22 @@ export default async function CallsPage({
         {recent.length === 0 && (
           <p className="muted">{en ? "No calls yet." : "Még nincs hívás."}</p>
         )}
-        {recent.map((c) => (
-          <Link key={c.id} href={`/dashboard/calls/${c.id}${langQ}`} className="call-row">
-            <span className="call-time">{(c.startedAt ?? "").slice(0, 16).replace("T", " ")}</span>
-            <span>
-              <strong>{c.intent ?? "?"} → {c.outcome ?? "?"}</strong>
-              <br />
-              <span className="call-meta">
-                {c.from ?? (en ? "unknown" : "ismeretlen")} · {c.language} · {c.channel}
-                {c.nextActionHu ? ` · ${c.nextActionHu}` : ""}
+        {recent.map((c) => {
+          const action = en ? (c.nextActionEn ?? c.nextActionHu) : c.nextActionHu;
+          return (
+            <Link key={c.id} href={`/dashboard/calls/${c.id}${langQ}`} className="call-row">
+              <span className="call-time">{(c.startedAt ?? "").slice(0, 16).replace("T", " ")}</span>
+              <span>
+                <strong>{c.intent ?? "?"} → {c.outcome ?? "?"}</strong>
+                <br />
+                <span className="call-meta">
+                  {c.from ?? (en ? "unknown" : "ismeretlen")} · {c.language} · {c.channel}
+                  {action ? ` · ${action}` : ""}
+                </span>
               </span>
-            </span>
-          </Link>
-        ))}
+            </Link>
+          );
+        })}
       </div>
     </div>
   );

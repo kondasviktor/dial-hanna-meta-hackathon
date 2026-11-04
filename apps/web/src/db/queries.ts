@@ -16,6 +16,7 @@ export interface DashboardCall {
   intent: string | null;
   outcome: string | null;
   nextActionHu: string | null;
+  nextActionEn: string | null;
   ownerStatus: string | null;
 }
 
@@ -29,11 +30,12 @@ export async function getDashboard(clerkOrgId: string) {
   const byCall = new Map(outcomes.map((o) => [o.callId, o]));
   const shaped: DashboardCall[] = recentCalls.map((c) => {
     const o = byCall.get(c.id);
-    const na = (o?.nextAction ?? {}) as { summary_hu?: string };
+    const na = (o?.nextAction ?? {}) as { summary_hu?: string; summary_en?: string };
     return {
       id: c.id, startedAt: c.startedAt?.toISOString() ?? null, channel: c.channel,
       from: c.fromE164, language: c.language, intent: o?.intent ?? null,
       outcome: o?.outcome ?? null, nextActionHu: na.summary_hu ?? null,
+      nextActionEn: na.summary_en ?? null,
       ownerStatus: o?.ownerStatus ?? null,
     };
   });
@@ -42,12 +44,12 @@ export async function getDashboard(clerkOrgId: string) {
   const live = versions.find((v) => v.status === "live") ?? versions[0] ?? null;
   const today = new Date().toISOString().slice(0, 10);
   const todaysCalls = shaped.filter((c) => (c.startedAt ?? "").slice(0, 10) === today);
-  const openActions = shaped.filter((c) => c.ownerStatus === "open" && c.nextActionHu);
+  const openActions = shaped.filter((c) => c.ownerStatus === "open" && (c.nextActionHu || c.nextActionEn));
   const openGaps = gaps.filter((g) => g.status === "open" || g.status === "answered");
   return {
     org: { id: org.id, name: org.name, plan: org.plan },
     todaysCalls: todaysCalls.length,
-    openActions: openActions.map((c) => ({ id: c.id, summary: c.nextActionHu! })),
+    openActions: openActions.map((c) => ({ id: c.id, summaryHu: c.nextActionHu!, summaryEn: c.nextActionEn })),
     recent: shaped.slice(0, 10),
     gaps: openGaps.map((g) => ({ id: g.id, question: g.question, context: g.context, status: g.status })),
     live: live ? { id: live.id, status: live.status } : null,

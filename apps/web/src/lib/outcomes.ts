@@ -51,6 +51,19 @@ export function validateOutcome(o: unknown): { ok: boolean; errors: string[] } {
   return { ok: errors.length === 0, errors };
 }
 
+/**
+ * Extraction prompt listing the exact allowed enum values. The model invents
+ * values like "inquiry"/"info_provided" when the prompt only says "enums from
+ * Dial Hanna" — validateOutcome then drops the row and the dashboard shows ?.
+ */
+export function outcomeSystemPrompt(): string {
+  return `Extract a call outcome JSON: {intent, outcome, next_action:{type,due_by,summary_hu,summary_en}, caller:{name,phone,language}, booking_id, knowledge_gap_questions:[], confidence}. Do not include sentiment.
+intent must be exactly one of: ${INTENTS.join(", ")}.
+outcome must be exactly one of: ${OUTCOMES.join(", ")}.
+next_action.type must be exactly one of: ${NEXT_ACTIONS.join(", ")}.
+caller.language is hu|en. confidence is a number 0..1.`;
+}
+
 // Consistency rules the validator enforces beyond the JSON schema.
 export function outcomeConsistent(o: CallOutcome): string[] {
   const issues: string[] = [];
