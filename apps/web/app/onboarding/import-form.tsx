@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { Loader2 } from "lucide-react";
 import type { DashLang } from "@/lib/dash_lang.ts";
 
 export default function ImportForm({ lang = "hu" }: { lang?: DashLang }) {
@@ -11,10 +12,31 @@ export default function ImportForm({ lang = "hu" }: { lang?: DashLang }) {
   const router = useRouter();
   const en = lang === "en";
 
+  // The crawl + AI extraction takes 30-90s: reassure in stages so the owner
+  // knows work is happening instead of staring at a frozen "Reading…".
+  function startProgress(): () => void {
+    const stages: [number, string][] = [
+      [0, en ? "Search starting…" : "Keresés indul…"],
+      [3000, en
+        ? "Gathering information from your website — this can take up to a minute. Keep this tab open."
+        : "Információt gyűjtünk a weboldaladról — ez akár egy percig is eltarthat. Hagyd nyitva ezt a lapot."],
+      [25000, en
+        ? "Still working — reading your pages and drafting your Q&As…"
+        : "Még dolgozunk — olvassuk az oldalaid és készítjük a kérdés-vázlatokat…"],
+      [60000, en
+        ? "Almost there — larger sites take a little longer…"
+        : "Mindjárt kész — a nagyobb oldalak kicsit több időt igényelnek…"],
+    ];
+    const timers = stages.map(([at, text]) =>
+      window.setTimeout(() => setMsg(text), at),
+    );
+    return () => timers.forEach((t) => window.clearTimeout(t));
+  }
+
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
     setState("loading");
-    setMsg("");
+    const stopProgress = startProgress();
     try {
       const r = await fetch("/api/import/website", {
         method: "POST",
@@ -22,6 +44,7 @@ export default function ImportForm({ lang = "hu" }: { lang?: DashLang }) {
         body: JSON.stringify({ url }),
       });
       const j = await r.json();
+      stopProgress();
       if (!r.ok || !j.ok) {
         setState("err");
         if (j.error === "facebook-not-supported") {
@@ -49,6 +72,7 @@ export default function ImportForm({ lang = "hu" }: { lang?: DashLang }) {
       );
       router.refresh();
     } catch (err) {
+      stopProgress();
       setState("err");
       setMsg(String(err));
     }
@@ -61,6 +85,7 @@ export default function ImportForm({ lang = "hu" }: { lang?: DashLang }) {
         required
         value={url}
         onChange={(e) => setUrl(e.target.value)}
+        disabled={state === "loading"}
         placeholder={en ? "https://example-salon.com" : "https://pelda-szalon.hu"}
         style={{ flex: 1, minWidth: 220, border: "1px solid #D8DDD6", borderRadius: 8, padding: "10px 12px", font: "inherit" }}
       />
@@ -78,7 +103,18 @@ export default function ImportForm({ lang = "hu" }: { lang?: DashLang }) {
             : "Elemzés"}
       </button>
       {msg && (
-        <p style={{ width: "100%", color: state === "err" ? "#8A2A12" : "#0B5D3F", margin: 0 }}>
+        <p
+          style={{
+            width: "100%",
+            color: state === "err" ? "#8A2A12" : "#0B5D3F",
+            margin: 0,
+            display: "flex",
+            alignItems: "center",
+            gap: 8,
+          }}
+          role={state === "loading" ? "status" : undefined}
+        >
+          {state === "loading" && <Loader2 size={16} className="faq-spin" aria-hidden />}
           {msg}
         </p>
       )}
