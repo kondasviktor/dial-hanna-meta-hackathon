@@ -16,11 +16,15 @@ export async function GET(req: Request) {
 
   try {
     const audio = await synthesizeSpeech(text, { lang });
+    // Short canned lines (fillers / retries) can be edge-cached; long replies stay fresh.
+    const cacheable = text.length <= 48;
     return new Response(audio, {
       status: 200,
       headers: {
         "Content-Type": "audio/mpeg",
-        "Cache-Control": "no-store",
+        "Cache-Control": cacheable
+          ? "public, max-age=604800, stale-while-revalidate=86400"
+          : "no-store",
       },
     });
   } catch (e) {

@@ -6,7 +6,7 @@ import { calls } from "@/db/schema.ts";
 
 export type CallTurn = { role: "user" | "assistant"; content: string };
 
-const MAX_TURNS = 24;
+const MAX_TURNS = 12;
 
 function asTurns(raw: unknown): CallTurn[] {
   if (!Array.isArray(raw)) return [];

@@ -35,6 +35,26 @@ function gatherActionUrl(lang: TtsLang, orgId?: string | null): string {
   return u.toString();
 }
 
+function thinkActionUrl(lang: TtsLang, orgId?: string | null): string {
+  const u = new URL(`${appBaseUrl()}/api/twilio/think`);
+  u.searchParams.set("lang", lang);
+  if (orgId) u.searchParams.set("org", orgId);
+  return u.toString();
+}
+
+/** Instant acknowledgement while Spark thinks (static Hanna filler mp3). */
+export function fillerThenThinkTwiml(lang: TtsLang = "en", orgId?: string | null): string {
+  const filler =
+    lang === "hu"
+      ? `${appBaseUrl()}/audio/filler-hu.mp3`
+      : `${appBaseUrl()}/audio/filler-en.mp3`;
+  return `<?xml version="1.0" encoding="UTF-8"?>
+<Response>
+  <Play>${escapeXml(filler)}</Play>
+  <Redirect method="POST">${escapeXml(thinkActionUrl(lang, orgId))}</Redirect>
+</Response>`;
+}
+
 /** Shared TwiML for inbound DID and browser softphone. */
 export function dialHannaTwiml(
   lang: TtsLang = "en",
