@@ -10,7 +10,7 @@
 | G1 Hungarian STT | 30 clips ×2 qualities, key-entity accuracy | HU phone-quality ≥ 90% | SKIP | clips not recorded yet — harness ready (`g1_stt_accuracy.py`) |
 | G2 LLM HU turns | 20 HU turns, `minimal`, streaming + tools | TTFT p50 ≤ 800 ms; ≥ 18/20 acceptable | REVIEW | 20/20 auto-clean, HU quality good on spot-check; TTFT p50 ≈ 1.25 s > 800 ms — see findings |
 | G3 TTS voices | 3 HU female voices × 10 lines | natural + first byte ≤ 300 ms | SKIP | provider keys not set — harness ready (`g3_tts.py`) |
-| G4 HU number | HU VoIP DID (Twilio US for hackathon demo) | active by Day 6 | SKIP | Twilio ***REMOVED*** for demo; HU DID deferred |
+| G4 HU number | HU VoIP DID (Twilio US for hackathon demo) | active by Day 6 | SKIP | Twilio US number for demo; HU DID deferred |
 | G5 Meta access | 1 request each: Spark 1.3, Wonder, Transcribe | all respond | PASS | 3/3 HTTP (Spark ~1.3 s, Wonder ~1.5 s, contributor ~5.6 s); realtime socket = MANUAL next |
 
 ## Day-0 findings (28 Oct, measured from Hungary)
