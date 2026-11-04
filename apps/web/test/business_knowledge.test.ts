@@ -6,7 +6,7 @@ test("renders hours phone services policies and approved faqs", () => {
   const text = renderBusinessKnowledge(
     {
       name: "Daubner Cukrászda",
-      phone: "***REMOVED***",
+      phone: "+36 20 123 4567",
       address: "1025 Budapest, Szépvölgyi út 50.",
       hours: [{ weekday: 3, open: "09:00", close: "19:00" }],
       services: [{ name: "Sacher torta", price_text: "ár egyeztetés szerint" }],
@@ -19,7 +19,7 @@ test("renders hours phone services policies and approved faqs", () => {
   );
   assert.match(text, /Daubner/);
   assert.match(text, /Szépvölgyi/);
-  assert.match(text, /329/);
+  assert.match(text, /123 4567/);
   assert.match(text, /szerda/);
   assert.match(text, /Sacher/);
   assert.match(text, /parking/);
