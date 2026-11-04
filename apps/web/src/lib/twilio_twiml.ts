@@ -69,7 +69,7 @@ export function dialHannaTwiml(
   return `<?xml version="1.0" encoding="UTF-8"?>
 <Response>
   <Play>${play}</Play>
-  <Gather input="speech" language="${gatherLang}" action="${escapeXml(gather)}" method="POST" speechTimeout="auto" timeout="6">
+  <Gather input="speech" language="${gatherLang}" action="${escapeXml(gather)}" method="POST" speechTimeout="1" timeout="4" speechModel="phone_call">
   </Gather>
   <Play>${escapeXml(playUrl(miss, lang))}</Play>
 </Response>`;
@@ -98,7 +98,7 @@ export function replyTwiml(
   return `<?xml version="1.0" encoding="UTF-8"?>
 <Response>
   <Play>${play}</Play>
-  <Gather input="speech" language="${gatherLang}" action="${escapeXml(gather)}" method="POST" speechTimeout="auto" timeout="6">
+  <Gather input="speech" language="${gatherLang}" action="${escapeXml(gather)}" method="POST" speechTimeout="1" timeout="4" speechModel="phone_call">
   </Gather>
   <Play>${escapeXml(playUrl(bye, l))}</Play>
 </Response>`;

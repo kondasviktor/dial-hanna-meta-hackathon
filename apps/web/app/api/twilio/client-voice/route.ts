@@ -4,6 +4,7 @@ import { getGlobalHannaEnabled } from "@/lib/hanna_status.ts";
 import { resolveCallOrg } from "@/lib/org.ts";
 
 export const dynamic = "force-dynamic";
+export const preferredRegion = "fra1";
 
 /**
  * TwiML App Voice URL for the browser softphone.

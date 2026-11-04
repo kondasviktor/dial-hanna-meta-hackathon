@@ -1,5 +1,6 @@
-import { NextResponse } from "next/server";
+import { after, NextResponse } from "next/server";
 import { chat, MODELS } from "@/lib/meta.ts";
+import { UUID_RE } from "@/lib/org.ts";
 import { detectTtsLang, type TtsLang } from "@/lib/elevenlabs.ts";
 import {
   endCallSession,
@@ -17,6 +18,7 @@ import { replyTwiml } from "@/lib/twilio_twiml.ts";
 
 export const dynamic = "force-dynamic";
 export const maxDuration = 60;
+export const preferredRegion = "fra1";
 
 function callLang(req: Request, speech: string): TtsLang {
   const q = new URL(req.url).searchParams.get("lang")?.toLowerCase();
@@ -91,24 +93,42 @@ export async function POST(req: Request) {
       : "I am still getting set up. Please leave a message for the owner and they will call you back.";
 
   try {
-    const loaded = await loadKnowledge(orgFromQuery, toE164);
+    // Softphone passes a resolved org UUID: load knowledge and call history
+    // in parallel instead of waiting for knowledge first.
+    const orgHint =
+      orgFromQuery && UUID_RE.test(orgFromQuery) ? orgFromQuery : null;
+    const [loaded, hintedSession] = await Promise.all([
+      loadKnowledge(orgFromQuery, toE164),
+      callSid && orgHint
+        ? ensureCallSession({
+            callSid,
+            orgId: orgHint,
+            fromE164,
+            toE164,
+            language: lang,
+          })
+        : Promise.resolve(undefined),
+    ]);
     orgId = loaded.orgId ?? orgFromQuery;
     const replyLang = lang === "hu" ? "Hungarian" : "English";
 
     let prior: CallTurn[] = [];
     let callId: string | null = null;
-    if (callSid && loaded.orgId) {
-      const session = await ensureCallSession({
-        callSid,
-        orgId: loaded.orgId,
-        fromE164,
-        toE164,
-        language: lang,
-      });
-      if (session) {
-        callId = session.callId;
-        prior = session.turns;
-      }
+    const session =
+      hintedSession && loaded.orgId === orgHint
+        ? hintedSession
+        : callSid && loaded.orgId
+          ? await ensureCallSession({
+              callSid,
+              orgId: loaded.orgId,
+              fromE164,
+              toE164,
+              language: lang,
+            })
+          : null;
+    if (session) {
+      callId = session.callId;
+      prior = session.turns;
     }
 
     const turnsForLlm: CallTurn[] = [...prior, { role: "user", content: speech }];
@@ -130,19 +150,24 @@ export async function POST(req: Request) {
     spoken = spoken.replace(/\s+/g, " ").trim().slice(0, 500);
 
     if (callId) {
-      await saveCallTurns(callId, [
+      // Persistence must not delay the spoken reply: run after TwiML is sent.
+      const finalTurns: CallTurn[] = [
         ...prior,
         { role: "user", content: speech },
         { role: "assistant", content: spoken },
-      ]);
-      if (loaded.orgId) {
-        await maybeLogKnowledgeGap({
-          orgId: loaded.orgId,
-          callId,
-          question: speech,
-          spoken,
-        });
-      }
+      ];
+      const gapOrgId = loaded.orgId;
+      after(async () => {
+        await saveCallTurns(callId, finalTurns);
+        if (gapOrgId) {
+          await maybeLogKnowledgeGap({
+            orgId: gapOrgId,
+            callId,
+            question: speech,
+            spoken,
+          });
+        }
+      });
     }
 
     console.log("twilio-gather-timing", {

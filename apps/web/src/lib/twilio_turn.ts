@@ -31,10 +31,11 @@ export async function loadKnowledge(orgId?: string | null, toE164?: string | nul
       businessName: org.name,
     };
   }
-  const prof = (
-    await db.select().from(businessProfiles).where(eq(businessProfiles.orgId, org.id)).limit(1)
-  )[0];
-  const allFaqs = await db.select().from(faqs).where(eq(faqs.orgId, org.id));
+  const [profRow, allFaqs] = await Promise.all([
+    db.select().from(businessProfiles).where(eq(businessProfiles.orgId, org.id)).limit(1),
+    db.select().from(faqs).where(eq(faqs.orgId, org.id)),
+  ]);
+  const prof = profRow[0];
   const profile = (prof?.profile ?? null) as Parameters<typeof renderBusinessKnowledge>[0];
   let knowledge = renderBusinessKnowledge(profile, allFaqs, { fallbackName: org.name });
   // Cap knowledge size — large product lists burn Spark latency.

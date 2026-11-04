@@ -30,31 +30,36 @@ export function resolveVoiceId(lang: TtsLang): string {
 export async function synthesizeSpeech(
   text: string,
   opts?: { lang?: TtsLang; voiceId?: string },
-): Promise<ArrayBuffer> {
+): Promise<ReadableStream<Uint8Array>> {
   const key = process.env.ELEVENLABS_API_KEY?.trim();
   if (!key) throw new Error("elevenlabs-unset");
 
   const lang = opts?.lang ?? detectTtsLang(text);
   const voiceId = opts?.voiceId?.trim() || resolveVoiceId(lang);
 
-  const r = await fetch(`https://api.elevenlabs.io/v1/text-to-speech/${voiceId}`, {
-    method: "POST",
-    headers: {
-      "xi-api-key": key,
-      "Content-Type": "application/json",
-      Accept: "audio/mpeg",
+  // 22.05kHz/32kbps is plenty for 8kHz phone audio: ~4x smaller + faster synth.
+  const r = await fetch(
+    `https://api.elevenlabs.io/v1/text-to-speech/${voiceId}?output_format=mp3_22050_32`,
+    {
+      method: "POST",
+      headers: {
+        "xi-api-key": key,
+        "Content-Type": "application/json",
+        Accept: "audio/mpeg",
+      },
+      body: JSON.stringify({
+        text: text.slice(0, 2500),
+        model_id: "eleven_flash_v2_5",
+        // Forces Hungarian phonetics; without this a non-HU voice drifts badly.
+        language_code: lang,
+      }),
     },
-    body: JSON.stringify({
-      text: text.slice(0, 2500),
-      model_id: "eleven_flash_v2_5",
-      // Forces Hungarian phonetics; without this a non-HU voice drifts badly.
-      language_code: lang,
-    }),
-  });
+  );
   if (!r.ok) {
     throw new Error(`elevenlabs-http-${r.status}:${(await r.text()).slice(0, 200)}`);
   }
-  return await r.arrayBuffer();
+  if (!r.body) throw new Error("elevenlabs-empty-body");
+  return r.body;
 }
 
 export function appBaseUrl(): string {

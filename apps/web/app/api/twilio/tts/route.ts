@@ -2,8 +2,9 @@ import { detectTtsLang, synthesizeSpeech, type TtsLang } from "@/lib/elevenlabs.
 
 export const dynamic = "force-dynamic";
 export const maxDuration = 30;
+export const preferredRegion = "fra1";
 
-/** Twilio <Play> target — returns mp3 for Hanna's ElevenLabs voice (EN or HU). */
+/** Twilio <Play> target — streams ElevenLabs mp3 audio (EN or HU). */
 export async function GET(req: Request) {
   const url = new URL(req.url);
   const text = url.searchParams.get("text")?.trim();
@@ -16,8 +17,9 @@ export async function GET(req: Request) {
 
   try {
     const audio = await synthesizeSpeech(text, { lang });
-    // Short canned lines (fillers / retries) can be edge-cached; long replies stay fresh.
-    const cacheable = text.length <= 48;
+    // Constant lines (greeting / bye / miss / short acks) are edge-cached by
+    // exact URL; long unique replies stay fresh.
+    const cacheable = text.length <= 120;
     return new Response(audio, {
       status: 200,
       headers: {

@@ -3,6 +3,7 @@ import { dialHannaTwiml, hannaPausedTwiml } from "@/lib/twilio_twiml.ts";
 import { getGlobalHannaEnabled } from "@/lib/hanna_status.ts";
 
 export const dynamic = "force-dynamic";
+export const preferredRegion = "fra1";
 
 /** Twilio "A call comes in" webhook for the purchased DID (US demo → English). */
 export async function POST() {
