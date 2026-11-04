@@ -887,7 +887,9 @@ h1, h2, h3 {
   .footer-top { flex-direction: column; gap: 16px; }
   .site-nav { display: none; }
   .site-header-inner {
-    flex-wrap: nowrap;
+    /* Brand + sign-in + CTA + HU|EN + account controls overflow one row on
+       phones (EN labels are longest) — wrap instead of cutting off. */
+    flex-wrap: wrap;
     gap: 8px;
     padding: 10px 16px;
   }
@@ -909,6 +911,11 @@ h1, h2, h3 {
 }
 
 @media (max-width: 560px) {
+  .brand { font-size: 15px; }
+  .brand-dot { width: 10px; height: 10px; }
+  .header-cta { gap: 6px; }
+  .lang-switch a { padding: 3px 8px; font-size: 12px; }
+  .header-org-trigger { max-width: 150px; overflow: hidden; }
   .values { grid-template-columns: 1fr; }
   .owner-grid { grid-template-columns: 1fr; }
   .verticals { grid-template-columns: 1fr; }

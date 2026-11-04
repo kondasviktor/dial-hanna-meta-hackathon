@@ -71,6 +71,7 @@ intent must be exactly one of: ${INTENTS.join(", ")}.
 outcome must be exactly one of: ${OUTCOMES.join(", ")}.
 next_action.type must be exactly one of: ${NEXT_ACTIONS.join(", ")}.
 caller.language is hu|en. confidence is a number 0..1.
+next_action.type=call_back ONLY when the caller explicitly asked to be called back, or Hanna promised the owner will call back about an unanswered question. If Hanna answered the question — including "we don't offer X, but you can do Y" — that is outcome=answered and next_action.type=none. Never invent a callback the caller did not request.
 Always write both next_action summaries (summary_hu AND summary_en), even when next_action.type is none — one short sentence each, e.g. what was answered and that no follow-up is needed. Never leave a summary empty.`;
 }
 
