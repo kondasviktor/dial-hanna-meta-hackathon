@@ -93,7 +93,7 @@ export default async function Dashboard({
               <p className="muted">{en ? "No open follow-ups." : "Nincs nyitott teendő."}</p>
             )}
             {d.openActions.map((a) => (
-              <div key={a.id} className="todo">
+              <div key={a.id} className="todo todo-row">
                 <div>{en ? (a.summaryEn ?? a.summaryHu) : a.summaryHu}</div>
                 <FollowupButtons callId={a.id} status={a.status} lang={lang} action={setFollowupStatus} />
               </div>

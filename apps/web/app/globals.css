@@ -780,6 +780,16 @@ h1, h2, h3 {
   cursor: default;
 }
 .todo { padding: 12px 0; border-top: 1px solid var(--line); font-size: 15px; }
+.todo-row { display: flex; gap: 12px; align-items: flex-start; }
+.todo-row > div:first-child { flex: 1; min-width: 0; }
+.followup-ctl { display: inline-flex; gap: 6px; flex: none; }
+.icon-btn { width: 30px; height: 30px; display: inline-flex; align-items: center; justify-content: center; border-radius: 8px; border: 1px solid var(--line); background: #fff; color: #6b7280; cursor: pointer; padding: 0; }
+.icon-btn:hover:not(:disabled) { background: #f4f6f3; }
+.icon-btn:disabled { opacity: 0.5; cursor: default; }
+.icon-btn-done:hover:not(:disabled) { color: #15803d; border-color: #15803d; }
+.icon-btn-no:hover:not(:disabled) { color: #dc2626; border-color: #dc2626; }
+.icon-btn-done.on { background: #15803d; border-color: #15803d; color: #fff; }
+.icon-btn-no.on { background: #dc2626; border-color: #dc2626; color: #fff; }
 .todo:first-of-type { border-top: none; }
 .todo .due { display: block; font-size: 13px; color: var(--muted); }
 .gap-callout { background: #fff8ea; border: 1px solid #e8c87a; }

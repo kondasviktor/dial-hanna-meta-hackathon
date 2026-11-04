@@ -1,15 +1,14 @@
 "use client";
 
 import { useTransition } from "react";
-import { Check, RotateCcw, X } from "lucide-react";
+import { Check, X } from "lucide-react";
 import type { FollowupStatus } from "@/lib/outcomes.ts";
 
-const DOT: Record<FollowupStatus, string> = {
-  open: "#d97706",
-  done: "#15803d",
-  dismissed: "#dc2626",
-};
-
+/**
+ * Two icon-only actions, top-right of the follow-up tile.
+ * Filled icon = current state; clicking the other one sets it,
+ * clicking the filled one reopens. No text labels.
+ */
 export default function FollowupButtons({
   callId,
   status,
@@ -22,18 +21,10 @@ export default function FollowupButtons({
   action: (formData: FormData) => Promise<void>;
 }) {
   const [pending, start] = useTransition();
-  const label =
-    status === "done"
-      ? lang === "en"
-        ? "Done"
-        : "Elvégezve"
-      : status === "dismissed"
-        ? lang === "en"
-          ? "No action"
-          : "Nincs teendő"
-        : lang === "en"
-          ? "Pending"
-          : "Nyitott";
+  const t =
+    lang === "en"
+      ? { done: "Mark handled", noAction: "No action needed", reopen: "Reopen" }
+      : { done: "Késznek jelöl", noAction: "Nincs teendő", reopen: "Újranyit" };
   const set = (next: FollowupStatus) => {
     const fd = new FormData();
     fd.set("callId", callId);
@@ -42,56 +33,30 @@ export default function FollowupButtons({
       void action(fd);
     });
   };
+  const doneOn = status === "done";
+  const noOn = status === "dismissed";
   return (
-    <span style={{ display: "inline-flex", alignItems: "center", gap: 8, marginTop: 6 }}>
-      <span
-        style={{
-          display: "inline-flex",
-          alignItems: "center",
-          gap: 5,
-          fontSize: 13,
-          fontWeight: 600,
-          color: DOT[status],
-        }}
+    <span className="followup-ctl">
+      <button
+        type="button"
+        className={`icon-btn icon-btn-done${doneOn ? " on" : ""}`}
+        disabled={pending}
+        title={doneOn ? t.reopen : t.done}
+        aria-label={doneOn ? t.reopen : t.done}
+        onClick={() => set(doneOn ? "open" : "done")}
       >
-        <span
-          aria-hidden
-          style={{ width: 8, height: 8, borderRadius: "50%", background: DOT[status] }}
-        />
-        {label}
-      </span>
-      {status === "open" ? (
-        <>
-          <button
-            type="button"
-            className="btn btn-outline btn-sm"
-            disabled={pending}
-            onClick={() => set("done")}
-            title={lang === "en" ? "Mark handled" : "Késznek jelöl"}
-          >
-            <Check size={14} /> {lang === "en" ? "Done" : "Kész"}
-          </button>
-          <button
-            type="button"
-            className="btn btn-outline btn-sm"
-            disabled={pending}
-            onClick={() => set("dismissed")}
-            title={lang === "en" ? "No action needed" : "Nincs teendő"}
-          >
-            <X size={14} /> {lang === "en" ? "No action" : "Nem kell"}
-          </button>
-        </>
-      ) : (
-        <button
-          type="button"
-          className="btn btn-outline btn-sm"
-          disabled={pending}
-          onClick={() => set("open")}
-          title={lang === "en" ? "Reopen" : "Újranyitás"}
-        >
-          <RotateCcw size={14} /> {lang === "en" ? "Reopen" : "Újranyit"}
-        </button>
-      )}
+        <Check size={15} />
+      </button>
+      <button
+        type="button"
+        className={`icon-btn icon-btn-no${noOn ? " on" : ""}`}
+        disabled={pending}
+        title={noOn ? t.reopen : t.noAction}
+        aria-label={noOn ? t.reopen : t.noAction}
+        onClick={() => set(noOn ? "open" : "dismissed")}
+      >
+        <X size={15} />
+      </button>
     </span>
   );
 }

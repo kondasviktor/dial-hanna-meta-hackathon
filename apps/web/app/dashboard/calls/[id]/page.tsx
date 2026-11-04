@@ -34,7 +34,7 @@ export default async function CallDetail({
         {action ? ` · ${en ? "Next step: " : "Teendő: "}${action}` : ""}
       </p>
       {d.outcome && (
-        <p>
+        <p className="todo-row" style={{ borderTop: "none", paddingTop: 0, justifyContent: "flex-end" }}>
           <FollowupButtons
             callId={d.call.id}
             status={status}
