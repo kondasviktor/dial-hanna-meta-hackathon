@@ -74,6 +74,15 @@ export async function maybeLogKnowledgeGap(opts: {
 }): Promise<void> {
   const q = opts.question.trim();
   if (!q || q.length < 8) return;
+  // Skip corrections / non-questions (STT garbage) — owners should not see these as FAQs.
+  if (
+    /^(this is not|that('?s| is) not|i (said|asked)|nem (ezt|azt)|nem ezt kérdez|mondtam)/i.test(q) ||
+    !/[?]|(who|what|when|where|how|why|do you|can i|is there|are you|van-e|hány|mikor|hol|hogyan)/i.test(
+      q,
+    )
+  ) {
+    return;
+  }
   const s = opts.spoken.toLowerCase();
   const looksLikeGap =
     /note (it|that)|pass (it|this) (on|along)|owner|don'?t (have|know)|not sure|knowledge|callback|call you back|leave a message|írok|jegyz|tulajdonos|nem tudom|nem szerepel/i.test(

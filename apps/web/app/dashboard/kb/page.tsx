@@ -1,5 +1,5 @@
 import { redirect } from "next/navigation";
-import { asc, eq } from "drizzle-orm";
+import { and, asc, eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { getDb } from "@/db/client.ts";
 import { businessProfiles, faqs, knowledgeGaps, organizations } from "@/db/schema.ts";
@@ -9,6 +9,7 @@ import { requireAdmin, resolveOrgId } from "@/lib/org.ts";
 import { dashLangFromSearch } from "@/lib/dash_lang.ts";
 import ImportForm from "../../onboarding/import-form";
 import DeleteAllFaqsButton from "./delete-all-faqs";
+import DeleteGapButton from "./delete-gap-button";
 import FaqCard from "./faq-card";
 
 /** Translate Q&A into the other locale so HU/EN stay in sync after an owner edit. */
@@ -92,6 +93,25 @@ async function answerGap(formData: FormData) {
     status: "approved",
     approvedFaqId: inserted[0].id,
   }).where(eq(knowledgeGaps.id, gapId));
+  revalidatePath("/dashboard/kb");
+  revalidatePath("/dashboard/gaps");
+  revalidatePath("/dashboard");
+}
+
+/** Drop a junk / misheard gap — nothing useful to turn into an FAQ. */
+async function deleteGap(formData: FormData) {
+  "use server";
+  const admin = await requireAdmin();
+  if (!admin.ok) throw new Error("forbidden");
+  const orgRes = await resolveOrgId();
+  if (!orgRes.orgUuid) throw new Error("no-org");
+  const db = getDb();
+  if (!db) throw new Error("DATABASE_URL-unset");
+  const gapId = String(formData.get("gapId") ?? "");
+  if (!gapId) throw new Error("gap-missing");
+  await db
+    .delete(knowledgeGaps)
+    .where(and(eq(knowledgeGaps.id, gapId), eq(knowledgeGaps.orgId, orgRes.orgUuid)));
   revalidatePath("/dashboard/kb");
   revalidatePath("/dashboard/gaps");
   revalidatePath("/dashboard");
@@ -271,10 +291,13 @@ export default async function KnowledgeBasePage({
         importHelp:
           "Paste a website URL — we crawl key pages (menu, contact, prices) and draft Q&As for Hanna. No site? Add FAQs manually. Only approved answers go live.",
         gaps: "Open gaps",
-        gapsHelp: "What Hanna did not know — answer in one line and she will use it next time.",
+        gapsHelp:
+          "What Hanna did not know — answer in one line to make an FAQ, or delete junk / misheard items.",
         noGaps: "No open gaps.",
         answerPh: "One-line answer…",
         save: "Save",
+        deleteGap: "Delete",
+        deleteGapConfirm: "Delete this item? It will not become an FAQ.",
         manual: "Manual FAQ",
         qPh: "Question",
         aPh: "Answer",
@@ -299,10 +322,13 @@ export default async function KnowledgeBasePage({
         importHelp:
           "Illeszd be a weboldal címét — több oldalt is végigolvasunk (kínálat, kapcsolat, árak), és kérdés–válasz vázlatot készítünk Hannának. Nincs oldalad? Írd be kézzel. Csak a jóváhagyott válasz megy élőbe.",
         gaps: "Pótolandó válaszok",
-        gapsHelp: "Amit Hanna nem tudott: írd meg egy mondatban, és legközelebb már válaszol.",
+        gapsHelp:
+          "Amit Hanna nem tudott: írd meg egy mondatban FAQ-nak, vagy töröld a hibás / félrehallott tételeket.",
         noGaps: "Nincs nyitott kérdés.",
         answerPh: "Válasz egy mondatban…",
         save: "Mentés",
+        deleteGap: "Törlés",
+        deleteGapConfirm: "Töröljük ezt a tételt? Nem lesz belőle FAQ.",
         manual: "Kézi kérdés és válasz",
         qPh: "Kérdés",
         aPh: "Válasz",
@@ -400,6 +426,12 @@ export default async function KnowledgeBasePage({
                 {t.save}
               </button>
             </form>
+            <DeleteGapButton
+              gapId={g.id}
+              label={t.deleteGap}
+              confirmMessage={t.deleteGapConfirm}
+              action={deleteGap}
+            />
           </div>
         ))}
       </div>
