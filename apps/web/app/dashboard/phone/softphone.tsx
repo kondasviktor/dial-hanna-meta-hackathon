@@ -120,7 +120,7 @@ export default function Softphone({ did, lang = "hu" }: { did: string; lang?: So
     setStatus("connecting");
     setMessage(t.connecting);
     try {
-      const params: Record<string, string> = { To: did || "hanna" };
+      const params: Record<string, string> = { To: did || "hanna", Lang: lang };
       if (orgIdRef.current) params.OrgId = orgIdRef.current;
       const call = await device.connect({ params });
       callRef.current = call;
