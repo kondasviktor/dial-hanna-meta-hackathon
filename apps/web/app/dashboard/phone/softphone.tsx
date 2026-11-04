@@ -120,7 +120,9 @@ export default function Softphone({ did, lang = "hu" }: { did: string; lang?: So
     setStatus("connecting");
     setMessage(t.connecting);
     try {
-      const params: Record<string, string> = { To: did || "hanna", Lang: lang };
+      // Meta US softphone: always EN gather/TTS for latency + gap-loop tests.
+      // (Dashboard UI lang can stay HU; re-enable `lang` here for HU demos later.)
+      const params: Record<string, string> = { To: did || "hanna", Lang: "en" };
       if (orgIdRef.current) params.OrgId = orgIdRef.current;
       const call = await device.connect({ params });
       callRef.current = call;
