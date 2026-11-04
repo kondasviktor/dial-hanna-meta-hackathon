@@ -19,6 +19,15 @@ export const NEXT_ACTIONS = [
   "review_complaint", "send_quote",
 ] as const;
 
+/** Owner-managed follow-up states: pending, handled, or no action needed. */
+export const FOLLOWUP_STATUSES = ["open", "done", "dismissed"] as const;
+
+export type FollowupStatus = (typeof FOLLOWUP_STATUSES)[number];
+
+export function isFollowupStatus(v: unknown): v is FollowupStatus {
+  return typeof v === "string" && (FOLLOWUP_STATUSES as readonly string[]).includes(v);
+}
+
 export interface CallOutcome {
   intent: string;
   outcome: string;

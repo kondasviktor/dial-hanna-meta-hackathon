@@ -49,7 +49,12 @@ export async function getDashboard(clerkOrgId: string) {
   return {
     org: { id: org.id, name: org.name, plan: org.plan },
     todaysCalls: todaysCalls.length,
-    openActions: openActions.map((c) => ({ id: c.id, summaryHu: c.nextActionHu!, summaryEn: c.nextActionEn })),
+    openActions: openActions.map((c) => ({
+      id: c.id,
+      summaryHu: c.nextActionHu!,
+      summaryEn: c.nextActionEn,
+      status: "open" as const,
+    })),
     recent: shaped.slice(0, 10),
     gaps: openGaps.map((g) => ({ id: g.id, question: g.question, context: g.context, status: g.status })),
     live: live ? { id: live.id, status: live.status } : null,

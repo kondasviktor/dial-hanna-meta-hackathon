@@ -1,5 +1,8 @@
 import { dashLangFromSearch } from "@/lib/dash_lang.ts";
 import { getCallDetail } from "@/db/queries.ts";
+import { isFollowupStatus } from "@/lib/outcomes.ts";
+import FollowupButtons from "../../followup-buttons";
+import { setFollowupStatus } from "../../followup-actions";
 
 export default async function CallDetail({
   params,
@@ -17,6 +20,7 @@ export default async function CallDetail({
   }
   const na = (d.outcome?.nextAction ?? {}) as { type?: string; summary_hu?: string; summary_en?: string };
   const action = en ? (na.summary_en ?? na.summary_hu) : na.summary_hu;
+  const status = isFollowupStatus(d.outcome?.ownerStatus) ? d.outcome.ownerStatus : "open";
   return (
     <div style={{ maxWidth: 760, margin: "0 auto", padding: "32px 24px 96px", fontFamily: "system-ui, sans-serif", lineHeight: 1.6 }}>
       <p><a href={en ? "/dashboard?lang=en" : "/dashboard"}>{en ? "← Dashboard" : "← Irányítópult"}</a></p>
@@ -29,7 +33,16 @@ export default async function CallDetail({
         <strong>{d.outcome?.intent ?? "?"} → {d.outcome?.outcome ?? "?"}</strong>
         {action ? ` · ${en ? "Next step: " : "Teendő: "}${action}` : ""}
       </p>
-      <p className="muted small">{en ? "AI-generated summary, may contain errors." : "MI-generált összefoglaló, hibákat tartalmazhat."}</p>
+      {d.outcome && (
+        <p>
+          <FollowupButtons
+            callId={d.call.id}
+            status={status}
+            lang={en ? "en" : "hu"}
+            action={setFollowupStatus}
+          />
+        </p>
+      )}
       {d.bookings.length > 0 && (
         <>
           <h2 style={{ fontSize: 20 }}>{en ? "Bookings" : "Foglalások"}</h2>

@@ -3,6 +3,8 @@ import { redirect } from "next/navigation";
 import { getDashboard } from "@/db/queries.ts";
 import { dashLangFromSearch } from "@/lib/dash_lang.ts";
 import { requireAdmin, resolveOrgId } from "@/lib/org.ts";
+import FollowupButtons from "./followup-buttons";
+import { setFollowupStatus } from "./followup-actions";
 
 function withinDays(iso: string | null, days: number): boolean {
   if (!iso) return false;
@@ -92,7 +94,8 @@ export default async function Dashboard({
             )}
             {d.openActions.map((a) => (
               <div key={a.id} className="todo">
-                {en ? (a.summaryEn ?? a.summaryHu) : a.summaryHu}
+                <div>{en ? (a.summaryEn ?? a.summaryHu) : a.summaryHu}</div>
+                <FollowupButtons callId={a.id} status={a.status} lang={lang} action={setFollowupStatus} />
               </div>
             ))}
           </div>

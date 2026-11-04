@@ -4,6 +4,7 @@ import {
   INTENTS,
   NEXT_ACTIONS,
   OUTCOMES,
+  isFollowupStatus,
   outcomeSystemPrompt,
   validateOutcome,
 } from "../src/lib/outcomes.ts";
@@ -34,4 +35,14 @@ test("a canonical extraction validates cleanly", () => {
     confidence: 0.9,
   });
   assert.equal(ok, true, errors.join(","));
+});
+
+// Owner tri-state for follow-ups: only open/done/dismissed reach the DB.
+test("follow-up status accepts exactly the tri-state values", () => {
+  assert.equal(isFollowupStatus("open"), true);
+  assert.equal(isFollowupStatus("done"), true);
+  assert.equal(isFollowupStatus("dismissed"), true);
+  assert.equal(isFollowupStatus("pending"), false);
+  assert.equal(isFollowupStatus(""), false);
+  assert.equal(isFollowupStatus(null), false);
 });
