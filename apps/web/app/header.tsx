@@ -10,7 +10,7 @@ import {
   useClerk,
 } from "@clerk/nextjs";
 import { landing, waitlistHref } from "@/i18n/landing.ts";
-import { withDashLang } from "@/lib/dash_lang.ts";
+import { orgChangeTarget, withDashLang } from "@/lib/dash_lang.ts";
 import { localeHref } from "@/lib/locale_href.ts";
 
 const APP_SHELL = ["/dashboard", "/onboarding", "/create-org", "/waitlist"] as const;
@@ -156,6 +156,12 @@ function HeaderActions() {
             dashboard
           </Link>
           <OrganizationSwitcher
+            afterCreateOrganizationUrl={() =>
+              orgChangeTarget(window.location.pathname, window.location.search)
+            }
+            afterSelectOrganizationUrl={() =>
+              orgChangeTarget(window.location.pathname, window.location.search)
+            }
             appearance={{
               elements: {
                 rootBox: "header-org",

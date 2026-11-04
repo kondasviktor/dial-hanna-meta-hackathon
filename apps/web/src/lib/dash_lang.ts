@@ -14,6 +14,23 @@ export function dashLangFromSearch(
   return String(v ?? "").toLowerCase() === "en" ? "en" : "hu";
 }
 
+/**
+ * Where Clerk's org switcher should land after create/select: stay in the
+ * app shell, keep the dashboard language (?lang=en if set, or the /en
+ * marketing prefix). Never fall back to the HU landing page.
+ */
+export function orgChangeTarget(pathname: string, search: string): string {
+  const inShell = ["/dashboard", "/onboarding", "/create-org"].some(
+    (p) => pathname === p || pathname.startsWith(`${p}/`),
+  );
+  const en =
+    new URLSearchParams(search.replace(/^\?/, "")).get("lang")?.toLowerCase() === "en" ||
+    pathname === "/en" ||
+    pathname.startsWith("/en/");
+  const base = inShell ? pathname : "/dashboard";
+  return en ? `${base}?lang=en` : base;
+}
+
 /** Keep other query params; set or clear `lang`. */
 export function withDashLang(pathname: string, target: DashLang, currentSearch?: string): string {
   const path = (pathname.split("?")[0] || "/").split("#")[0];
