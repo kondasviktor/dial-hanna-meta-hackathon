@@ -76,10 +76,22 @@ async function answerGap(formData: FormData) {
   const db = getDb();
   if (!db) throw new Error("DATABASE_URL-unset");
   const gapId = String(formData.get("gapId") ?? "");
-  const answer = String(formData.get("answer") ?? "");
+  const answer = String(formData.get("answer") ?? "").trim();
+  const editedQuestion = String(formData.get("question") ?? "").trim();
   const gap = (await db.select().from(knowledgeGaps).where(eq(knowledgeGaps.id, gapId)).limit(1))[0];
   if (!gap) throw new Error("gap-not-found");
-  const draft = buildFaqDraft(gap.question, answer);
+  // Owners fix misheard questions (STT garble) before they become FAQs;
+  // a question-only save just corrects the inbox row.
+  const question = editedQuestion || gap.question;
+  if (editedQuestion && editedQuestion !== gap.question) {
+    await db.update(knowledgeGaps).set({ question }).where(eq(knowledgeGaps.id, gapId));
+  }
+  if (!answer) {
+    revalidatePath("/dashboard/kb");
+    revalidatePath("/dashboard");
+    return;
+  }
+  const draft = buildFaqDraft(question, answer);
   const inserted = await db.insert(faqs).values({
     orgId: gap.orgId,
     qHu: draft.qHu,
@@ -412,19 +424,26 @@ export default async function KnowledgeBasePage({
         {openGaps.length === 0 && <p className="muted">{t.noGaps}</p>}
         {openGaps.map((g) => (
           <div key={g.id} style={{ borderTop: "1px solid #e8c87a", padding: "12px 0" }}>
-            <strong>{g.question}</strong>
-            {g.context && <div className="muted small">{g.context}</div>}
-            <form action={answerGap} style={{ marginTop: 8, display: "flex", gap: 8, flexWrap: "wrap" }}>
+            <form action={answerGap} style={{ display: "grid", gap: 8 }}>
               <input type="hidden" name="gapId" value={g.id} />
               <input
-                name="answer"
-                required
-                placeholder={t.answerPh}
-                style={{ flex: 1, minWidth: 180, padding: 8 }}
+                name="question"
+                defaultValue={g.question}
+                aria-label={en ? "Question (editable — fix mishearings)" : "Kérdés (szerkeszthető — félrehallás javítása)"}
+                title={en ? "Fix a misheard question, then save" : "Félrehallott kérdés javítása, majd mentés"}
+                style={{ width: "100%", padding: 8, fontWeight: 600 }}
               />
-              <button type="submit" className="btn btn-primary btn-sm">
-                {t.save}
-              </button>
+              {g.context && <div className="muted small">{g.context}</div>}
+              <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+                <input
+                  name="answer"
+                  placeholder={t.answerPh}
+                  style={{ flex: 1, minWidth: 180, padding: 8 }}
+                />
+                <button type="submit" className="btn btn-primary btn-sm">
+                  {t.save}
+                </button>
+              </div>
             </form>
             <DeleteGapButton
               gapId={g.id}
