@@ -1,11 +1,22 @@
 import { NextResponse } from "next/server";
+import { chat, MODELS } from "@/lib/meta.ts";
 import { detectTtsLang, type TtsLang } from "@/lib/elevenlabs.ts";
-import { endCallSession, ensureCallSession, saveCallTurns } from "@/lib/call_memory.ts";
-import { loadKnowledge } from "@/lib/twilio_turn.ts";
-import { fillerThenThinkTwiml, replyTwiml } from "@/lib/twilio_twiml.ts";
+import {
+  endCallSession,
+  ensureCallSession,
+  saveCallTurns,
+  type CallTurn,
+} from "@/lib/call_memory.ts";
+import {
+  historyForLlm,
+  loadKnowledge,
+  maybeLogKnowledgeGap,
+  softphoneSystemPrompt,
+} from "@/lib/twilio_turn.ts";
+import { replyTwiml } from "@/lib/twilio_twiml.ts";
 
 export const dynamic = "force-dynamic";
-export const maxDuration = 30;
+export const maxDuration = 60;
 
 function callLang(req: Request, speech: string): TtsLang {
   const q = new URL(req.url).searchParams.get("lang")?.toLowerCase();
@@ -21,10 +32,7 @@ function isGoodbye(speech: string): boolean {
   );
 }
 
-/**
- * Twilio Gather callback — acknowledge immediately (filler), then Redirect to
- * /api/twilio/think so Spark+TTS work while the caller already hears Hanna.
- */
+/** Twilio Gather — SpeechResult + CallSid history → Spark → reply (no filler). */
 export async function POST(req: Request) {
   const t0 = Date.now();
   const url = new URL(req.url);
@@ -76,11 +84,19 @@ export async function POST(req: Request) {
     });
   }
 
-  // Persist the user turn now, then play filler while /think runs Spark.
   let orgId = orgFromQuery;
+  let spoken =
+    lang === "hu"
+      ? "Még beüzemelés alatt vagyok. Kérem, hagyjon üzenetet a tulajdonosnak, visszahívják."
+      : "I am still getting set up. Please leave a message for the owner and they will call you back.";
+
   try {
     const loaded = await loadKnowledge(orgFromQuery, toE164);
     orgId = loaded.orgId ?? orgFromQuery;
+    const replyLang = lang === "hu" ? "Hungarian" : "English";
+
+    let prior: CallTurn[] = [];
+    let callId: string | null = null;
     if (callSid && loaded.orgId) {
       const session = await ensureCallSession({
         callSid,
@@ -90,18 +106,58 @@ export async function POST(req: Request) {
         language: lang,
       });
       if (session) {
-        await saveCallTurns(session.callId, [
-          ...session.turns,
-          { role: "user", content: speech },
-        ]);
+        callId = session.callId;
+        prior = session.turns;
       }
     }
+
+    const turnsForLlm: CallTurn[] = [...prior, { role: "user", content: speech }];
+    const history = historyForLlm(turnsForLlm);
+
+    const tLlm = Date.now();
+    spoken = await chat({
+      model: MODELS.live,
+      reasoningEffort: "minimal",
+      maxTokens: 450,
+      messages: [
+        {
+          role: "system",
+          content: softphoneSystemPrompt(loaded.businessName, replyLang, loaded.knowledge),
+        },
+        ...history.map((t) => ({ role: t.role, content: t.content })),
+      ],
+    });
+    spoken = spoken.replace(/\s+/g, " ").trim().slice(0, 500);
+
+    if (callId) {
+      await saveCallTurns(callId, [
+        ...prior,
+        { role: "user", content: speech },
+        { role: "assistant", content: spoken },
+      ]);
+      if (loaded.orgId) {
+        await maybeLogKnowledgeGap({
+          orgId: loaded.orgId,
+          callId,
+          question: speech,
+          spoken,
+        });
+      }
+    }
+
+    console.log("twilio-gather-timing", {
+      llmMs: Date.now() - tLlm,
+      totalMs: Date.now() - t0,
+      orgId,
+      callId,
+      priorTurns: prior.length,
+      chars: spoken.length,
+    });
   } catch (e) {
-    console.error("gather-persist", e);
+    console.error("gather-spark", e, { totalMs: Date.now() - t0 });
   }
 
-  console.log("twilio-gather-ack", { totalMs: Date.now() - t0, orgId, callSid: callSid || null });
-  return new NextResponse(fillerThenThinkTwiml(lang, orgId), {
+  return new NextResponse(replyTwiml(spoken, true, lang, orgId), {
     headers: { "Content-Type": "text/xml; charset=utf-8" },
   });
 }
