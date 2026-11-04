@@ -1,6 +1,6 @@
 // Resolve the signed-in Clerk org → Neon organization row.
 
-import { auth, currentUser } from "@clerk/nextjs/server";
+import { auth, clerkClient, currentUser } from "@clerk/nextjs/server";
 import { desc, eq } from "drizzle-orm";
 import { getDb } from "@/db/client.ts";
 import {
@@ -10,6 +10,7 @@ import {
   phoneNumbers,
 } from "@/db/schema.ts";
 import { isAdminEmail } from "@/lib/admin.ts";
+import { isPlaceholderOrgName, orgNameToStore } from "@/lib/org_name.ts";
 import { provisionOrganization } from "@/lib/clerk_webhook.ts";
 
 export async function requireAdmin() {
@@ -35,9 +36,23 @@ export async function resolveOrgId(): Promise<{
   const db = getDb();
   if (!db) return { clerkOrgId: orgId, orgUuid: null, name: null, plan: null };
   let row = (await db.select().from(organizations).where(eq(organizations.clerkOrgId, orgId)).limit(1))[0];
+  // Source of truth for the display name is Clerk — the owner named the org
+  // there ("Carlo's Bakery"). Used for inline provisioning + healing rows
+  // that were provisioned earlier with a language-specific placeholder.
+  let clerkName: string | null = null;
+  try {
+    const client = await clerkClient();
+    const clerkOrg = await client.organizations.getOrganization({ organizationId: orgId });
+    clerkName = clerkOrg.name?.trim() || null;
+  } catch (e) {
+    console.error("clerk-org-name", e);
+  }
   if (!row) {
-    const id = await provisionOrganization(db, { id: orgId, name: "Vállalkozás" });
+    const id = await provisionOrganization(db, { id: orgId, name: orgNameToStore(clerkName) });
     row = (await db.select().from(organizations).where(eq(organizations.id, id)).limit(1))[0];
+  } else if (clerkName && isPlaceholderOrgName(row.name)) {
+    await db.update(organizations).set({ name: clerkName }).where(eq(organizations.id, row.id));
+    row = { ...row, name: clerkName };
   }
   return {
     clerkOrgId: orgId,
