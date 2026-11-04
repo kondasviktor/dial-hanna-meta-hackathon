@@ -15,6 +15,7 @@ import {
   softphoneSystemPrompt,
 } from "@/lib/twilio_turn.ts";
 import { finalizeCallOutcome } from "@/lib/finalize_call.ts";
+import { missOutcome, parseRetry } from "@/lib/gather_retry.ts";
 import { replyTwiml } from "@/lib/twilio_twiml.ts";
 
 export const dynamic = "force-dynamic";
@@ -57,12 +58,21 @@ export async function POST(req: Request) {
     callSid: callSid || null,
   });
 
+  const retry = parseRetry(url.searchParams.get("retry"));
   if (!speech) {
-    const retry =
+    // Consecutive misses ask again; only the last retry says goodbye.
+    if (missOutcome(retry) === "bye") {
+      const bye =
+        lang === "hu" ? "Köszönöm a hívást. Viszontlátásra!" : "Thanks for calling. Goodbye!";
+      return new NextResponse(replyTwiml(bye, false, lang, orgFromQuery), {
+        headers: { "Content-Type": "text/xml; charset=utf-8" },
+      });
+    }
+    const again =
       lang === "hu"
         ? "Nem hallottam semmit. Elmondaná újra?"
         : "I did not hear anything. Could you say that again?";
-    return new NextResponse(replyTwiml(retry, true, lang, orgFromQuery), {
+    return new NextResponse(replyTwiml(again, true, lang, orgFromQuery, retry + 1), {
       headers: { "Content-Type": "text/xml; charset=utf-8" },
     });
   }

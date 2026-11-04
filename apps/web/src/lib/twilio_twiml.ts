@@ -28,10 +28,11 @@ export function hannaPausedTwiml(lang: TtsLang = "en"): string {
 </Response>`;
 }
 
-function gatherActionUrl(lang: TtsLang, orgId?: string | null): string {
+function gatherActionUrl(lang: TtsLang, orgId?: string | null, retry = 1): string {
   const u = new URL(`${appBaseUrl()}/api/twilio/gather`);
   u.searchParams.set("lang", lang);
   if (orgId) u.searchParams.set("org", orgId);
+  u.searchParams.set("retry", String(retry));
   return u.toString();
 }
 
@@ -58,12 +59,8 @@ export function dialHannaTwiml(
     lang === "hu"
       ? "Jó napot, Hanna vagyok, a mesterséges intelligencia asszisztens. Miben segíthetek?"
       : "Hi, this is Hanna, the AI receptionist. How can I help you today?";
-  const miss =
-    lang === "hu"
-      ? "Elnézést, nem értettem. Viszontlátásra."
-      : "Sorry, I did not catch that. Goodbye for now.";
   const gatherLang = lang === "hu" ? "hu-HU" : "en-US";
-  const gather = gatherActionUrl(lang, opts?.orgId);
+  const gather = gatherActionUrl(lang, opts?.orgId, 1);
   const play = escapeXml(playUrl(greeting, lang));
 
   return `<?xml version="1.0" encoding="UTF-8"?>
@@ -71,7 +68,7 @@ export function dialHannaTwiml(
   <Play>${play}</Play>
   <Gather input="speech" language="${gatherLang}" action="${escapeXml(gather)}" method="POST" speechTimeout="1" timeout="4" speechModel="phone_call">
   </Gather>
-  <Play>${escapeXml(playUrl(miss, lang))}</Play>
+  <Redirect method="POST">${escapeXml(gatherActionUrl(lang, opts?.orgId, 1))}</Redirect>
 </Response>`;
 }
 
@@ -80,26 +77,25 @@ export function replyTwiml(
   continueGather = true,
   lang?: TtsLang,
   orgId?: string | null,
+  retry = 1,
 ): string {
   const l = lang ?? detectTtsLang(spoken);
-  const gather = gatherActionUrl(l, orgId);
+  const gather = gatherActionUrl(l, orgId, retry);
   const gatherLang = l === "hu" ? "hu-HU" : "en-US";
   const play = escapeXml(playUrl(spoken, l));
-  const bye =
-    l === "hu"
-      ? "Köszönjük a hívást. Viszontlátásra."
-      : "Thanks for calling. Goodbye.";
   if (!continueGather) {
     return `<?xml version="1.0" encoding="UTF-8"?>
 <Response>
   <Play>${play}</Play>
 </Response>`;
   }
+  // No-speech fall-through must loop back (ask again), never end the call:
+  // the gather route counts misses and says goodbye only on the last retry.
   return `<?xml version="1.0" encoding="UTF-8"?>
 <Response>
   <Play>${play}</Play>
   <Gather input="speech" language="${gatherLang}" action="${escapeXml(gather)}" method="POST" speechTimeout="1" timeout="4" speechModel="phone_call">
   </Gather>
-  <Play>${escapeXml(playUrl(bye, l))}</Play>
+  <Redirect method="POST">${escapeXml(gatherActionUrl(l, orgId, retry))}</Redirect>
 </Response>`;
 }
